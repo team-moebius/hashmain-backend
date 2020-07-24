@@ -5,7 +5,7 @@ COPY /gradle gradle
 COPY backend backend
 COPY /app app
 RUN chmod +x ./gradlew
-RUN ./gradlew clean build --exclude-task batch:build
+RUN ./gradlew clean build
 
 # Run
 FROM openjdk:8-jre-alpine
