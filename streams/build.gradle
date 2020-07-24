@@ -1,8 +1,0 @@
-apply plugin: 'org.springframework.boot'
-
-dependencies {
-    implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.apache.kafka:kafka-streams'
-    compile 'com.google.code.gson:gson:2.8.5'
-
-}
