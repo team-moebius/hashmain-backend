@@ -1,6 +1,3 @@
 rootProject.name = 'moebius'
 include 'backend'
-include 'batch'
 include 'app'
-include 'tracker'
-include 'streams'

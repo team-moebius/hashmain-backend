@@ -32,17 +32,15 @@ class EmailServiceTest extends Specification {
 			getVerificationCode() >> "720321"
 		}
 		1 * memberRepository.findByEmail(_ as String) >> Mono.just(member)
+		1 * emailSender.send(_ as MimeMessagePreparator)
 
-		when:
+		expect:
 		StepVerifier.create(emailService.requestToVerifyEmail(email))
 				.assertNext({
 					it != null
 					it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
-
-		then:
-		1 * emailSender.send(_ as MimeMessagePreparator)
 	}
 
 	def "Should verify email"() {
