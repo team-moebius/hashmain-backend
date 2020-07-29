@@ -10,5 +10,6 @@ RUN ./gradlew clean build
 # Run
 FROM openjdk:8-jre-alpine
 ENV ARTIFACT_PATH=app/build/libs/app-0.0.1-RELEASE.jar
+ENV JAVA_OPTS="-Xmx2048m –Xms2048m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+DisableExplicitGC -XX:+UseStringDeduplication"
 COPY --from=build $ARTIFACT_PATH app.jar
-ENTRYPOINT ["java", "-Xmx2048m –Xms2048m -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+DisableExplicitGC -XX:+UseStringDeduplication", "-Dspring.profiles.active=production", "-Dreactor.netty.http.server.accessLogEnabled=true", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-Dreactor.netty.http.server.accessLogEnabled=true", "-jar", "app.jar"]
