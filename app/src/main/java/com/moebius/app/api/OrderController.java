@@ -1,4 +1,4 @@
-package com.moebius.backend.api;
+package com.moebius.app.api;
 
 import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.dto.OrderDto;
