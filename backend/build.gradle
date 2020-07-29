@@ -1,9 +1,7 @@
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-security')
     implementation('org.springframework.boot:spring-boot-starter-mail')
     implementation('org.springframework.boot:spring-boot-starter-thymeleaf')
     implementation('org.springframework.boot:spring-boot-starter-cache')
-    implementation('org.springframework.data:spring-data-mongodb:2.2.1.RELEASE')
     implementation('org.springframework.kafka:spring-kafka')
     implementation('org.mongodb:mongodb-driver-reactivestreams')
     implementation('org.modelmapper:modelmapper:2.3.2')
@@ -11,15 +9,13 @@ dependencies {
     implementation('org.apache.commons:commons-math3:3.6.1')
     implementation('io.jsonwebtoken:jjwt-api:0.10.5')
     implementation('io.projectreactor.kafka:reactor-kafka:1.1.1.RELEASE')
-    implementation('io.springfox:springfox-swagger2:3.0.0-SNAPSHOT')
-    implementation('io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT')
     implementation('io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT')
+    implementation('com.auth0:java-jwt:3.7.0')
 
     runtime 'io.jsonwebtoken:jjwt-impl:0.10.5',
             // Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
             //'org.bouncycastle:bcprov-jdk15on:1.60',
             'io.jsonwebtoken:jjwt-jackson:0.10.5'
-    testImplementation('org.springframework.security:spring-security-test')
 }
 
 dependencyManagement {

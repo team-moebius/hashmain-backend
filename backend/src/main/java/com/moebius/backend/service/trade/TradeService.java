@@ -1,4 +1,4 @@
-package com.moebius.app.service;
+package com.moebius.backend.service.trade;
 
 import com.moebius.backend.service.kafka.consumer.TradeKafkaConsumer;
 import lombok.RequiredArgsConstructor;

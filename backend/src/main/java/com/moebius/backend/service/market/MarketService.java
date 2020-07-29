@@ -44,7 +44,7 @@ public class MarketService {
 
 	public void updateMarketPrice(TradeDto tradeDto) {
 		getMarketAndTradeMeta(tradeDto)
-			.onErrorResume(UncategorizedMongoDbException.class, exception -> getMarketAndTradeMeta(tradeDto))
+			.onErrorResume(UncategorizedMongoDbException.class, exception -> getMarketAndTradeMeta(tradeDto)) // is this correct?
 			.map(tuple -> marketAssembler.assembleUpdatedMarket(tuple.getT1(), tradeDto, tuple.getT2()))
 			.flatMap(marketRepository::save)
 			.subscribe();
@@ -110,6 +110,7 @@ public class MarketService {
 	}
 
 	// TODO : External api call should be moved to specific exchange service
+	// FIXME : This secret api is unstable, it causes mongodb transaction exception. So It will be removed after using tracker api
 	private Mono<UpbitTradeMetaDto> getTradeMeta(String symbol) {
 		return webClient.get()
 			.uri(secretUri + recentUri + symbol)

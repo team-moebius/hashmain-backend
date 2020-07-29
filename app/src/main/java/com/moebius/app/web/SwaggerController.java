@@ -1,4 +1,4 @@
-package com.moebius.app.controller;
+package com.moebius.app.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.moebius.backend.api;
+package com.moebius.app.api;
 
 import com.moebius.backend.dto.frontend.ApiKeyDto;
 import com.moebius.backend.dto.frontend.response.ApiKeyResponseDto;
