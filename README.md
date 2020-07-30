@@ -41,6 +41,7 @@ Moebius is a platform for supporting crypto currency trades conveniently, safely
 -Dreactor.netty.http.server.accessLogEnabled=true
 -Xmx2048m
 –Xms2048m
--XX:MaxNewSize=768m
--XX:MaxPermSize=256m
+-XX:+UseG1GC
+-XX:+DisableExplicitGC
+-XX:+UseStringDeduplication
 ```
