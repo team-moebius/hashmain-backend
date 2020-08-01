@@ -42,7 +42,7 @@ class EmailServiceTest extends Specification {
 					it != null
 					it.getStatusCode() == HttpStatus.OK
 				})
-				.thenAwait()
+				.thenAwait(Duration.ofSeconds(1))
 				.verifyComplete()
 	}
 
