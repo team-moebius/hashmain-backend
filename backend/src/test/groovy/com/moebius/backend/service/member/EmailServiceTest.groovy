@@ -12,6 +12,8 @@ import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
 
+import java.time.Duration
+
 class EmailServiceTest extends Specification {
 	def emailSender = Mock(JavaMailSender)
 	def memberRepository = Mock(MemberRepository)
@@ -40,6 +42,7 @@ class EmailServiceTest extends Specification {
 					it != null
 					it.getStatusCode() == HttpStatus.OK
 				})
+				.thenAwait()
 				.verifyComplete()
 	}
 
