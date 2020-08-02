@@ -14,7 +14,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 import java.security.Principal;
 
 @Configuration
-@EnableSwagger2WebFlux
 public class SwaggerConfiguration {
 
 	@Bean
