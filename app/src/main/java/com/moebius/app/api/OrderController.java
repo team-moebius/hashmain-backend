@@ -90,7 +90,7 @@ public class OrderController {
 		@ApiResponse(code = 400, message = "Api key or Exchange is wrong (not found)", response = DataNotFoundException.class),
 		@ApiResponse(code = 401, message = "Member is not verified", response = DataNotVerifiedException.class),
 	})
-	@GetMapping("/assets/exchanges/{exchange}")
+	@GetMapping("/assets/{exchange}")
 	public Mono<ResponseEntity<OrderAssetResponseDto>> getOrderAssets(Principal principal,
 		@PathVariable @NotBlank @ApiParam(value = "거래소", required = true) String exchange) {
 		return internalOrderService.getOrderAssets(principal.getName(), Exchange.getBy(exchange));
