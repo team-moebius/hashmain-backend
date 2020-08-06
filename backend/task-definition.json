@@ -1,0 +1,38 @@
+{
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "inferenceAccelerators": [],
+  "containerDefinitions": [
+    {
+      "name": "moebius-backend",
+      "image": "435149896473.dkr.ecr.ap-northeast-2.amazonaws.com/moebius/backend:latest",
+      "resourceRequirements": null,
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/moebius-backend",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "volumes": [],
+  "networkMode": "awsvpc",
+  "memory": "4096",
+  "cpu": "2048",
+  "executionRoleArn": "arn:aws:iam::435149896473:role/ecsTaskExecutionRole",
+  "family": "moebius-backend",
+  "taskRoleArn": "arn:aws:iam::435149896473:role/ecsTaskExecutionRole",
+  "placementConstraints": []
+}
+
