@@ -44,7 +44,7 @@ public class MarketService {
 
 	public void updateMarketPrice(TradeDto tradeDto) {
 		getMarketAndTradeMeta(tradeDto)
-			.onErrorResume(UncategorizedMongoDbException.class, exception -> getMarketAndTradeMeta(tradeDto)) // is this correct?
+			.onErrorResume(UncategorizedMongoDbException.class, exception -> getMarketAndTradeMeta(tradeDto))
 			.map(tuple -> marketAssembler.assembleUpdatedMarket(tuple.getT1(), tradeDto, tuple.getT2()))
 			.flatMap(marketRepository::save)
 			.subscribe();
