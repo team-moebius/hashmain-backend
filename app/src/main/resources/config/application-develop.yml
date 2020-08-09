@@ -15,6 +15,7 @@ moebius:
     all: /,
       /csrf,
       /static/**,
+      /actuator/**,
       /v2/api-docs,
       /swagger-ui/**,
       /swagger-resources/**,
