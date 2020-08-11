@@ -87,12 +87,13 @@ class MarketServiceTest extends Specification {
 		1 * marketRepository.findByExchangeAndSymbol(Exchange.UPBIT, "KRW-ETH") >> Mono.just(Stub(Market))
 		1 * marketRepository.save(_ as Market) >> Mono.just(Stub(Market))
 
-		when:
-		def result = marketService.updateMarkets(Exchange.UPBIT).block()
-
-		then:
-		result != null
-		result.getStatusCode() == HttpStatus.OK
+		expect:
+		StepVerifier.create(marketService.updateMarkets(Exchange.UPBIT))
+				.assertNext({
+					it != null
+					it.getStatusCode() == HttpStatus.OK
+				})
+				.verifyComplete()
 	}
 
 	def "Should get currency market prices"() {
