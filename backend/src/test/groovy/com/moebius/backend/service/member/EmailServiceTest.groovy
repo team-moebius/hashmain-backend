@@ -5,14 +5,11 @@ import com.moebius.backend.domain.members.MemberRepository
 import com.moebius.backend.dto.frontend.VerificationDto
 import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.mail.javamail.MimeMessagePreparator
 import org.thymeleaf.TemplateEngine
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
-
-import java.time.Duration
 
 class EmailServiceTest extends Specification {
 	def emailSender = Mock(JavaMailSender)
@@ -34,7 +31,6 @@ class EmailServiceTest extends Specification {
 			getVerificationCode() >> "720321"
 		}
 		1 * memberRepository.findByEmail(_ as String) >> Mono.just(member)
-		1 * emailSender.send(_ as MimeMessagePreparator)
 
 		expect:
 		StepVerifier.create(emailService.requestToVerifyEmail(email))
@@ -42,8 +38,8 @@ class EmailServiceTest extends Specification {
 					it != null
 					it.getStatusCode() == HttpStatus.OK
 				})
-				.thenAwait(Duration.ofSeconds(1))
 				.verifyComplete()
+
 	}
 
 	def "Should verify email"() {
