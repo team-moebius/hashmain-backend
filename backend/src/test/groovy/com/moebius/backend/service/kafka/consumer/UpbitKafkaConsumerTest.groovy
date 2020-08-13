@@ -10,7 +10,7 @@ import reactor.kafka.receiver.ReceiverRecord
 import spock.lang.Specification
 import spock.lang.Subject
 
-class TradeKafkaConsumerTest extends Specification {
+class UpbitKafkaConsumerTest extends Specification {
 	def exchangeOrderService = Mock(ExchangeOrderService)
 	def marketService = Mock(MarketService)
 	def receiverRecord = Stub(ReceiverRecord) {
@@ -19,7 +19,7 @@ class TradeKafkaConsumerTest extends Specification {
 	}
 
 	@Subject
-	def tradeKafkaConsumer = new TradeKafkaConsumer([:], exchangeOrderService, marketService)
+	def tradeKafkaConsumer = new UpbitKafkaConsumer([:], exchangeOrderService, marketService)
 
 	def "Should consume messages"() {
 		when:

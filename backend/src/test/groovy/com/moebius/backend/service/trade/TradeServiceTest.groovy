@@ -1,12 +1,12 @@
 package com.moebius.backend.service.trade
 
-import com.moebius.backend.service.kafka.consumer.TradeKafkaConsumer
+import com.moebius.backend.service.kafka.consumer.UpbitKafkaConsumer
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeKafkaConsumer = Mock(TradeKafkaConsumer)
+	def tradeKafkaConsumer = Mock(UpbitKafkaConsumer)
 
 	@Subject
 	def tradeService = new TradeService(tradeKafkaConsumer)

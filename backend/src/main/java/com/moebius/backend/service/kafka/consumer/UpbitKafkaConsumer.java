@@ -14,12 +14,12 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class TradeKafkaConsumer extends KafkaConsumer<String, TradeDto> {
+public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 	private static final String TRADE_KAFKA_TOPIC = "moebius.trade.upbit";
 	private final ExchangeOrderService exchangeOrderService;
 	private final MarketService marketService;
 
-	public TradeKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService) {
+	public UpbitKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService) {
 		super(receiverDefaultProperties);
 		this.exchangeOrderService = exchangeOrderService;
 		this.marketService = marketService;
