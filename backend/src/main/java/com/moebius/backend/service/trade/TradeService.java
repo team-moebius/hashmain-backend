@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TradeService implements ApplicationListener<ApplicationReadyEvent> {
-	private final UpbitKafkaConsumer tradeKafkaConsumer;
+	private final UpbitKafkaConsumer upbitKafkaConsumer;
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
-		tradeKafkaConsumer.consumeMessages();
+		upbitKafkaConsumer.consumeMessages();
 	}
 }
