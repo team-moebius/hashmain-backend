@@ -57,6 +57,11 @@ exchange:
       hash-algorithm: SHA-512
       charset: UTF-8
 
+moebius:
+  data:
+    host: data-api.hashmainpro.com
+    port: 8080
+
 server:
   port: 80
 

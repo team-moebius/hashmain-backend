@@ -77,7 +77,7 @@ class MarketServiceTest extends Specification {
 		1 * webClient.get() >> uriSpec
 		1 * uriSpec.uri(_ as String) >> uriSpec
 		1 * uriSpec.retrieve() >> responseSpec
-		1 * responseSpec.bodyToMono(MarketsDto.class) >> Mono.just(Stub(MarketsDto))
+		1 * responseSpec.bodyToMono(MarketsDto.class) >  > Mono.just(Stub(MarketsDto))
 		1 * marketAssembler.assembleMarkets(_ as Exchange, _ as MarketsDto) >> [buildMarket("KRW-BTC"), buildMarket("KRW-ETH"), buildMarket("BTC-ETH")]
 		1 * marketAssembler.assembleMarket(Exchange.UPBIT, "KRW-BTC") >> Stub(Market) {
 			getExchange() >> Exchange.UPBIT
