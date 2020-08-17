@@ -4,7 +4,7 @@ import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.orders.Order
 import com.moebius.backend.domain.orders.OrderPosition
 import com.moebius.backend.domain.orders.OrderRepository
-import com.moebius.backend.dto.TradeDto
+import com.moebius.backend.dto.trade.TradeDto
 import reactor.core.publisher.Flux
 import reactor.test.StepVerifier
 import spock.lang.Specification

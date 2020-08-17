@@ -6,7 +6,7 @@ import com.moebius.backend.assembler.exchange.UpbitAssembler;
 import com.moebius.backend.domain.apikeys.ApiKey;
 import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.domain.orders.Order;
-import com.moebius.backend.dto.OrderStatusDto;
+import com.moebius.backend.dto.order.OrderStatusDto;
 import com.moebius.backend.dto.exchange.AssetDto;
 import com.moebius.backend.dto.exchange.upbit.UpbitAssetDto;
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderStatusDto;

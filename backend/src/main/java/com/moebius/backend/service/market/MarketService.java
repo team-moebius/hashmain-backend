@@ -4,7 +4,7 @@ import com.moebius.backend.assembler.MarketAssembler;
 import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.domain.markets.Market;
 import com.moebius.backend.domain.markets.MarketRepository;
-import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.dto.exchange.MarketsDto;
 import com.moebius.backend.dto.exchange.upbit.UpbitTradeMetaDto;
 import com.moebius.backend.dto.frontend.response.MarketResponseDto;

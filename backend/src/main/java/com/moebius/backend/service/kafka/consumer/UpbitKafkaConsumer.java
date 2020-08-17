@@ -1,6 +1,6 @@
 package com.moebius.backend.service.kafka.consumer;
 
-import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.order.ExchangeOrderService;
 import lombok.extern.slf4j.Slf4j;

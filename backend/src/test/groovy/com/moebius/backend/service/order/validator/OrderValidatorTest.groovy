@@ -3,7 +3,7 @@ package com.moebius.backend.service.order.validator
 import com.moebius.backend.domain.commons.EventType
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.orders.OrderPosition
-import com.moebius.backend.dto.OrderDto
+import com.moebius.backend.dto.order.OrderDto
 import com.moebius.backend.exception.WrongDataException
 import spock.lang.Shared
 import spock.lang.Specification

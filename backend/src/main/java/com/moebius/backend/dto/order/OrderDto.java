@@ -1,4 +1,4 @@
-package com.moebius.backend.dto;
+package com.moebius.backend.dto.order;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.moebius.backend.domain.commons.EventType;

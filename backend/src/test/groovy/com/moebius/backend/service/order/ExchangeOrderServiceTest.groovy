@@ -9,9 +9,9 @@ import com.moebius.backend.domain.orders.Order
 import com.moebius.backend.domain.orders.OrderRepository
 import com.moebius.backend.domain.orders.OrderStatus
 import com.moebius.backend.domain.orders.OrderStatusCondition
-import com.moebius.backend.dto.OrderDto
-import com.moebius.backend.dto.OrderStatusDto
-import com.moebius.backend.dto.TradeDto
+import com.moebius.backend.dto.order.OrderDto
+import com.moebius.backend.dto.order.OrderStatusDto
+import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.exchange.ExchangeService
 import com.moebius.backend.service.exchange.ExchangeServiceFactory
 import com.moebius.backend.service.member.ApiKeyService
