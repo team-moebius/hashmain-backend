@@ -59,8 +59,11 @@ exchange:
 
 moebius:
   data:
-    host: data-api.hashmainpro.com
+    host: http://data-api.hashmainpro.com
     port: 8080
+    rest:
+      trade-histories: /trade-histories
+      aggregated-trade-histories: /trade-histories/aggregated
 
 server:
   port: 80

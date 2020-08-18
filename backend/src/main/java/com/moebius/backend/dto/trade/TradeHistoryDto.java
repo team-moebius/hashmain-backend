@@ -2,6 +2,7 @@ package com.moebius.backend.dto.trade;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
@@ -15,8 +16,9 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@Builder(builderClassName = "TradeHistoryDtoBuilder")
 @ToString
+@JsonDeserialize(builder = TradeHistoryDto.TradeHistoryDtoBuilder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeHistoryDto {
 	private Exchange exchange;
@@ -30,4 +32,7 @@ public class TradeHistoryDto {
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime createdAt;
+
+	@JsonPOJOBuilder(withPrefix = "")
+	public static class TradeHistoryDtoBuilder { }
 }
