@@ -40,8 +40,8 @@ spring:
             enable: true
 
 slack:
-  webhook-url:
-    upbit: https://hooks.slack.com/services/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
+  web-hook-url:
+    trade: https://hooks.slack.com/services/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
 
 
 exchange:
