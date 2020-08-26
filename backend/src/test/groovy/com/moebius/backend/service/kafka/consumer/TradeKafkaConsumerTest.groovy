@@ -19,7 +19,7 @@ class TradeKafkaConsumerTest extends Specification {
 	}
 
 	@Subject
-	def tradeKafkaConsumer = new TradeKafkaConsumer([:], exchangeOrderService, marketService)
+	def tradeKafkaConsumer = new TradeKafkaConsumer([:], exchangeOrderService, marketService, tradeSlackSender)
 
 	def "Should consume messages"() {
 		when:
