@@ -1,5 +1,6 @@
 package com.moebius.backend.service.kafka.consumer;
 
+import com.moebius.backend.dto.SlackMessageDto;
 import com.moebius.backend.dto.TradeDto;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.order.ExchangeOrderService;
@@ -42,6 +43,7 @@ public class TradeKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		exchangeOrderService.updateOrderStatus(tradeDto);
 		exchangeOrderService.orderWithTradeDto(tradeDto);
 		marketService.updateMarketPrice(tradeDto);
+		tradeSlackSender.sendMessage(SlackMessageDto.builder().build());
 
 		offset.acknowledge();
 	}
