@@ -1,10 +1,8 @@
 package com.moebius.backend.service.kafka.consumer;
 
-import com.moebius.backend.dto.SlackMessageDto;
 import com.moebius.backend.dto.TradeDto;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.order.ExchangeOrderService;
-import com.moebius.backend.service.slack.TradeSlackSender;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -20,14 +18,11 @@ public class TradeKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 	private static final String TRADE_KAFKA_TOPIC = "moebius.trade.upbit";
 	private final ExchangeOrderService exchangeOrderService;
 	private final MarketService marketService;
-	private final TradeSlackSender tradeSlackSender;
 
-	public TradeKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService,
-		TradeSlackSender tradeSlackSender) {
+	public TradeKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService) {
 		super(receiverDefaultProperties);
 		this.exchangeOrderService = exchangeOrderService;
 		this.marketService = marketService;
-		this.tradeSlackSender = tradeSlackSender;
 	}
 
 	@Override
@@ -43,7 +38,6 @@ public class TradeKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		exchangeOrderService.updateOrderStatus(tradeDto);
 		exchangeOrderService.orderWithTradeDto(tradeDto);
 		marketService.updateMarketPrice(tradeDto);
-		tradeSlackSender.sendMessage(SlackMessageDto.builder().build());
 
 		offset.acknowledge();
 	}
