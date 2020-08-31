@@ -1,4 +1,4 @@
-package com.moebius.backend.dto;
+package com.moebius.backend.dto.slack;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
