@@ -54,7 +54,7 @@ public class MarketAssembler {
 	public Map<String, Double> assembleCurrencyMarketPrices(List<Market> markets) {
 		return markets.stream()
 			.filter(Objects::nonNull)
-			.collect(Collectors.toMap(market -> orderUtil.getCurrencyBySymbol(market.getSymbol()), Market::getCurrentPrice));
+			.collect(Collectors.toMap(market -> orderUtil.getTargetCurrencyBySymbol(market.getSymbol()), Market::getCurrentPrice));
 	}
 
 	public Market assembleUpdatedMarket(Market market, TradeDto tradeDto, UpbitTradeMetaDto tradeMetaDto) {

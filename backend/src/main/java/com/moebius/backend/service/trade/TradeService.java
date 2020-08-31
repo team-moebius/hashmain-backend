@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
+
 @Service
 @RequiredArgsConstructor
 public class TradeService implements ApplicationListener<ApplicationReadyEvent> {
@@ -23,16 +25,17 @@ public class TradeService implements ApplicationListener<ApplicationReadyEvent> 
 	}
 
 	public void identifyValidTrade(TradeDto tradeDto) {
-
+		getOrderWhenIdentifyValidTrade(tradeDto)
+			.subscribeOn(COMPUTE.scheduler())
+			.subscribe();
 	}
 
 	private Mono<OrderDto> getOrderWhenIdentifyValidTrade(TradeDto tradeDto) {
 		double changeRate = Precision.round(tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1, 4) * 100;
 
-		if (changeRate >= 2.0f) {
-
-		} else if (changeRate <= -2.0f) {
-
+		if (changeRate >= 2.0f ||
+			changeRate <= -2.0f) {
+			// tradeSlackSender.sendMessage(); FIXME : call to data api.
 		}
 
 		return Mono.empty();
