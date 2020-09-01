@@ -10,7 +10,7 @@ Moebius is a platform for supporting crypto currency trades conveniently, safely
 * Support user Information management with email verification.
 
 ## Architecture & Technical specification
-![Architecture](https://user-images.githubusercontent.com/15190229/68171840-beb35580-ffb8-11e9-8084-dbfab6431819.png)
+![Architecture](https://github.com/knunu/diagram/blob/master/Moebius%20architecture-Phase%204%20(latest).png?raw=false)
 ### Front Layer
 
 1. Service Frontend
