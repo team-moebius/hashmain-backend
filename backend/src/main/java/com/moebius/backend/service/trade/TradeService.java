@@ -18,6 +18,7 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 public class TradeService implements ApplicationListener<ApplicationReadyEvent> {
 	private final TradeKafkaConsumer tradeKafkaConsumer;
 	private final TradeSlackSender tradeSlackSender;
+	private final TradeAssembler tradeAssembler;
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -35,7 +36,8 @@ public class TradeService implements ApplicationListener<ApplicationReadyEvent> 
 
 		if (changeRate >= 2.0f ||
 			changeRate <= -2.0f) {
-			// tradeSlackSender.sendMessage(); FIXME : call to data api.
+
+//			 tradeSlackSender.sendMessage(); FIXME : call to data api.
 		}
 
 		return Mono.empty();
