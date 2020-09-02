@@ -1,7 +1,9 @@
 package com.moebius.backend.service.trade;
 
+import com.moebius.backend.assembler.TradeAssembler;
 import com.moebius.backend.dto.OrderDto;
 import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.service.kafka.consumer.TradeKafkaConsumer;
 import com.moebius.backend.service.slack.TradeSlackSender;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,8 @@ public class TradeService implements ApplicationListener<ApplicationReadyEvent> 
 		if (changeRate >= 2.0f ||
 			changeRate <= -2.0f) {
 
-//			 tradeSlackSender.sendMessage(); FIXME : call to data api.
+			TradeSlackDto slackDto = tradeAssembler.assembleSlackDto(tradeDto, changeRate);
+			tradeSlackSender.sendMessage(slackDto);
 		}
 
 		return Mono.empty();
