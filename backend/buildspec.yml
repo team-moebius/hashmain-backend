@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  variables:
+    LC_ALL: C.UTF-8
+
 phases:
   install:
     runtime-versions:
