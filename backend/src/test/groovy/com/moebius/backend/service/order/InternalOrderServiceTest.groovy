@@ -60,14 +60,14 @@ class InternalOrderServiceTest extends Specification {
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.DELETE, "KRW-BTC", OrderPosition.SALE, 1)] as List
 
 		1 * orderValidator.validate(orderDtos)
-		apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
-		orderAssembler.assembleReadyOrder(_ as ApiKey, _ as OrderDto) >> Stub(Order)
-		orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
-		marketService.getCurrentPrice(_ as Exchange, _ as String) >> Mono.just(10000000D)
-		orderUtil.isOrderRequestNeeded(_ as Order, 10000000D) >> IS_ORDER_REQEUEST_NEEDED
+		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
+		1 * orderAssembler.assembleReadyOrder(_ as ApiKey, _ as OrderDto) >> Stub(Order)
+		1 * orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
+		1 * marketService.getCurrentPrice(_ as Exchange, _ as String) >> Mono.just(10000000D)
+		1 * orderUtil.isOrderRequestNeeded(_ as Order, 10000000D) >> IS_ORDER_REQEUEST_NEEDED
 		EXCHANGE_ORDER_COUNT * exchangeOrderService.order(_ as ApiKey, _ as Order)
-		orderRepository.deleteById(_ as ObjectId) >> Mono.empty()
-		orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
+		1 * orderRepository.deleteById(_ as ObjectId) >> Mono.empty()
+		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 
 		expect:
 		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
