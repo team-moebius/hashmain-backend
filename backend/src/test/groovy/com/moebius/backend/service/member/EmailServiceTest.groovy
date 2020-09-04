@@ -5,7 +5,6 @@ import com.moebius.backend.domain.members.MemberRepository
 import com.moebius.backend.dto.frontend.VerificationDto
 import org.springframework.http.HttpStatus
 import org.springframework.mail.javamail.JavaMailSender
-import org.springframework.mail.javamail.MimeMessagePreparator
 import org.thymeleaf.TemplateEngine
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -32,7 +31,6 @@ class EmailServiceTest extends Specification {
 			getVerificationCode() >> "720321"
 		}
 		1 * memberRepository.findByEmail(_ as String) >> Mono.just(member)
-		1 * emailSender.send(_ as MimeMessagePreparator)
 
 		expect:
 		StepVerifier.create(emailService.requestToVerifyEmail(email))
