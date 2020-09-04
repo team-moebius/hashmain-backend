@@ -1,9 +1,13 @@
 version: 0.2
 
+env:
+  variables:
+    LC_ALL: C.UTF-8
+
 phases:
   install:
     runtime-versions:
-      java: corretto11
+      java: corretto8
       docker: 18
   pre_build:
     commands:
