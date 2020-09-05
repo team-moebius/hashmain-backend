@@ -17,7 +17,6 @@ public abstract class SlackSender<D> {
 
 	public final void sendMessage(D messageSource) {
 		SlackMessageDto message = getMessage(messageSource);
-		log.info("[Slack] Start to send slack message [{}]", message);
 
 		webClient.post()
 			.uri(getWebHookUrl())

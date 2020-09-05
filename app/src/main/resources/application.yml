@@ -17,7 +17,7 @@ spring:
     client-id: moebius
     consumer:
       client-id: moebius-consumer
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       group-id: moebius-consumer
     jaas:
       login-module: org.apache.kafka.common.security.plain.PlainLoginModule
