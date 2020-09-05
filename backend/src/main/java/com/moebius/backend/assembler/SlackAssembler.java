@@ -33,7 +33,7 @@ public class SlackAssembler {
 				.color(tradeSlackDto.getUpdatedChangeRate() > 0f ? "#d60000" : "#0051C7")
 				.authorName(symbol)
 				.authorLink(upbitBase + symbol)
-				.text("Heavy trades occurred at" + tradeDto.getCreatedAt())
+				.text("[" + symbol + "] Heavy trades occurred at " + tradeDto.getCreatedAt())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total ask volume")
 						.value(formatter.format(tradeSlackDto.getTotalAskVolume()) + targetCurrency)
