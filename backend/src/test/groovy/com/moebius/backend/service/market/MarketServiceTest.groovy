@@ -79,13 +79,13 @@ class MarketServiceTest extends Specification {
 		1 * uriSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToMono(MarketsDto.class) >> Mono.just(Stub(MarketsDto))
 		1 * marketAssembler.assembleMarkets(_ as Exchange, _ as MarketsDto) >> [buildMarket("KRW-BTC"), buildMarket("KRW-ETH"), buildMarket("BTC-ETH")]
-		1 * marketAssembler.assembleMarket(Exchange.UPBIT, "KRW-BTC") >> Stub(Market) {
+		marketAssembler.assembleMarket(Exchange.UPBIT, "KRW-BTC") >> Stub(Market) {
 			getExchange() >> Exchange.UPBIT
 			getSymbol() >> "KRW-BTC"
 		}
-		1 * marketRepository.findByExchangeAndSymbol(Exchange.UPBIT, "KRW-BTC") >> Mono.empty()
-		1 * marketRepository.findByExchangeAndSymbol(Exchange.UPBIT, "KRW-ETH") >> Mono.just(Stub(Market))
-		1 * marketRepository.save(_ as Market) >> Mono.just(Stub(Market))
+		marketRepository.findByExchangeAndSymbol(Exchange.UPBIT, "KRW-BTC") >> Mono.empty()
+		marketRepository.findByExchangeAndSymbol(Exchange.UPBIT, "KRW-ETH") >> Mono.just(Stub(Market))
+		marketRepository.save(_ as Market) >> Mono.just(Stub(Market))
 
 		expect:
 		StepVerifier.create(marketService.updateMarkets(Exchange.UPBIT))

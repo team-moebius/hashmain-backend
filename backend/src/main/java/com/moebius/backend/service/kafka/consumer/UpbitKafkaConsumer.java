@@ -3,6 +3,7 @@ package com.moebius.backend.service.kafka.consumer;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.order.ExchangeOrderService;
+import com.moebius.backend.service.trade.TradeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -18,11 +19,14 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 	private static final String TRADE_KAFKA_TOPIC = "moebius.trade.upbit";
 	private final ExchangeOrderService exchangeOrderService;
 	private final MarketService marketService;
+	private final TradeService tradeService;
 
-	public UpbitKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService) {
+	public UpbitKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService, MarketService marketService,
+		TradeService tradeService) {
 		super(receiverDefaultProperties);
 		this.exchangeOrderService = exchangeOrderService;
 		this.marketService = marketService;
+		this.tradeService = tradeService;
 	}
 
 	@Override
@@ -35,6 +39,7 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		ReceiverOffset offset = record.receiverOffset();
 		TradeDto tradeDto = record.value();
 
+		tradeService.identifyValidTrade(tradeDto);
 		exchangeOrderService.updateOrderStatus(tradeDto);
 		exchangeOrderService.orderWithTradeDto(tradeDto);
 		marketService.updateMarketPrice(tradeDto);

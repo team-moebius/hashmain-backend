@@ -24,7 +24,7 @@ public class OrderAssetAssembler {
 		Map<String, List<OrderDto>> currencyOrdersMap = new HashMap<>();
 
 		orders.forEach(order ->
-			currencyOrdersMap.compute(orderUtil.getCurrencyBySymbol(order.getSymbol()),
+			currencyOrdersMap.compute(orderUtil.getTargetCurrencyBySymbol(order.getSymbol()),
 				(currency, sameCurrencyOrders) -> {
 					if (sameCurrencyOrders == null) {
 						List<OrderDto> newCurrencyOrders = new ArrayList<>();
@@ -41,12 +41,12 @@ public class OrderAssetAssembler {
 	public OrderAssetDto assembleOrderAssetDto(List<OrderDto> sameSymbolOrders, AssetDto asset, double currentPrice) {
 		if (asset == null || currentPrice == 0D) {
 			return OrderAssetDto.builder()
-				.currency(orderUtil.getCurrencyBySymbol(sameSymbolOrders.get(0).getSymbol()))
+				.currency(orderUtil.getTargetCurrencyBySymbol(sameSymbolOrders.get(0).getSymbol()))
 				.orderStatus(identifyOrderStatus(sameSymbolOrders))
 				.build();
 		}
 		return OrderAssetDto.builder()
-			.currency(orderUtil.getCurrencyBySymbol(sameSymbolOrders.get(0).getSymbol()))
+			.currency(orderUtil.getTargetCurrencyBySymbol(sameSymbolOrders.get(0).getSymbol()))
 			.averagePurchasePrice(asset.getAveragePurchasePrice())
 			.balance(asset.getBalance())
 			.tradePrice(asset.getAveragePurchasePrice() * asset.getBalance())

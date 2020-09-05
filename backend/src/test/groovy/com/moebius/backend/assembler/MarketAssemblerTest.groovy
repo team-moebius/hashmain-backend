@@ -72,7 +72,7 @@ class MarketAssemblerTest extends Specification {
 		def result = marketAssembler.assembleCurrencyMarketPrices([krwBtcMarket, krwEthMarket])
 
 		then:
-		2 * orderUtil.getCurrencyBySymbol(_ as String)
+		2 * orderUtil.getTargetCurrencyBySymbol(_ as String)
 
 		result instanceof Map
 		result.size() == 2

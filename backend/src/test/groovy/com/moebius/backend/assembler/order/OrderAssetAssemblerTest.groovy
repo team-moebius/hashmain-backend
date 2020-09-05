@@ -26,9 +26,9 @@ class OrderAssetAssemblerTest extends Specification {
 	def "Should assemble currency to order dtos"() {
 		given:
 		def orders = [krwBtcOrder, krwBtcOrder, krwEthOrder, krwEthOrder, krwXrpOrder]
-		2 * orderUtil.getCurrencyBySymbol("KRW-BTC") >> "BTC"
-		2 * orderUtil.getCurrencyBySymbol("KRW-ETH") >> "ETH"
-		1 * orderUtil.getCurrencyBySymbol("KRW-XRP") >> "XRP"
+		2 * orderUtil.getTargetCurrencyBySymbol("KRW-BTC") >> "BTC"
+		2 * orderUtil.getTargetCurrencyBySymbol("KRW-ETH") >> "ETH"
+		1 * orderUtil.getTargetCurrencyBySymbol("KRW-XRP") >> "XRP"
 
 		when:
 		def result = orderAssetAssembler.assembleCurrencyToOrderDtos(orders)
@@ -44,7 +44,7 @@ class OrderAssetAssemblerTest extends Specification {
 		def asset = ASSET
 		def currentPrice = CURRENT_PRICE
 
-		1 * orderUtil.getCurrencyBySymbol(_ as String) >> "BTC"
+		1 * orderUtil.getTargetCurrencyBySymbol(_ as String) >> "BTC"
 
 		when:
 		def result = orderAssetAssembler.assembleOrderAssetDto(orders, asset, currentPrice)

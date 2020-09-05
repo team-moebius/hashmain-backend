@@ -19,7 +19,7 @@ class OrderUtilTest extends Specification {
 
 	def "Should get currency by symbol"() {
 		expect:
-		orderUtil.getCurrencyBySymbol("KRW-BTC") == "BTC"
+		orderUtil.getTargetCurrencyBySymbol("KRW-BTC") == "BTC"
 	}
 
 	def "Should check order request needed"() {

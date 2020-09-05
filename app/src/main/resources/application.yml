@@ -24,7 +24,6 @@ spring:
       options:
         username: moebius
         password: VVbRzWYK4OHE
-
   thymeleaf:
     reactive:
       max-chunk-size: 8192
@@ -39,6 +38,10 @@ spring:
           auth: true
           starttls:
             enable: true
+
+slack:
+  web-hook-url:
+    trade: https://hooks.slack.com/services/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
 
 exchange:
   upbit:
@@ -56,6 +59,8 @@ exchange:
     message-digest:
       hash-algorithm: SHA-512
       charset: UTF-8
+    exchange:
+      base: https://upbit.com/exchange?code=CRIX.UPBIT.
 
 moebius:
   data:

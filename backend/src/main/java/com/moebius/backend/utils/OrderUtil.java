@@ -14,10 +14,15 @@ import java.util.stream.Collectors;
 @Component
 public class OrderUtil {
 	private static String SEPARATOR = "-";
-	private static int CURRENCY_INDEX = 1;
+	private static int UNIT_CURRENCY_INDEX = 0;
+	private static int TARGET_CURRENCY_INDEX = 1;
 
-	public String getCurrencyBySymbol(String symbol) {
-		return symbol.split(SEPARATOR)[CURRENCY_INDEX];
+	public String getUnitCurrencyBySymbol(String symbol) {
+		return symbol.split(SEPARATOR)[UNIT_CURRENCY_INDEX];
+	}
+
+	public String getTargetCurrencyBySymbol(String symbol) {
+		return symbol.split(SEPARATOR)[TARGET_CURRENCY_INDEX];
 	}
 
 	public boolean isOrderRequestNeeded(Order order, double price) {
