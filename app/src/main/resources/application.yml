@@ -64,7 +64,7 @@ exchange:
 
 moebius:
   data:
-    host: http://data-api.hashmainpro.com
+    host: http://dev-data-api.hashmainpro.com
     port: 8080
     rest:
       trade-histories: /trade-histories
