@@ -21,12 +21,15 @@ import java.time.LocalDateTime;
 public class AggregatedTradeHistoryDto {
 	private Exchange exchange;
 	private String symbol;
-	private int totalAskCount;
+	private long totalAskCount;
 	private double totalAskPrice;
 	private double totalAskVolume;
-	private int totalBidCount;
+	private long totalBidCount;
 	private double totalBidPrice;
 	private double totalBidVolume;
+	private long totalTransactionCount;
+	private double totalTransactionPrice;
+	private double totalTransactionVolume;
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime startAt;

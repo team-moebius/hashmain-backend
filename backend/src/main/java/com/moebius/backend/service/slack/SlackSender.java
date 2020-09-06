@@ -4,7 +4,9 @@ import com.moebius.backend.dto.slack.SlackMessageDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -15,14 +17,13 @@ public abstract class SlackSender<D> {
 
 	protected abstract String getWebHookUrl();
 
-	public final void sendMessage(D messageSource) {
+	public final Mono<ClientResponse> sendMessage(D messageSource) {
 		SlackMessageDto message = getMessage(messageSource);
 
-		webClient.post()
+		return webClient.post()
 			.uri(getWebHookUrl())
 			.contentType(MediaType.APPLICATION_JSON)
 			.bodyValue(message)
-			.exchange()
-			.subscribe();
+			.exchange();
 	}
 }

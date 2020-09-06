@@ -61,7 +61,7 @@ class TradeHistoryServiceTest extends Specification {
 				.build())
 
 		expect:
-		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistoryDto(exchange, symbol))
+		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistoryDto(exchange, symbol, 5))
 				.assertNext({
 					it != null
 					it.getExchange() == Exchange.UPBIT

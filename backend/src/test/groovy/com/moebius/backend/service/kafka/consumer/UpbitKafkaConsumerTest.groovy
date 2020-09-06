@@ -23,14 +23,6 @@ class UpbitKafkaConsumerTest extends Specification {
 	@Subject
 	def tradeKafkaConsumer = new UpbitKafkaConsumer([:], exchangeOrderService, marketService, tradeService)
 
-	def "Should consume messages"() {
-		when:
-		tradeKafkaConsumer.consumeMessages()
-
-		then:
-		tradeKafkaConsumer.processRecord(receiverRecord)
-	}
-
 	def "Should get topic"() {
 		expect:
 		tradeKafkaConsumer.getTopic() == "moebius.trade.upbit"

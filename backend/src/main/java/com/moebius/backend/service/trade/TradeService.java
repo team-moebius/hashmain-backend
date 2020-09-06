@@ -1,39 +1,43 @@
 package com.moebius.backend.service.trade;
 
 import com.moebius.backend.assembler.TradeAssembler;
-import com.moebius.backend.dto.order.OrderDto;
-import com.moebius.backend.dto.slack.TradeSlackDto;
+import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.slack.TradeSlackSender;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.math3.util.Precision;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 
 @Service
 @RequiredArgsConstructor
 public class TradeService {
+	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;
+	private static final int DEFAULT_TIME_CONDITION = 5;
 
 	public void identifyValidTrade(TradeDto tradeDto) {
-		getOrderWhenIdentifyValidTrade(tradeDto)
+		tradeHistoryService.getAggregatedTradeHistoryDto(tradeDto.getExchange(), tradeDto.getSymbol(), DEFAULT_TIME_CONDITION)
 			.subscribeOn(COMPUTE.scheduler())
-			.subscribe();
+			.filter(history -> isValidTrade(tradeDto, history))
+			.map(history -> tradeAssembler.assembleSlackDto(tradeDto, history))
+			.subscribe(tradeSlackSender::sendMessage);
 	}
 
-	private Mono<OrderDto> getOrderWhenIdentifyValidTrade(TradeDto tradeDto) {
-		double changeRate = Precision.round(tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1, 4) * 100;
+	/**
+	 * Valid trade conditions are
+	 * 1. average total transaction volume (per 1 minute, during 5 minutes) < single trade volume
+	 * 2. single trade price / average transaction price (per 1 minute, during 5 minutes) > 2.0D or < -2.0D
+	 * @param tradeDto
+	 * @param historyDto
+	 * @return
+	 */
+	private boolean isValidTrade(TradeDto tradeDto, AggregatedTradeHistoryDto historyDto) {
+		double priceChangeRate = Math.round((tradeDto.getPrice() /
+			(historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
 
-		if (changeRate >= 2.0f ||
-			changeRate <= -2.0f) {
-
-			TradeSlackDto slackDto = tradeAssembler.assembleSlackDto(tradeDto, changeRate);
-			tradeSlackSender.sendMessage(slackDto);
-		}
-
-		return Mono.empty();
+		return historyDto.getTotalTransactionVolume() / DEFAULT_TIME_CONDITION < tradeDto.getVolume() &&
+			(priceChangeRate > 2.0D || priceChangeRate < -2.0D);
 	}
 }

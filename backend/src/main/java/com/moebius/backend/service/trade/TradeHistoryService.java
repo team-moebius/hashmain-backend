@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 public class TradeHistoryService {
 	private static final String COLON = ":";
 	private static final String SLASH = "/";
+	private static final String QUESTION = "?";
+	private static final String TIME_CONDITION = "minutesAgo=";
 
 	@Value("${moebius.data.host}")
 	private String dataApiHost;
@@ -36,11 +38,12 @@ public class TradeHistoryService {
 			.bodyToFlux(TradeHistoryDto.class);
 	}
 
-	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol) {
+	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + SLASH + aggregatedTradeHistoriesUrl + SLASH + pathParameters)
+			.uri(dataApiHost + COLON + dataApiPort + SLASH + aggregatedTradeHistoriesUrl + SLASH + pathParameters + QUESTION + TIME_CONDITION
+				+ minutesAgo)
 			.retrieve()
 			.bodyToMono(AggregatedTradeHistoryDto.class);
 	}
