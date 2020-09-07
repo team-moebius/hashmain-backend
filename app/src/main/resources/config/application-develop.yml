@@ -28,6 +28,8 @@ moebius:
     member: /stoplosses/**,
       /api-keys/**,
       /orders/**
+  data:
+    host: dev-data-api.hashmainpro.com
 
 reactor:
   netty:

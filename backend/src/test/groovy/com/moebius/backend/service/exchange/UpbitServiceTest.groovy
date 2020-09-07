@@ -5,7 +5,7 @@ import com.moebius.backend.domain.apikeys.ApiKey
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.orders.Order
 import com.moebius.backend.domain.orders.OrderStatus
-import com.moebius.backend.dto.OrderStatusDto
+import com.moebius.backend.dto.order.OrderStatusDto
 import com.moebius.backend.dto.exchange.upbit.UpbitAssetDto
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderStatusDto
 import com.moebius.backend.exception.DataNotVerifiedException

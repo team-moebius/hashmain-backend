@@ -6,16 +6,18 @@ import com.moebius.backend.assembler.exchange.UpbitAssembler;
 import com.moebius.backend.domain.apikeys.ApiKey;
 import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.domain.orders.Order;
-import com.moebius.backend.dto.OrderStatusDto;
 import com.moebius.backend.dto.exchange.AssetDto;
 import com.moebius.backend.dto.exchange.upbit.UpbitAssetDto;
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderStatusDto;
+import com.moebius.backend.dto.exchange.upbit.UpbitTradeMetaDto;
+import com.moebius.backend.dto.order.OrderStatusDto;
 import com.moebius.backend.exception.ExceptionTypes;
 import com.moebius.backend.exception.WrongDataException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,10 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 public class UpbitService implements ExchangeService {
 	@Value("${exchange.upbit.rest.public-uri}")
 	private String publicUri;
+	@Value("${exchange.upbit.rest.secret-uri}")
+	private String secretUri;
+	@Value("${exchange.upbit.rest.recent}")
+	private String recentUri;
 	@Value("${exchange.upbit.rest.asset}")
 	private String assetUri;
 	@Value("${exchange.upbit.rest.orders}")
@@ -90,7 +96,8 @@ public class UpbitService implements ExchangeService {
 			.headers(httpHeaders -> httpHeaders.setBearerAuth(authToken))
 			.exchange()
 			.filter(clientResponse -> clientResponse.statusCode() == HttpStatus.OK)
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new WrongDataException(ExceptionTypes.UNVERIFIED_DATA.getMessage("Entered access key and secret key")))));
+			.switchIfEmpty(
+				Mono.defer(() -> Mono.error(new WrongDataException(ExceptionTypes.UNVERIFIED_DATA.getMessage("Entered access key and secret key")))));
 	}
 
 	@Override
@@ -135,6 +142,16 @@ public class UpbitService implements ExchangeService {
 				response -> Mono.error(new WrongDataException(ExceptionTypes.UNVERIFIED_DATA.getMessage("Auth token (" + apiKey + ")"))))
 			.bodyToMono(UpbitOrderStatusDto.class)
 			.map(upbitOrderStatusDto -> upbitAssembler.assembleOrderStatus(orderId, upbitOrderStatusDto));
+	}
+
+	@Cacheable(value = "upbitTradeMeta", key = "{'UPBIT', #symbol}")
+	public Mono<UpbitTradeMetaDto> getTradeMeta(String symbol) {
+		return webClient.get()
+			.uri(secretUri + recentUri + symbol)
+			.retrieve()
+			.bodyToFlux(UpbitTradeMetaDto.class)
+			.doOnError(Exception.class, exception -> log.error("[Market] Failed to get trade meta from exchange.", exception))
+			.next();
 	}
 
 	private String getAuthTokenWithParameter(ApiKey apiKey, String query) {

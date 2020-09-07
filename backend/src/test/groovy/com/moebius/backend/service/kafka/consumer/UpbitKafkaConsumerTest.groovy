@@ -1,6 +1,6 @@
 package com.moebius.backend.service.kafka.consumer
 
-import com.moebius.backend.dto.TradeDto
+import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.market.MarketService
 import com.moebius.backend.service.order.ExchangeOrderService
 import com.moebius.backend.service.trade.TradeService
@@ -11,7 +11,7 @@ import reactor.kafka.receiver.ReceiverRecord
 import spock.lang.Specification
 import spock.lang.Subject
 
-class TradeKafkaConsumerTest extends Specification {
+class UpbitKafkaConsumerTest extends Specification {
 	def exchangeOrderService = Mock(ExchangeOrderService)
 	def marketService = Mock(MarketService)
 	def tradeService = Mock(TradeService)
@@ -21,15 +21,7 @@ class TradeKafkaConsumerTest extends Specification {
 	}
 
 	@Subject
-	def tradeKafkaConsumer = new TradeKafkaConsumer([:], exchangeOrderService, marketService, tradeService)
-
-	def "Should consume messages"() {
-		when:
-		tradeKafkaConsumer.consumeMessages()
-
-		then:
-		tradeKafkaConsumer.processRecord(receiverRecord)
-	}
+	def tradeKafkaConsumer = new UpbitKafkaConsumer([:], exchangeOrderService, marketService, tradeService)
 
 	def "Should get topic"() {
 		expect:

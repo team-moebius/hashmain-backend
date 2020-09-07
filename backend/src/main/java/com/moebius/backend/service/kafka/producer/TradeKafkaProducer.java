@@ -1,6 +1,6 @@
 package com.moebius.backend.service.kafka.producer;
 
-import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.stereotype.Component;

@@ -6,7 +6,7 @@ import com.moebius.backend.domain.orders.Order
 import com.moebius.backend.domain.orders.OrderPosition
 import com.moebius.backend.domain.orders.OrderStatus
 import com.moebius.backend.domain.orders.OrderType
-import com.moebius.backend.dto.OrderStatusDto
+import com.moebius.backend.dto.order.OrderStatusDto
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderDto
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderStatusDto
 import org.bson.types.ObjectId

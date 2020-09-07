@@ -1,6 +1,6 @@
 package com.moebius.backend.dto.frontend.response;
 
-import com.moebius.backend.dto.OrderDto;
+import com.moebius.backend.dto.order.OrderDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

@@ -1,6 +1,6 @@
 package com.moebius.backend.dto.slack;
 
-import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

@@ -4,8 +4,8 @@ import com.moebius.backend.domain.orders.Order;
 import com.moebius.backend.domain.orders.OrderPosition;
 import com.moebius.backend.domain.orders.OrderStatus;
 import com.moebius.backend.domain.orders.OrderType;
-import com.moebius.backend.dto.OrderDto;
-import com.moebius.backend.dto.OrderStatusDto;
+import com.moebius.backend.dto.order.OrderDto;
+import com.moebius.backend.dto.order.OrderStatusDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

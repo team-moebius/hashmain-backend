@@ -1,8 +1,8 @@
 package com.moebius.backend.assembler;
 
-import com.moebius.backend.dto.TradeDto;
 import com.moebius.backend.dto.slack.SlackMessageDto;
 import com.moebius.backend.dto.slack.TradeSlackDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.utils.OrderUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +31,7 @@ public class SlackAssembler {
 		return SlackMessageDto.builder()
 			.attachments(Collections.singletonList(SlackMessageDto.SlackAttachment.builder()
 				.color(tradeSlackDto.getUpdatedChangeRate() > 0f ? "#d60000" : "#0051C7")
-				.authorName(symbol)
+				.authorName(tradeDto.getExchange() + "-" + symbol)
 				.authorLink(upbitBase + symbol)
 				.text("[" + symbol + "] Heavy trades occurred at " + tradeDto.getCreatedAt())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()

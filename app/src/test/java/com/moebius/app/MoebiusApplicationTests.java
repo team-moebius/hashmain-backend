@@ -1,6 +1,6 @@
 package com.moebius.app;
 
-import com.moebius.backend.service.kafka.consumer.TradeKafkaConsumer;
+import com.moebius.backend.service.kafka.consumer.UpbitKafkaConsumer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,7 +18,7 @@ public class MoebiusApplicationTests {
 	@InjectMocks
 	private MoebiusApplication moebiusApplication;
 	@Mock
-	private TradeKafkaConsumer tradeKafkaConsumer;
+	private UpbitKafkaConsumer upbitKafkaConsumer;
 	@Mock
 	private ApplicationReadyEvent applicationReadyEvent;
 
@@ -30,6 +30,6 @@ public class MoebiusApplicationTests {
 	public void consumeKafkaOnApplicationEvent() {
 		moebiusApplication.onApplicationEvent(applicationReadyEvent);
 
-		verify(tradeKafkaConsumer, times(1)).consumeMessages();
+		verify(upbitKafkaConsumer, times(1)).consumeMessages();
 	}
 }

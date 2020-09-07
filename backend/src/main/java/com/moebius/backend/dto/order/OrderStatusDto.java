@@ -1,4 +1,4 @@
-package com.moebius.backend.dto;
+package com.moebius.backend.dto.order;
 
 import com.moebius.backend.domain.orders.OrderStatus;
 import lombok.Builder;

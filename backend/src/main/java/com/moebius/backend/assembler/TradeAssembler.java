@@ -1,14 +1,20 @@
 package com.moebius.backend.assembler;
 
-import com.moebius.backend.dto.TradeDto;
 import com.moebius.backend.dto.slack.TradeSlackDto;
+import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TradeAssembler {
-	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, double updatedChangeRate) {
+	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoryDto historyDto) {
+		double updatedChangeRate =
+			Math.round((tradeDto.getPrice() / (historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
+
 		return TradeSlackDto.builder()
 			.tradeDto(tradeDto)
+			.totalAskVolume(historyDto.getTotalAskVolume())
+			.totalBidVolume(historyDto.getTotalBidVolume())
 			.updatedChangeRate(updatedChangeRate)
 			.build();
 	}

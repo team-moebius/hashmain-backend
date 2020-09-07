@@ -2,7 +2,7 @@ package com.moebius.backend.assembler
 
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.markets.Market
-import com.moebius.backend.dto.TradeDto
+import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.exchange.MarketDto
 import com.moebius.backend.dto.exchange.MarketsDto
 import com.moebius.backend.dto.exchange.upbit.UpbitTradeMetaDto

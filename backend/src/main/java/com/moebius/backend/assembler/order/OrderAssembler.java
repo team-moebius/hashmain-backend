@@ -5,8 +5,8 @@ import com.moebius.backend.domain.commons.EventType;
 import com.moebius.backend.domain.orders.Order;
 import com.moebius.backend.domain.orders.OrderStatus;
 import com.moebius.backend.domain.orders.OrderStatusCondition;
-import com.moebius.backend.dto.OrderDto;
-import com.moebius.backend.dto.TradeDto;
+import com.moebius.backend.dto.order.OrderDto;
+import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.dto.frontend.response.OrderResponseDto;
 import org.springframework.stereotype.Component;
 
