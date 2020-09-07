@@ -8,6 +8,7 @@ import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.exchange.MarketsDto
 import com.moebius.backend.dto.exchange.upbit.UpbitTradeMetaDto
 import com.moebius.backend.dto.frontend.response.MarketResponseDto
+import com.moebius.backend.service.exchange.UpbitService
 import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
@@ -21,15 +22,15 @@ class MarketServiceTest extends Specification {
 	def webClient = Mock(WebClient)
 	def marketRepository = Mock(MarketRepository)
 	def marketAssembler = Mock(MarketAssembler)
+	def upbitService = Mock(UpbitService)
 	def uriSpec = Mock(WebClient.RequestHeadersUriSpec)
 	def responseSpec = Mock(WebClient.ResponseSpec)
 	def exchange = Exchange.UPBIT
 	def marketId = "5e7a30eceea97a67367a4b6a"
 
 	@Subject
-	def marketService = new MarketService(webClient, marketRepository, marketAssembler)
+	def marketService = new MarketService(webClient, marketRepository, marketAssembler, upbitService)
 
-	// TODO : Refactor updating market price logic
 	def "Should update market price"() {
 		given:
 		marketAssembler.assembleUpdatedMarket(_ as Market, _ as TradeDto, _ as UpbitTradeMetaDto) >> Stub(Market)
@@ -39,10 +40,7 @@ class MarketServiceTest extends Specification {
 
 		then:
 		1 * marketRepository.findByExchangeAndSymbol(_ as Exchange, _ as String) >> Mono.just(Stub(Market))
-		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> uriSpec
-		1 * uriSpec.retrieve() >> responseSpec
-		1 * responseSpec.bodyToFlux(UpbitTradeMetaDto.class) >> Flux.just(Stub(UpbitTradeMetaDto))
+		1 * upbitService.getTradeMeta(_ as String) >> Mono.just(Stub(UpbitTradeMetaDto))
 	}
 
 	def "Should get markets"() {

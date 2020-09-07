@@ -3,7 +3,6 @@ package com.moebius.backend.service.trade
 import com.moebius.backend.assembler.SlackAssembler
 import com.moebius.backend.assembler.TradeAssembler
 import com.moebius.backend.domain.commons.Exchange
-import com.moebius.backend.dto.slack.TradeSlackDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.slack.TradeSlackSender
@@ -29,7 +28,7 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(Stub(TradeDto))
 
 		then:
-		1 * tradeHistoryService.getAggregatedTradeHistoryDto(_ as Exchange, _ as String, 5) >> Mono.just(Stub(AggregatedTradeHistoryDto))
+		1 * tradeHistoryService.getAggregatedTradeHistoryDto(_ as Exchange, _ as String, 10) >> Mono.just(Stub(AggregatedTradeHistoryDto))
 	}
 
 	def "Should identify valid trade"() {
@@ -37,11 +36,13 @@ class TradeServiceTest extends Specification {
 		tradeService.isValidTrade(TRADE_DTO, HISTORY_DTO) == RESULT
 
 		where:
-		TRADE_DTO             | HISTORY_DTO              || RESULT
-		getTradeDto(100D, 1D) | getHistoryDto(1000D, 5D) || false
-		getTradeDto(100D, 2D) | getHistoryDto(490D, 5D)  || false
-		getTradeDto(200D, 2D) | getHistoryDto(490D, 5D)  || true
-		getTradeDto(100D, 2D) | getHistoryDto(1000D, 5D) || true
+		TRADE_DTO             | HISTORY_DTO                || RESULT
+		getTradeDto(100D, 1D) | null                       || false
+		getTradeDto(100D, 1D) | getHistoryDto(1000D, 0D)   || false
+		getTradeDto(100D, 1D) | getHistoryDto(1000D, 10D)  || false
+		getTradeDto(100D, 2D) | getHistoryDto(990D, 10D)   || false
+		getTradeDto(200D, 2D) | getHistoryDto(490D, 10D)   || true
+		getTradeDto(100D, 2D) | getHistoryDto(10000D, 10D) || true
 	}
 
 	TradeDto getTradeDto(double price, double volume) {

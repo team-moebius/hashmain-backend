@@ -4,12 +4,18 @@ import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeHistoryDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TradeHistoryService {
@@ -38,6 +44,7 @@ public class TradeHistoryService {
 			.bodyToFlux(TradeHistoryDto.class);
 	}
 
+	@Cacheable(value = "aggregatedTradeHistoryPublisher", key = "{#exchange, #symbol, #minutesAgo}")
 	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
@@ -45,6 +52,9 @@ public class TradeHistoryService {
 			.uri(dataApiHost + COLON + dataApiPort + SLASH + aggregatedTradeHistoriesUrl + SLASH + pathParameters + QUESTION + TIME_CONDITION
 				+ minutesAgo)
 			.retrieve()
-			.bodyToMono(AggregatedTradeHistoryDto.class);
+			.bodyToMono(AggregatedTradeHistoryDto.class)
+			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
+			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoryDto.builder().build())
+			.cache(Duration.ofMinutes(10));
 	}
 }

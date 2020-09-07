@@ -15,7 +15,7 @@ public class TradeService {
 	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;
-	private static final int DEFAULT_TIME_CONDITION = 5;
+	private static final int DEFAULT_TIME_CONDITION = 10;
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		tradeHistoryService.getAggregatedTradeHistoryDto(tradeDto.getExchange(), tradeDto.getSymbol(), DEFAULT_TIME_CONDITION)
@@ -27,17 +27,21 @@ public class TradeService {
 
 	/**
 	 * Valid trade conditions are
-	 * 1. average total transaction volume (per 1 minute, during 5 minutes) < single trade volume
-	 * 2. single trade price / average transaction price (per 1 minute, during 5 minutes) > 2.0D or < -2.0D
+	 * 1. average total transaction volume during 1 minute (10 minutes standard) < recent transaction volume
+	 * 2. single trade price / average total transaction price during 1 minute (10 minutes standard) > 1.0D or < -1.0D
 	 * @param tradeDto
 	 * @param historyDto
 	 * @return
 	 */
 	private boolean isValidTrade(TradeDto tradeDto, AggregatedTradeHistoryDto historyDto) {
+		if (historyDto == null || historyDto.getTotalTransactionVolume() == 0D) {
+			return false;
+		}
+
 		double priceChangeRate = Math.round((tradeDto.getPrice() /
 			(historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
 
 		return historyDto.getTotalTransactionVolume() / DEFAULT_TIME_CONDITION < tradeDto.getVolume() &&
-			(priceChangeRate > 2.0D || priceChangeRate < -2.0D);
+			(priceChangeRate > 1.0D || priceChangeRate < -1.0D);
 	}
 }
