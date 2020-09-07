@@ -39,17 +39,17 @@ public class TradeHistoryService {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + SLASH + tradeHistoriesUrl + SLASH + pathParameters)
+			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters)
 			.retrieve()
 			.bodyToFlux(TradeHistoryDto.class);
 	}
 
 	@Cacheable(value = "aggregatedTradeHistoryPublisher", key = "{#exchange, #symbol, #minutesAgo}")
 	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
-		String pathParameters = exchange + SLASH + symbol;
+		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + SLASH + aggregatedTradeHistoriesUrl + SLASH + pathParameters + QUESTION + TIME_CONDITION
+			.uri(dataApiHost + COLON + dataApiPort + aggregatedTradeHistoriesUrl + pathParameters + QUESTION + TIME_CONDITION
 				+ minutesAgo)
 			.retrieve()
 			.bodyToMono(AggregatedTradeHistoryDto.class)
