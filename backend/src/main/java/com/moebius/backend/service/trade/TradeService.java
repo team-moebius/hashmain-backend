@@ -37,7 +37,6 @@ public class TradeService {
 		if (historyDto == null || historyDto.getTotalTransactionVolume() == 0D) {
 			return false;
 		}
-
 		double priceChangeRate = Math.round((tradeDto.getPrice() /
 			(historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
 
