@@ -10,14 +10,14 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class SlackSender<D> {
+public abstract class SlackSender<M> {
 	private final WebClient webClient;
 
-	protected abstract SlackMessageDto getMessage(D messageSource);
+	protected abstract SlackMessageDto getMessage(M messageSource);
 
 	protected abstract String getWebHookUrl();
 
-	public final Mono<ClientResponse> sendMessage(D messageSource) {
+	public Mono<ClientResponse> sendMessage(M messageSource) {
 		SlackMessageDto message = getMessage(messageSource);
 
 		return webClient.post()

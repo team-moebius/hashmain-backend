@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TradeAssembler {
 	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoryDto historyDto) {
-		double updatedChangeRate =
-			Math.round((tradeDto.getPrice() / (historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
+		double updatedChangeRate = Math.round(tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1) * 100d;
 
 		return TradeSlackDto.builder()
 			.tradeDto(tradeDto)

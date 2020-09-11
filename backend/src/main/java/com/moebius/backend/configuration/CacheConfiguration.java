@@ -12,12 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 @EnableCaching
 @EnableScheduling
 public class CacheConfiguration {
-	@CacheEvict(allEntries = true, value = "aggregatedTradeHistoryPublisher")
-	@Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 500)
-	public void evictAggregatedTradeHistoryPublisher() {
-		log.info("[Trade] Evict cache for aggregated trade history publishers");
-	}
-
 	@CacheEvict(allEntries = true, value = "upbitTradeMeta")
 	@Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 500)
 	public void evictUpbitTradeMeta() {

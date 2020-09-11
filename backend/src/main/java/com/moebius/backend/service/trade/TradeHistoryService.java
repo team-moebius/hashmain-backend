@@ -35,16 +35,17 @@ public class TradeHistoryService {
 
 	private final WebClient webClient;
 
-	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol) {
+	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol, int minutesAgo) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters)
+			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters + QUESTION + TIME_CONDITION + minutesAgo)
 			.retrieve()
-			.bodyToFlux(TradeHistoryDto.class);
+			.bodyToFlux(TradeHistoryDto.class)
+			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
+			.onErrorReturn(WebClientResponseException.class, TradeHistoryDto.builder().build());
 	}
 
-	@Cacheable(value = "aggregatedTradeHistoryPublisher", key = "{#exchange, #symbol, #minutesAgo}")
 	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 

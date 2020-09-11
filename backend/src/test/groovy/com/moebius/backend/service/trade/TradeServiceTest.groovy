@@ -5,6 +5,7 @@ import com.moebius.backend.assembler.TradeAssembler
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
+import com.moebius.backend.service.slack.SlackValve
 import com.moebius.backend.service.slack.TradeSlackSender
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -16,7 +17,7 @@ import java.time.LocalDateTime
 
 class TradeServiceTest extends Specification {
 	def tradeHistoryService = Mock(TradeHistoryService)
-	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler)]) as TradeSlackSender
+	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler), Stub(SlackValve)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
 
 	@Subject
