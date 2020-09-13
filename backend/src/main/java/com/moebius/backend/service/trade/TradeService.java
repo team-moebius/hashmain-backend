@@ -26,9 +26,11 @@ public class TradeService {
 	}
 
 	/**
-	 * Valid trade conditions are
-	 * 1. average total transaction volume during 1 minute (10 minutes standard) < recent transaction volume
-	 * 2. single trade price / average total transaction price during 1 minute (10 minutes standard) > 1.0D or < -1.0D
+	 * Valid trade condition is
+	 * 1. single trade price / average total transaction price during 1 minute (10 minutes standard) > 1.0D or < -1.0D
+	 *
+	 * Additional condition based on volume will be added after evolving trade history api.
+	 *
 	 * @param tradeDto
 	 * @param historyDto
 	 * @return
@@ -37,10 +39,10 @@ public class TradeService {
 		if (historyDto == null || historyDto.getTotalTransactionVolume() == 0D) {
 			return false;
 		}
-		double priceChangeRate = Math.round((tradeDto.getPrice() /
+
+		double recentPriceChangeRate = Math.round((tradeDto.getPrice() /
 			(historyDto.getTotalTransactionPrice() / historyDto.getTotalTransactionVolume()) - 1) * 100d);
 
-		return historyDto.getTotalTransactionVolume() / DEFAULT_TIME_CONDITION < tradeDto.getVolume() &&
-			(priceChangeRate > 1.0D || priceChangeRate < -1.0D);
+		return recentPriceChangeRate > 1.0D || recentPriceChangeRate < -1.0D;
 	}
 }

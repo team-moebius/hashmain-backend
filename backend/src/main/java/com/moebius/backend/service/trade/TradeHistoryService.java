@@ -22,6 +22,7 @@ public class TradeHistoryService {
 	private static final String COLON = ":";
 	private static final String SLASH = "/";
 	private static final String QUESTION = "?";
+	private static final String COUNT_CONDITION = "count=";
 	private static final String TIME_CONDITION = "minutesAgo=";
 
 	@Value("${moebius.data.host}")
@@ -35,16 +36,17 @@ public class TradeHistoryService {
 
 	private final WebClient webClient;
 
-	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol) {
+	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol, int count) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters)
+			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters + QUESTION + COUNT_CONDITION + count)
 			.retrieve()
-			.bodyToFlux(TradeHistoryDto.class);
+			.bodyToFlux(TradeHistoryDto.class)
+			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
+			.onErrorReturn(WebClientResponseException.class, TradeHistoryDto.builder().build());
 	}
 
-	@Cacheable(value = "aggregatedTradeHistoryPublisher", key = "{#exchange, #symbol, #minutesAgo}")
 	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
@@ -54,7 +56,6 @@ public class TradeHistoryService {
 			.retrieve()
 			.bodyToMono(AggregatedTradeHistoryDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
-			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoryDto.builder().build())
-			.cache(Duration.ofMinutes(10));
+			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoryDto.builder().build());
 	}
 }
