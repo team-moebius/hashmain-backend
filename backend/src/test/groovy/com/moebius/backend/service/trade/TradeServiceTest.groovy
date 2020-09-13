@@ -3,7 +3,7 @@ package com.moebius.backend.service.trade
 import com.moebius.backend.assembler.SlackAssembler
 import com.moebius.backend.assembler.TradeAssembler
 import com.moebius.backend.domain.commons.Exchange
-import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
+import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.slack.SlackValve
 import com.moebius.backend.service.slack.TradeSlackSender
@@ -26,25 +26,25 @@ class TradeServiceTest extends Specification {
 	@Unroll
 	def "Should request to send slack message"() {
 		when:
-		tradeService.identifyValidTrade(Stub(TradeDto))
+		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getAggregatedTradeHistoryDto(_ as Exchange, _ as String, 10) >> Mono.just(Stub(AggregatedTradeHistoryDto))
+		1 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 2) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
 	}
 
 	def "Should identify valid trade"() {
 		expect:
-		tradeService.isValidTrade(TRADE_DTO, HISTORY_DTO) == RESULT
+		tradeService.isValidTrade(TRADE_DTO) == RESULT
 
 		where:
-		TRADE_DTO             | HISTORY_DTO                || RESULT
-		getTradeDto(100D, 1D) | null                       || false
-		getTradeDto(100D, 1D) | getHistoryDto(1000D, 0D)   || false
-		getTradeDto(100D, 1D) | getHistoryDto(1000D, 10D)  || false
-		getTradeDto(100D, 2D) | getHistoryDto(990D, 10D)   || false
-		getTradeDto(200D, 2D) | getHistoryDto(490D, 10D)   || true
-		getTradeDto(100D, 2D) | getHistoryDto(10000D, 10D) || true
+		TRADE_DTO               || RESULT
+		getTradeDto(100D, 1D)   || false
+		getTradeDto(10000D, 2D) || true
 	}
+
+//	def "Should identify valid trade histories"() {
+//
+//	}
 
 	TradeDto getTradeDto(double price, double volume) {
 		TradeDto tradeDto = new TradeDto()
@@ -56,12 +56,12 @@ class TradeServiceTest extends Specification {
 		return tradeDto
 	}
 
-	AggregatedTradeHistoryDto getHistoryDto(double totalTransactionPrice, double totalTransactionVolume) {
-		return AggregatedTradeHistoryDto.builder()
-				.totalTransactionPrice(totalTransactionPrice)
-				.totalTransactionVolume(totalTransactionVolume)
-				.startAt(LocalDateTime.now().minusMinutes(5L))
-				.endAt(LocalDateTime.now())
-				.build()
-	}
+//	AggregatedTradeHistoriesDto getHistoryDto(double totalTransactionPrice, double totalTransactionVolume) {
+//		return AggregatedTradeHistoriesDto.builder()
+//				.totalTransactionPrice(totalTransactionPrice)
+//				.totalTransactionVolume(totalTransactionVolume)
+//				.startAt(LocalDateTime.now().minusMinutes(5L))
+//				.endAt(LocalDateTime.now())
+//				.build()
+//	}
 }

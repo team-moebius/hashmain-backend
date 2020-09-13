@@ -3,8 +3,10 @@ package com.moebius.backend.service.trade
 import com.moebius.backend.domain.commons.Change
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.commons.TradeType
+import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
+import org.springframework.util.CollectionUtils
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -53,21 +55,22 @@ class TradeHistoryServiceTest extends Specification {
 		1 * webClient.get() >> uriSpec
 		1 * uriSpec.uri(_ as String) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
-		1 * responseSpec.bodyToMono(AggregatedTradeHistoryDto.class) >> Mono.just(AggregatedTradeHistoryDto.builder()
+		1 * responseSpec.bodyToMono(AggregatedTradeHistoriesDto.class) >> Mono.just(AggregatedTradeHistoriesDto.builder()
 				.exchange(exchange)
 				.symbol(symbol)
-				.totalBidCount(22)
-				.totalBidPrice(330000000)
+				.interval(1L)
+				.aggregatedTradeHistories([Stub(AggregatedTradeHistoryDto)])
 				.build())
 
 		expect:
-		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistoryDto(exchange, symbol, 10))
+		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories(exchange, symbol, 1, 2))
 				.assertNext({
 					it != null
 					it.getExchange() == Exchange.UPBIT
 					it.getSymbol() == "KRW-BTC"
-					it.getTotalBidCount() == 22
-					it.getTotalBidPrice() == 330000000
+					it.getInterval() == 1L
+					!CollectionUtils.isEmpty(it.getAggregatedTradeHistories())
+					it.getAggregatedTradeHistories().get(0) instanceof AggregatedTradeHistoryDto
 				})
 				.verifyComplete()
 	}
