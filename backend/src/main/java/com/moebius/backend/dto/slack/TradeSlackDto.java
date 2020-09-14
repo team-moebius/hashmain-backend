@@ -12,5 +12,6 @@ public class TradeSlackDto {
 	private TradeDto tradeDto;
 	private double totalAskVolume;
 	private double totalBidVolume;
-	private double updatedChangeRate;
+	private double priceChange;
+	private double priceChangeRate;
 }

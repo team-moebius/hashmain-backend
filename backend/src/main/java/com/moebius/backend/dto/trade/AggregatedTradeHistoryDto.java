@@ -29,10 +29,10 @@ public class AggregatedTradeHistoryDto {
 	private double totalTransactionVolume;
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime startAt;
+	private LocalDateTime startTime;
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	private LocalDateTime endAt;
+	private LocalDateTime endTime;
 
 	@JsonPOJOBuilder(withPrefix = "")
 	public static class AggregatedTradeHistoryDtoBuilder {
