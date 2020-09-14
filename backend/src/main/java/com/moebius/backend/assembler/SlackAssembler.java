@@ -30,7 +30,7 @@ public class SlackAssembler {
 
 		return SlackMessageDto.builder()
 			.attachments(Collections.singletonList(SlackMessageDto.SlackAttachment.builder()
-				.color(tradeSlackDto.getUpdatedChangeRate() > 0f ? "#d60000" : "#0051C7")
+				.color(tradeSlackDto.getPriceChangeRate() > 0f ? "#d60000" : "#0051C7")
 				.authorName(tradeDto.getExchange() + "-" + symbol)
 				.authorLink(upbitBase + symbol)
 				.text("[" + symbol + "] Heavy trades occurred at " + tradeDto.getCreatedAt())
@@ -48,7 +48,7 @@ public class SlackAssembler {
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Price change")
-						.value(formatter.format(tradeDto.getPrice() - tradeDto.getPrevClosingPrice()) + unitCurrency + " (" + tradeSlackDto.getUpdatedChangeRate() + "%)")
+						.value(formatter.format(tradeSlackDto.getPriceChange()) + unitCurrency + " (" + tradeSlackDto.getPriceChangeRate() + "%)")
 						.build()))
 				.build()))
 			.build();

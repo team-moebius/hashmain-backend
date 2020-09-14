@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -23,6 +24,7 @@ public class TradeHistoryService {
 	private static final String SLASH = "/";
 	private static final String HISTORIES_PARAMETER = "?count=%d";
 	private static final String AGGREGATED_HISTORIES_PARAMETERS = "?from=%s&to=%s&interval=%d";
+	private static long MINUTE = 60L;
 
 	@Value("${moebius.data.host}")
 	private String dataApiHost;
@@ -50,8 +52,9 @@ public class TradeHistoryService {
 	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(Exchange exchange, String symbol, long interval, long range) {
 		String dataApiEndpoint = dataApiHost + COLON + dataApiPort;
 		String pathParameters = SLASH + exchange + SLASH + symbol;
-		String to = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
-		String from = LocalDateTime.now().minusMinutes(range).format(DateTimeFormatter.ISO_DATE_TIME);
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		String from = dateTimeFormatter.format(LocalDateTime.now().minusMinutes(range));
+		String to = dateTimeFormatter.format(LocalDateTime.now());
 
 		return webClient.get()
 			.uri(dataApiEndpoint + aggregatedTradeHistoriesUrl + pathParameters + String.format(AGGREGATED_HISTORIES_PARAMETERS, from, to, interval))

@@ -23,6 +23,7 @@ public class TradeService {
 	private final TradeAssembler tradeAssembler;
 	private static final int DEFAULT_TIME_INTERVAL = 1;
 	private static final int DEFAULT_TIME_RANGE = 2;
+	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 10D;
 	private static final double HISTORY_PRICE_THRESHOLD = 5000000D;
@@ -33,7 +34,8 @@ public class TradeService {
 				.subscribeOn(COMPUTE.scheduler())
 				.filter(this::isValidTradeHistories)
 				.map(histories -> tradeAssembler.assembleSlackDto(tradeDto, histories))
-				.subscribe(tradeSlackSender::sendMessage);
+				.flatMap(tradeSlackSender::sendMessage)
+				.subscribe();
 		}
 	}
 
@@ -49,14 +51,14 @@ public class TradeService {
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
-	 * 2-1. Total transaction price threshold : Over 5Mil KRW
+	 * 2-1. Valid transaction price (Bid - Ask) threshold : the last history is over 5Mil KRW than previous ones' total value.
 	 *
 	 * @param historiesDto
 	 * @return
 	 */
 	private boolean isValidTradeHistories(AggregatedTradeHistoriesDto historiesDto) {
 		List<AggregatedTradeHistoryDto> histories = historiesDto.getAggregatedTradeHistories();
-		if (histories.isEmpty() || histories.get(0).getTotalTransactionVolume() == 0D) {
+		if (histories.size() < HISTORY_COUNT_THRESHOLD || histories.get(0).getTotalTransactionVolume() == 0D) {
 			return false;
 		}
 
@@ -66,13 +68,16 @@ public class TradeService {
 			.average()
 			.orElse(1D);
 
-		double previousTotalPrice = IntStream.range(0, histories.size() - 1)
-			.mapToDouble(index -> histories.get(index).getTotalTransactionPrice())
+		double previousValidPrice = IntStream.range(0, histories.size() - 1)
+			.mapToDouble(index -> histories.get(index).getTotalBidPrice() - histories.get(index).getTotalAskPrice())
 			.sum();
 
-		log.info("[Trade] [{}/{}] Calculated valid trade histories info. [previousAverageVolume: {}, previousTotalPrice: {}]",
-			historiesDto.getExchange(), historiesDto.getSymbol(), previousAverageVolume, previousTotalPrice);
-		return lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD ||
-			lastHistory.getTotalTransactionPrice() - previousTotalPrice >= HISTORY_PRICE_THRESHOLD;
+		if (lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD &&
+			(lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice()) - previousValidPrice >= HISTORY_PRICE_THRESHOLD) {
+			log.info("[Trade] [{}/{}] The Valid trade histories exist. [TTV: {}, PAV: {}, TVP: {}, PVP: {}]",
+				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume, lastHistory.getTotalTransactionPrice(), previousValidPrice);
+			return true;
+		}
+		return false;
 	}
 }
