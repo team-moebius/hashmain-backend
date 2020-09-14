@@ -13,7 +13,7 @@ public class TradeAssembler {
 	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
 		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
 		double priceChange = tradeDto.getPrice() - tradeDto.getPrevClosingPrice();
-		double priceChangeRate = Math.round(tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1) * 100D;
+		double priceChangeRate = Math.round((tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.tradeDto(tradeDto)
