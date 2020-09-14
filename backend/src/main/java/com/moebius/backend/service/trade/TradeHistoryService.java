@@ -1,19 +1,20 @@
 package com.moebius.backend.service.trade;
 
 import com.moebius.backend.domain.commons.Exchange;
-import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
+import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.TradeHistoryDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Service
@@ -21,9 +22,9 @@ import java.time.Duration;
 public class TradeHistoryService {
 	private static final String COLON = ":";
 	private static final String SLASH = "/";
-	private static final String QUESTION = "?";
-	private static final String COUNT_CONDITION = "count=";
-	private static final String TIME_CONDITION = "minutesAgo=";
+	private static final String HISTORIES_PARAMETER = "?count=%d";
+	private static final String AGGREGATED_HISTORIES_PARAMETERS = "?from=%s&to=%s&interval=%d";
+	private static long MINUTE = 60L;
 
 	@Value("${moebius.data.host}")
 	private String dataApiHost;
@@ -37,25 +38,29 @@ public class TradeHistoryService {
 	private final WebClient webClient;
 
 	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol, int count) {
+		String dataApiEndpoint = dataApiHost + COLON + dataApiPort;
 		String pathParameters = SLASH + exchange + SLASH + symbol;
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + tradeHistoriesUrl + pathParameters + QUESTION + COUNT_CONDITION + count)
+			.uri(dataApiEndpoint + tradeHistoriesUrl + pathParameters + String.format(HISTORIES_PARAMETER, count))
 			.retrieve()
 			.bodyToFlux(TradeHistoryDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
 			.onErrorReturn(WebClientResponseException.class, TradeHistoryDto.builder().build());
 	}
 
-	public Mono<AggregatedTradeHistoryDto> getAggregatedTradeHistoryDto(Exchange exchange, String symbol, int minutesAgo) {
+	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(Exchange exchange, String symbol, long interval, long range) {
+		String dataApiEndpoint = dataApiHost + COLON + dataApiPort;
 		String pathParameters = SLASH + exchange + SLASH + symbol;
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		String from = dateTimeFormatter.format(LocalDateTime.now().minusMinutes(range));
+		String to = dateTimeFormatter.format(LocalDateTime.now());
 
 		return webClient.get()
-			.uri(dataApiHost + COLON + dataApiPort + aggregatedTradeHistoriesUrl + pathParameters + QUESTION + TIME_CONDITION
-				+ minutesAgo)
+			.uri(dataApiEndpoint + aggregatedTradeHistoriesUrl + pathParameters + String.format(AGGREGATED_HISTORIES_PARAMETERS, from, to, interval))
 			.retrieve()
-			.bodyToMono(AggregatedTradeHistoryDto.class)
+			.bodyToMono(AggregatedTradeHistoriesDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
-			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoryDto.builder().build());
+			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoriesDto.builder().build());
 	}
 }
