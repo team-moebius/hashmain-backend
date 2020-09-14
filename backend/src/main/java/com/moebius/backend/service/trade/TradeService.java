@@ -74,8 +74,8 @@ public class TradeService {
 
 		if (lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD &&
 			(lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice()) - previousValidPrice >= HISTORY_PRICE_THRESHOLD) {
-			log.info("[Trade] [{}/{}] The Valid trade histories exist. [TTV: {}, PAV: {}, TVP: {}, PVP: {}]",
-				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume, lastHistory.getTotalTransactionPrice(), previousValidPrice);
+			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, TVP: {}, PVP: {}]",
+				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume, lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice(), previousValidPrice);
 			return true;
 		}
 		return false;

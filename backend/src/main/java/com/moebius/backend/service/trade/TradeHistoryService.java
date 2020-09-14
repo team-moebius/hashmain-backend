@@ -24,7 +24,6 @@ public class TradeHistoryService {
 	private static final String SLASH = "/";
 	private static final String HISTORIES_PARAMETER = "?count=%d";
 	private static final String AGGREGATED_HISTORIES_PARAMETERS = "?from=%s&to=%s&interval=%d";
-	private static long MINUTE = 60L;
 
 	@Value("${moebius.data.host}")
 	private String dataApiHost;
