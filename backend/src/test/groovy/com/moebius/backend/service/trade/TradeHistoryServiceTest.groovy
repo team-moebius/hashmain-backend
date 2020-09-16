@@ -8,11 +8,14 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
 import org.springframework.util.CollectionUtils
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
+
+import java.util.function.Function
 
 class TradeHistoryServiceTest extends Specification {
 	def webClient = Mock(WebClient)
@@ -53,7 +56,7 @@ class TradeHistoryServiceTest extends Specification {
 	def "Should get aggregated trade history"() {
 		given:
 		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * uriSpec.uri(_ as Function<UriBuilder, URI>) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToMono(AggregatedTradeHistoriesDto.class) >> Mono.just(AggregatedTradeHistoriesDto.builder()
 				.exchange(exchange)
