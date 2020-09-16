@@ -12,8 +12,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
@@ -25,6 +27,8 @@ public class TradeHistoryService {
 	private static final String HISTORIES_PARAMETER = "?count=%d";
 	private static final String AGGREGATED_HISTORIES_PARAMETERS = "?from=%s&to=%s&interval=%d";
 
+	@Value("${moebius.data.scheme}")
+	private String scheme;
 	@Value("${moebius.data.host}")
 	private String dataApiHost;
 	@Value("${moebius.data.port}")
@@ -49,14 +53,22 @@ public class TradeHistoryService {
 	}
 
 	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(Exchange exchange, String symbol, long interval, long range) {
-		String dataApiEndpoint = dataApiHost + COLON + dataApiPort;
-		String pathParameters = SLASH + exchange + SLASH + symbol;
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		String from = dateTimeFormatter.format(LocalDateTime.now().minusMinutes(range));
-		String to = dateTimeFormatter.format(LocalDateTime.now());
+		ZonedDateTime now = ZonedDateTime.now();
+
+		String from = now.minusMinutes(range).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		String to = now.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
 		return webClient.get()
-			.uri(dataApiEndpoint + aggregatedTradeHistoriesUrl + pathParameters + String.format(AGGREGATED_HISTORIES_PARAMETERS, from, to, interval))
+			.uri(uriBuilder -> uriBuilder
+				.scheme(scheme)
+				.host(dataApiHost)
+				.port(dataApiPort)
+				.path(aggregatedTradeHistoriesUrl)
+				.pathSegment(exchange.toString(), symbol)
+				.queryParam("from", "{from}")
+				.queryParam("to", "{to}")
+				.queryParam("interval", interval)
+				.build(from, to))
 			.retrieve()
 			.bodyToMono(AggregatedTradeHistoriesDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
