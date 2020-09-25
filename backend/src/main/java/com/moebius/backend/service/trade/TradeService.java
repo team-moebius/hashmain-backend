@@ -46,7 +46,7 @@ public class TradeService {
 	/**
 	 * Valid trade conditions are based on
 	 * 1. Volume
-	 * 1-1. Heavy total transaction volume change : the last history is 10x bigger than previous ones' average value.
+	 * 1-1. Heavy total transaction volume change : the last history is 10x bigger than previous ones' average volume.
 	 * 1-2. [Optional] Heavy valid volume(bid - ask) change : the last history is 10x bigger than previous ones' average value,
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
@@ -74,7 +74,7 @@ public class TradeService {
 
 		if (lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD &&
 			((lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice()) - previousValidPrice >= HISTORY_PRICE_THRESHOLD ||
-				(lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice()) - previousValidPrice <= HISTORY_PRICE_THRESHOLD)) {
+				(lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice()) - previousValidPrice <= -HISTORY_PRICE_THRESHOLD)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, TVP: {}, PVP: {}]",
 				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume,
 				lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice(), previousValidPrice);
