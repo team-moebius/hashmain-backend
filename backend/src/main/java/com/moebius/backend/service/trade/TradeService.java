@@ -22,8 +22,8 @@ public class TradeService {
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;
 	private static final int DEFAULT_TIME_INTERVAL = 1;
-	private static final int DEFAULT_TIME_RANGE = 2;
-	private static final int HISTORY_COUNT_THRESHOLD = 2;
+	private static final int DEFAULT_TIME_RANGE = 5;
+	private static final int HISTORY_COUNT_THRESHOLD = 5;
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 10D;
 	private static final double HISTORY_PRICE_THRESHOLD = 5000000D;
