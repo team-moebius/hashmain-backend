@@ -32,7 +32,7 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 2) >> Mono.just(aggregatedTradeHistoriesDto)
+		1 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 5) >> Mono.just(aggregatedTradeHistoriesDto)
 	}
 
 	def "Should not request to send slack message if invalid trade"() {
@@ -40,7 +40,7 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(1000D, 1D))
 
 		then:
-		0 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 2) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
+		0 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 5) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
 	}
 
 	TradeDto getTradeDto(double price, double volume) {

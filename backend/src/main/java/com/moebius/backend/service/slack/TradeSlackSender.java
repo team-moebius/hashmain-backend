@@ -15,7 +15,7 @@ public class TradeSlackSender extends SlackSender<TradeSlackDto> {
 	private String webHookUrl;
 	private final SlackAssembler slackAssembler;
 	private final SlackValve slackValve;
-	private final long MINUTE_INTERVAL = 1L;
+	private final long MINUTE_INTERVAL = 5L;
 
 	public TradeSlackSender(WebClient webClient, SlackAssembler slackAssembler, SlackValve slackValve) {
 		super(webClient);
