@@ -32,7 +32,7 @@ class TradeHistoryServiceTest extends Specification {
 	def "Should get trade histories"() {
 		given:
 		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * uriSpec.uri(_ as Function<UriBuilder, URI>) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToFlux(TradeHistoryDto.class) >> Flux.just(TradeHistoryDto.builder()
 				.exchange(exchange)
