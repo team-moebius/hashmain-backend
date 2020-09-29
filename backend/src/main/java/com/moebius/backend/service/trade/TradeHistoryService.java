@@ -41,15 +41,19 @@ public class TradeHistoryService {
 	private final WebClient webClient;
 
 	public Flux<TradeHistoryDto> getTradeHistories(Exchange exchange, String symbol, int count) {
-		String dataApiEndpoint = dataApiHost + COLON + dataApiPort;
-		String pathParameters = SLASH + exchange + SLASH + symbol;
-
 		return webClient.get()
-			.uri(dataApiEndpoint + tradeHistoriesUrl + pathParameters + String.format(HISTORIES_PARAMETER, count))
+			.uri(uriBuilder -> uriBuilder
+				.scheme(scheme)
+				.host(dataApiHost)
+				.port(dataApiPort)
+				.path(tradeHistoriesUrl)
+				.pathSegment(exchange.toString(), symbol)
+				.queryParam("count", "{count}")
+				.build(count))
 			.retrieve()
 			.bodyToFlux(TradeHistoryDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
-			.onErrorReturn(WebClientResponseException.class, TradeHistoryDto.builder().build());
+			.onErrorResume(WebClientResponseException.class, exception -> Flux.empty());
 	}
 
 	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(Exchange exchange, String symbol, long interval, long range) {
@@ -72,6 +76,6 @@ public class TradeHistoryService {
 			.retrieve()
 			.bodyToMono(AggregatedTradeHistoriesDto.class)
 			.doOnError(exception -> log.warn("[Trade] Failed to get aggregated trade history.", exception))
-			.onErrorReturn(WebClientResponseException.class, AggregatedTradeHistoriesDto.builder().build());
+			.onErrorResume(WebClientResponseException.class, exception -> Mono.empty());
 	}
 }
