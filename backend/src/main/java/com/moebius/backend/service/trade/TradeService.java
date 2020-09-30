@@ -54,7 +54,7 @@ public class TradeService {
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
-	 * 2-1. Heavy total transaction price : valid accumulated price is over 5M KRW
+	 * 2-1. Heavy total transaction price : valid total price is over 5M KRW or under -5M KRW
 	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-1% price change than previous earliest history's price.
 	 *
 	 * @param historiesDto
@@ -74,7 +74,7 @@ public class TradeService {
 		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
 
 		if (isValidVolume(latestHistory, previousAverageVolume) ||
-			isValidPrice(latestHistory, earliestTradePrice)) {
+			isValidPrice(histories, earliestTradePrice)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
 				historiesDto.getExchange(), historiesDto.getSymbol(), latestHistory.getTotalTransactionVolume(), previousAverageVolume,
 				latestHistory.getTotalBidPrice() - latestHistory.getTotalAskPrice(), earliestTradePrice);
@@ -91,11 +91,17 @@ public class TradeService {
 		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
 	}
 
-	private boolean isValidPrice(AggregatedTradeHistoryDto latestHistory, double earliestTradePrice) {
-		if (earliestTradePrice == 0D || latestHistory.getTotalTransactionPrice() < TRADE_HISTORY_PRICE_THRESHOLD) {
+	private boolean isValidPrice(List<AggregatedTradeHistoryDto> histories, double earliestTradePrice) {
+		double totalValidPrice = histories.stream()
+			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
+			.reduce(0D, Double::sum);
+
+		if (earliestTradePrice == 0D ||
+			(totalValidPrice < TRADE_HISTORY_PRICE_THRESHOLD && totalValidPrice > -TRADE_HISTORY_PRICE_THRESHOLD)) {
 			return false;
 		}
 
+		AggregatedTradeHistoryDto latestHistory = histories.get(histories.size() - 1);
 		double latestTradePrice = latestHistory.getTotalTransactionPrice() / latestHistory.getTotalTransactionVolume();
 
 		return latestTradePrice / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
