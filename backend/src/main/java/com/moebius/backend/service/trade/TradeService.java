@@ -25,9 +25,9 @@ public class TradeService {
 	private static final int DEFAULT_TIME_RANGE = 5;
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
-	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 10D;
-	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.01D;
-	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.99D;
+	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
+	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.03D;
+	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.97D;
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isValidTrade(tradeDto)) {
@@ -45,14 +45,15 @@ public class TradeService {
 	}
 
 	/**
-	 * Valid trade conditions are based on
+	 * Valid trade is determined when one of these conditions below is satisfied.
+	 *
 	 * 1. Volume change
-	 * 1-1. Heavy total transaction volume change : the last history is 5x bigger than previous ones' average volume.
-	 * 1-2. [Optional] Heavy valid volume(bid - ask) change : the last history is 10x bigger than previous ones' average value,
+	 * 1-1. Heavy total transaction volume change : the last history is 5x bigger than previous average volume.
+	 * 1-2. [Not applied yet] Heavy valid volume(bid - ask) change : the last history is 10x bigger than previous ones' average value,
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
-	 * 2-1. Heavy total transaction price change : the last history has over +-1% price change than previous ones' average price.
+	 * 2-1. Heavy total transaction price change : the last history has greater than equal to +-3% price change than previous earliest history's price.
 	 *
 	 * @param historiesDto
 	 * @return
@@ -69,20 +70,17 @@ public class TradeService {
 			.average()
 			.orElse(0D);
 
-		double previousAveragePrice = IntStream.range(0, histories.size() - 1)
-			.mapToDouble(index -> histories.get(index).getTotalTransactionPrice() / histories.get(index).getTotalTransactionVolume())
-			.average()
-			.orElse(0D);
+		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
 
-		if (previousAverageVolume == 0D || previousAveragePrice == 0D) {
+		if (previousAverageVolume == 0D || earliestTradePrice == 0D) {
 			return false;
 		}
 
-		if (isValidVolume(lastHistory, previousAverageVolume) &&
-			isValidPrice(lastHistory, previousAveragePrice)) {
+		if (isValidVolume(lastHistory, previousAverageVolume) ||
+			isValidPrice(lastHistory, earliestTradePrice)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
 				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume,
-				lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice(), previousAveragePrice);
+				lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice(), earliestTradePrice);
 			return true;
 		}
 		return false;
@@ -92,10 +90,10 @@ public class TradeService {
 		return lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
 	}
 
-	private boolean isValidPrice(AggregatedTradeHistoryDto lastHistory, double previousAveragePrice) {
+	private boolean isValidPrice(AggregatedTradeHistoryDto lastHistory, double earliestTradePrice) {
 		double averagePrice = lastHistory.getTotalTransactionPrice() / lastHistory.getTotalTransactionVolume();
 
-		return averagePrice / previousAveragePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
-			averagePrice / previousAveragePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
+		return averagePrice / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
+			averagePrice / earliestTradePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
 	}
 }

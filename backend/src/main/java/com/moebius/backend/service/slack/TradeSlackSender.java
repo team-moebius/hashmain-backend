@@ -35,7 +35,7 @@ public class TradeSlackSender extends SlackSender<TradeSlackDto> {
 
 	@Override
 	public Mono<ClientResponse> sendMessage(TradeSlackDto messageSource) {
-		String valveKey = messageSource.getTradeDto().getExchange() + "-" + messageSource.getTradeDto().getSymbol();
+		String valveKey = messageSource.getExchange() + "-" + messageSource.getSymbol();
 
 		if (slackValve.canSend(valveKey, MINUTE_INTERVAL)) {
 			return super.sendMessage(messageSource)
