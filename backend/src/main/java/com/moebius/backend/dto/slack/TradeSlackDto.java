@@ -19,7 +19,7 @@ public class TradeSlackDto {
 	private Exchange exchange;
 	private double totalAskVolume;
 	private double totalBidVolume;
-	private double totalValidPrice;
+	private int totalValidPrice;
 	private double price;
 	private double priceChangeRate;
 	@JsonSerialize(using = LocalTimeSerializer.class)

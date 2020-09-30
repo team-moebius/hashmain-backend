@@ -6,17 +6,19 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Component
 public class TradeAssembler {
 	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
 		List<AggregatedTradeHistoryDto> histories = historiesDto.getAggregatedTradeHistories();
 		AggregatedTradeHistoryDto earliestTradeHistory = histories.get(0);
+		AggregatedTradeHistoryDto latestTradeHistory = histories.get(histories.size() - 1);
 
-		double previousPrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
-		double priceChangeRate = Math.round((tradeDto.getPrice() / previousPrice - 1) * 10000) / 100D;
+		double previousEarliestPrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
+		double previousLatestPrice = latestTradeHistory.getTotalTransactionPrice() / latestTradeHistory.getTotalTransactionVolume();
+		double priceChangeRate = Math.round((previousLatestPrice / previousEarliestPrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
@@ -29,11 +31,12 @@ public class TradeAssembler {
 				.reduce(0D, Double::sum))
 			.totalValidPrice(histories.stream()
 				.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-				.reduce(0D, Double::sum))
+				.reduce(0D, Double::sum)
+				.intValue())
 			.price(tradeDto.getPrice())
 			.priceChangeRate(priceChangeRate)
-			.from(earliestTradeHistory.getStartTime().toLocalTime())
-			.to(tradeDto.getCreatedAt().toLocalTime())
+			.from(earliestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
+			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
 			.build();
 	}
 }

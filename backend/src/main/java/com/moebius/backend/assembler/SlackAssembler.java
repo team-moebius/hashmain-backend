@@ -30,7 +30,7 @@ public class SlackAssembler {
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(upbitBase + symbol)
-				.text("[" + symbol + "] Heavy trades(" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + ") occurred during "
+				.text("[" + symbol + "] Heavy trades(*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 					+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total ask volume")

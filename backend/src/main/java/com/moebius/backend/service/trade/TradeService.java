@@ -25,6 +25,7 @@ public class TradeService {
 	private static final int DEFAULT_TIME_RANGE = 5;
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
+	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
 	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.03D;
 	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.97D;
@@ -53,7 +54,8 @@ public class TradeService {
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
-	 * 2-1. Heavy total transaction price change : the last history has greater than equal to +-3% price change than previous earliest history's price.
+	 * 2-1. Heavy total transaction price : valid accumulated price is over 5M KRW
+	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-3% price change than previous earliest history's price.
 	 *
 	 * @param historiesDto
 	 * @return
@@ -64,36 +66,39 @@ public class TradeService {
 			return false;
 		}
 
-		AggregatedTradeHistoryDto lastHistory = histories.get(histories.size() - 1);
+		AggregatedTradeHistoryDto latestHistory = histories.get(histories.size() - 1);
 		double previousAverageVolume = IntStream.range(0, histories.size() - 1)
 			.mapToDouble(index -> histories.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(0D);
-
 		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
 
-		if (previousAverageVolume == 0D || earliestTradePrice == 0D) {
-			return false;
-		}
-
-		if (isValidVolume(lastHistory, previousAverageVolume) ||
-			isValidPrice(lastHistory, earliestTradePrice)) {
+		if (isValidVolume(latestHistory, previousAverageVolume) ||
+			isValidPrice(latestHistory, earliestTradePrice)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
-				historiesDto.getExchange(), historiesDto.getSymbol(), lastHistory.getTotalTransactionVolume(), previousAverageVolume,
-				lastHistory.getTotalBidPrice() - lastHistory.getTotalAskPrice(), earliestTradePrice);
+				historiesDto.getExchange(), historiesDto.getSymbol(), latestHistory.getTotalTransactionVolume(), previousAverageVolume,
+				latestHistory.getTotalBidPrice() - latestHistory.getTotalAskPrice(), earliestTradePrice);
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isValidVolume(AggregatedTradeHistoryDto lastHistory, double previousAverageVolume) {
-		return lastHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
+	private boolean isValidVolume(AggregatedTradeHistoryDto latestHistory, double previousAverageVolume) {
+		if (previousAverageVolume == 0D) {
+			return false;
+		}
+
+		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
 	}
 
-	private boolean isValidPrice(AggregatedTradeHistoryDto lastHistory, double earliestTradePrice) {
-		double averagePrice = lastHistory.getTotalTransactionPrice() / lastHistory.getTotalTransactionVolume();
+	private boolean isValidPrice(AggregatedTradeHistoryDto latestHistory, double earliestTradePrice) {
+		if (earliestTradePrice == 0D || latestHistory.getTotalTransactionPrice() < TRADE_HISTORY_PRICE_THRESHOLD) {
+			return false;
+		}
 
-		return averagePrice / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
-			averagePrice / earliestTradePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
+		double latestTradePrice = latestHistory.getTotalTransactionPrice() / latestHistory.getTotalTransactionVolume();
+
+		return latestTradePrice / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
+			latestTradePrice / earliestTradePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
 	}
 }
