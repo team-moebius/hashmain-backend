@@ -73,7 +73,7 @@ public class TradeService {
 			.orElse(0D);
 		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
 
-		if (isValidVolume(latestHistory, previousAverageVolume) ||
+		if (isValidVolume(latestHistory, previousAverageVolume) &&
 			isValidPrice(histories, earliestTradePrice)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
 				historiesDto.getExchange(), historiesDto.getSymbol(), latestHistory.getTotalTransactionVolume(), previousAverageVolume,
