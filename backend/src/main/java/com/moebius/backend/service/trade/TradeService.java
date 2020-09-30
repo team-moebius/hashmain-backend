@@ -27,8 +27,8 @@ public class TradeService {
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
 	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
-	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.02D;
-	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.98D;
+	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.01D;
+	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.99D;
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isValidTrade(tradeDto)) {
@@ -46,16 +46,16 @@ public class TradeService {
 	}
 
 	/**
-	 * Valid trade is determined when one of these conditions below is satisfied.
+	 * Valid trade is determined when all of these conditions below are satisfied.
 	 *
 	 * 1. Volume change
 	 * 1-1. Heavy total transaction volume change : the last history is 5x bigger than previous average volume.
-	 * 1-2. [Not applied yet] Heavy valid volume(bid - ask) change : the last history is 10x bigger than previous ones' average value,
+	 * 1-2. [Not applied yet] Heavy valid volume(bid - ask) change : the last history is 5x bigger than previous ones' average value,
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
 	 * 2-1. Heavy total transaction price : valid accumulated price is over 5M KRW
-	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-2% price change than previous earliest history's price.
+	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-1% price change than previous earliest history's price.
 	 *
 	 * @param historiesDto
 	 * @return
@@ -73,7 +73,7 @@ public class TradeService {
 			.orElse(0D);
 		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
 
-		if (isValidVolume(latestHistory, previousAverageVolume) &&
+		if (isValidVolume(latestHistory, previousAverageVolume) ||
 			isValidPrice(latestHistory, earliestTradePrice)) {
 			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
 				historiesDto.getExchange(), historiesDto.getSymbol(), latestHistory.getTotalTransactionVolume(), previousAverageVolume,

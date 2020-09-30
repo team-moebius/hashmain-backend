@@ -2,21 +2,21 @@ package com.moebius.backend.service.order
 
 import com.moebius.backend.assembler.order.OrderAssembler
 import com.moebius.backend.assembler.order.OrderAssetAssembler
-import com.moebius.backend.utils.OrderUtil
 import com.moebius.backend.domain.apikeys.ApiKey
 import com.moebius.backend.domain.commons.EventType
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.orders.*
-import com.moebius.backend.dto.order.OrderAssetDto
-import com.moebius.backend.dto.order.OrderDto
 import com.moebius.backend.dto.exchange.AssetDto
 import com.moebius.backend.dto.frontend.response.OrderAssetResponseDto
 import com.moebius.backend.dto.frontend.response.OrderResponseDto
+import com.moebius.backend.dto.order.OrderAssetDto
+import com.moebius.backend.dto.order.OrderDto
 import com.moebius.backend.exception.DataNotFoundException
 import com.moebius.backend.service.asset.AssetService
 import com.moebius.backend.service.market.MarketService
 import com.moebius.backend.service.member.ApiKeyService
 import com.moebius.backend.service.order.validator.OrderValidator
+import com.moebius.backend.utils.OrderUtil
 import org.bson.types.ObjectId
 import org.springframework.http.HttpStatus
 import reactor.core.publisher.Flux
@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
+import spock.lang.Unroll
 
 class InternalOrderServiceTest extends Specification {
 	def orderRepository = Mock(OrderRepository)
@@ -54,7 +55,8 @@ class InternalOrderServiceTest extends Specification {
 			exchangeOrderService
 	)
 
-	def "Should process orders"() {
+	@Unroll
+	def "Should process orders when #CONDITION"() {
 		given:
 		def orderDtos = [buildOrderDto(null, EventType.CREATE, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.DELETE, "KRW-BTC", OrderPosition.SALE, 1)] as List
@@ -81,9 +83,9 @@ class InternalOrderServiceTest extends Specification {
 		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 
 		where:
-		IS_ORDER_REQEUEST_NEEDED || EXCHANGE_ORDER_COUNT
-		false                    || 0
-		true                     || 1
+		CONDITION                    | IS_ORDER_REQEUEST_NEEDED || EXCHANGE_ORDER_COUNT
+		"order request is needed"    | false                    || 0
+		"order request isn't needed" | true                     || 1
 	}
 
 	def "Should get orders by exchange"() {
