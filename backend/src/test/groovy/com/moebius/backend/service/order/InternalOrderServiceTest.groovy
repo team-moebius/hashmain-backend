@@ -59,6 +59,17 @@ class InternalOrderServiceTest extends Specification {
 		def orderDtos = [buildOrderDto(null, EventType.CREATE, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.DELETE, "KRW-BTC", OrderPosition.SALE, 1)] as List
 
+		when:
+		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
+				.assertNext({
+					it.getStatusCode() == HttpStatus.OK
+					it.getBody() instanceof OrderResponseDto
+					it.getBody().getOrders() instanceof List<? extends OrderDto>
+					it.getBody().getOrders().size() == 2
+				})
+				.verifyComplete()
+
+		then:
 		1 * orderValidator.validate(orderDtos)
 		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
 		1 * orderAssembler.assembleReadyOrder(_ as ApiKey, _ as OrderDto) >> Stub(Order)
@@ -68,16 +79,6 @@ class InternalOrderServiceTest extends Specification {
 		EXCHANGE_ORDER_COUNT * exchangeOrderService.order(_ as ApiKey, _ as Order)
 		1 * orderRepository.deleteById(_ as ObjectId) >> Mono.empty()
 		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
-
-		expect:
-		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
-				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof OrderResponseDto
-					it.getBody().getOrders() instanceof List<? extends OrderDto>
-					it.getBody().getOrders().size() == 2
-				})
-				.verifyComplete()
 
 		where:
 		IS_ORDER_REQEUEST_NEEDED || EXCHANGE_ORDER_COUNT
@@ -90,12 +91,7 @@ class InternalOrderServiceTest extends Specification {
 		def orderDtos = [buildOrderDto("5ee4149e4941d136bae8e49a", EventType.READ, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.READ, "KRW-BTC", OrderPosition.SALE, 1)] as List
 
-		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
-		1 * orderRepository.findAllByApiKeyId(_ as ObjectId) >> Flux.just(Stub(Order), Stub(Order))
-		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
-		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
-
-		expect:
+		when:
 		StepVerifier.create(internalOrderService.getOrdersByExchange(memberId, exchange))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
@@ -104,6 +100,12 @@ class InternalOrderServiceTest extends Specification {
 					it.getBody().getOrders().size() == 2
 				})
 				.verifyComplete()
+
+		then:
+		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
+		1 * orderRepository.findAllByApiKeyId(_ as ObjectId) >> Flux.just(Stub(Order), Stub(Order))
+		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
+		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 	}
 
 	def "Should get orders by exchange and symbol"() {
@@ -112,13 +114,7 @@ class InternalOrderServiceTest extends Specification {
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.READ, "KRW-ETH", OrderPosition.SALE, 1)] as List
 		def filteredOrderDtos = [orderDtos.get(0)]
 
-		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
-		1 * orderRepository.findAllByApiKeyId(_ as ObjectId) >> Flux.just(Stub(Order), Stub(Order))
-		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
-		1 * orderUtil.filterOrdersBySymbol(_ as List, "KRW-BTC") >> filteredOrderDtos
-		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(filteredOrderDtos).build()
-
-		expect:
+		when:
 		StepVerifier.create(internalOrderService.getOrdersByExchangeAndSymbol(memberId, exchange, "KRW-BTC"))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
@@ -127,6 +123,13 @@ class InternalOrderServiceTest extends Specification {
 					it.getBody().getOrders().size() == 1
 				})
 				.verifyComplete()
+
+		then:
+		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
+		1 * orderRepository.findAllByApiKeyId(_ as ObjectId) >> Flux.just(Stub(Order), Stub(Order))
+		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
+		1 * orderUtil.filterOrdersBySymbol(_ as List, "KRW-BTC") >> filteredOrderDtos
+		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(filteredOrderDtos).build()
 	}
 
 	def "Should not get orders cause of not exist"() {
@@ -146,16 +149,7 @@ class InternalOrderServiceTest extends Specification {
 		def orderDtos = [buildOrderDto("5ee4149e4941d136bae8e49a", EventType.READ, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.READ, "KRW-BTC", OrderPosition.SALE, 1)] as List
 
-		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
-		1 * orderRepository.findAllByApiKeyIdAndOrderStatusNot(_ as ObjectId, OrderStatus.DONE) >> Flux.just(Stub(Order), Stub(Order))
-		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
-		1 * orderAssetAssembler.assembleCurrencyToOrderDtos(_ as List) >> ["BTC": orderDtos]
-		1 * assetService.getCurrencyAssetMap(memberId, exchange) >> Mono.just(["BTC": Stub(AssetDto)])
-		1 * marketService.getCurrencyMarketPriceMap(exchange) >> Mono.just(["BTC": 10000000D])
-		1 * orderAssetAssembler.assembleOrderAssetDto(_ as List, _ as AssetDto, 10000000D) >> Stub(OrderAssetDto)
-		1 * orderAssetAssembler.assembleOrderAssetResponse(_ as List) >> OrderAssetResponseDto.builder().orderAssets([Stub(OrderAssetDto)]).build()
-
-		expect:
+		when:
 		StepVerifier.create(internalOrderService.getOrderAssets(memberId, exchange))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
@@ -164,6 +158,16 @@ class InternalOrderServiceTest extends Specification {
 					it.getBody().getOrderAssets().size() == 1
 				})
 				.verifyComplete()
+
+		then:
+		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
+		1 * orderRepository.findAllByApiKeyIdAndOrderStatusNot(_ as ObjectId, OrderStatus.DONE) >> Flux.just(Stub(Order), Stub(Order))
+		2 * orderAssembler.assembleDto(_ as Order, EventType.READ) >> Stub(OrderDto)
+		1 * orderAssetAssembler.assembleCurrencyToOrderDtos(_ as List) >> ["BTC": orderDtos]
+		1 * assetService.getCurrencyAssetMap(memberId, exchange) >> Mono.just(["BTC": Stub(AssetDto)])
+		1 * marketService.getCurrencyMarketPriceMap(exchange) >> Mono.just(["BTC": 10000000D])
+		1 * orderAssetAssembler.assembleOrderAssetDto(_ as List, _ as AssetDto, 10000000D) >> Stub(OrderAssetDto)
+		1 * orderAssetAssembler.assembleOrderAssetResponse(_ as List) >> OrderAssetResponseDto.builder().orderAssets([Stub(OrderAssetDto)]).build()
 	}
 
 	OrderDto buildOrderDto(String id, EventType eventType, String symbol, OrderPosition orderPosition, int level) {
