@@ -26,6 +26,8 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import java.time.Duration
+
 class InternalOrderServiceTest extends Specification {
 	def orderRepository = Mock(OrderRepository)
 	def orderAssembler = Mock(OrderAssembler)
@@ -60,9 +62,11 @@ class InternalOrderServiceTest extends Specification {
 		given:
 		def orderDtos = [buildOrderDto(null, EventType.CREATE, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.DELETE, "KRW-BTC", OrderPosition.SALE, 1)] as List
+		def orderRequestNeeded = IS_ORDER_REQEUEST_NEEDED
 
 		when:
-		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
+		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos)
+				.delaySubscription(Duration.ofMillis(100)))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
 					it.getBody() instanceof OrderResponseDto
@@ -77,15 +81,15 @@ class InternalOrderServiceTest extends Specification {
 		1 * orderAssembler.assembleReadyOrder(_ as ApiKey, _ as OrderDto) >> Stub(Order)
 		1 * orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
 		1 * marketService.getCurrentPrice(_ as Exchange, _ as String) >> Mono.just(10000000D)
-		1 * orderUtil.isOrderRequestNeeded(_ as Order, 10000000D) >> IS_ORDER_REQEUEST_NEEDED
+		1 * orderUtil.isOrderRequestNeeded(_ as Order, 10000000D) >> orderRequestNeeded
 		EXCHANGE_ORDER_COUNT * exchangeOrderService.order(_ as ApiKey, _ as Order)
 		1 * orderRepository.deleteById(_ as ObjectId) >> Mono.empty()
 		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 
 		where:
 		CONDITION                    | IS_ORDER_REQEUEST_NEEDED || EXCHANGE_ORDER_COUNT
-		"order request is needed"    | false                    || 0
-		"order request isn't needed" | true                     || 1
+		"order request isn't needed" | false                    || 0
+		"order request is needed"    | true                     || 1
 	}
 
 	def "Should get orders by exchange"() {
