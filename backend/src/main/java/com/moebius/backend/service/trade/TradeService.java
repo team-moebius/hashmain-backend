@@ -35,7 +35,7 @@ public class TradeService {
 			tradeHistoryService.getAggregatedTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE)
 				.subscribeOn(COMPUTE.scheduler())
 				.filter(this::isValidTradeHistories)
-				.map(histories -> tradeAssembler.assembleSlackDto(tradeDto, histories))
+				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto))
 				.flatMap(tradeSlackSender::sendMessage)
 				.subscribe();
 		}

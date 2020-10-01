@@ -2,10 +2,12 @@ package com.moebius.backend.service.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +43,8 @@ public abstract class KafkaConsumer<K, V> {
 		log.info("[Kafka] Start to read messages. [{}]", getTopic());
 		receiver.receive()
 			.publishOn(COMPUTE.scheduler())
+			.groupBy(ConsumerRecord::key)
+			.flatMap(groupedFlux -> groupedFlux.sampleFirst(Duration.ofMillis(500)))
 			.subscribe(this::processRecord);
 	}
 }

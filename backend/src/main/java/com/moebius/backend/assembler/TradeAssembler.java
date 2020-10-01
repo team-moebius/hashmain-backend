@@ -12,9 +12,9 @@ import java.util.List;
 @Component
 public class TradeAssembler {
 	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
-		List<AggregatedTradeHistoryDto> histories = historiesDto.getAggregatedTradeHistories();
-		AggregatedTradeHistoryDto earliestTradeHistory = histories.get(0);
-		AggregatedTradeHistoryDto latestTradeHistory = histories.get(histories.size() - 1);
+		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
+		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
+		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
 
 		double previousEarliestPrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
 		double priceChangeRate = Math.round((tradeDto.getPrice() / previousEarliestPrice - 1) * 10000) / 100D;
@@ -22,13 +22,13 @@ public class TradeAssembler {
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
 			.exchange(tradeDto.getExchange())
-			.totalAskVolume(histories.stream()
+			.totalAskVolume(historyDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalAskVolume)
 				.reduce(0D, Double::sum))
-			.totalBidVolume(histories.stream()
+			.totalBidVolume(historyDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalBidVolume)
 				.reduce(0D, Double::sum))
-			.totalValidPrice(histories.stream()
+			.totalValidPrice(historyDtos.stream()
 				.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
 				.reduce(0D, Double::sum)
 				.intValue())
