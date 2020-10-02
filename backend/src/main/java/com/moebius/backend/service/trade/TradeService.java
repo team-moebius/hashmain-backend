@@ -31,17 +31,17 @@ public class TradeService {
 	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.99D;
 
 	public void identifyValidTrade(TradeDto tradeDto) {
-		if (isValidTrade(tradeDto)) {
+		if (isTradeOverPriceThreshold(tradeDto)) {
 			tradeHistoryService.getAggregatedTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE)
 				.subscribeOn(COMPUTE.scheduler())
-				.filter(this::isValidTradeHistories)
+				.filter(historiesDto -> isValidTrade(tradeDto, historiesDto))
 				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto))
 				.flatMap(tradeSlackSender::sendMessage)
 				.subscribe();
 		}
 	}
 
-	private boolean isValidTrade(TradeDto tradeDto) {
+	private boolean isTradeOverPriceThreshold(TradeDto tradeDto) {
 		return tradeDto.getVolume() * tradeDto.getPrice() >= TRADE_PRICE_THRESHOLD;
 	}
 
@@ -57,42 +57,42 @@ public class TradeService {
 	 * 2-1. Heavy total transaction price : valid total price is over 5M KRW or under -5M KRW
 	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-1% price change than previous earliest history's price.
 	 *
+	 * @param tradeDto
 	 * @param historiesDto
 	 * @return
 	 */
-	private boolean isValidTradeHistories(AggregatedTradeHistoriesDto historiesDto) {
-		List<AggregatedTradeHistoryDto> histories = historiesDto.getAggregatedTradeHistories();
-		if (histories.size() < HISTORY_COUNT_THRESHOLD) {
+	private boolean isValidTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
+		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
+		if (historyDtos.size() < HISTORY_COUNT_THRESHOLD) {
 			return false;
 		}
 
-		AggregatedTradeHistoryDto latestHistory = histories.get(histories.size() - 1);
-		double previousAverageVolume = IntStream.range(0, histories.size() - 1)
-			.mapToDouble(index -> histories.get(index).getTotalTransactionVolume())
-			.average()
-			.orElse(0D);
-		double earliestTradePrice = histories.get(0).getTotalTransactionPrice() / histories.get(0).getTotalTransactionVolume();
-
-		if (isValidVolume(latestHistory, previousAverageVolume) &&
-			isValidPrice(histories, earliestTradePrice)) {
-			log.info("[Trade] [{}/{}] The valid trade histories exist. [TTV: {}, PAV: {}, PAP: {}, PVP: {}]",
-				historiesDto.getExchange(), historiesDto.getSymbol(), latestHistory.getTotalTransactionVolume(), previousAverageVolume,
-				latestHistory.getTotalBidPrice() - latestHistory.getTotalAskPrice(), earliestTradePrice);
+		if (isValidVolume(historyDtos) &&
+			isValidPrice(tradeDto, historyDtos)) {
+			log.info("[Trade] [{}/{}] The valid trade historyDtos exist.",
+				historiesDto.getExchange(), historiesDto.getSymbol());
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isValidVolume(AggregatedTradeHistoryDto latestHistory, double previousAverageVolume) {
+	private boolean isValidVolume(List<AggregatedTradeHistoryDto> historyDtos) {
+		double previousAverageVolume = IntStream.range(0, historyDtos.size() - 1)
+			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
+			.average()
+			.orElse(0D);
 		if (previousAverageVolume == 0D) {
 			return false;
 		}
 
+		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 1);
+
 		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
 	}
 
-	private boolean isValidPrice(List<AggregatedTradeHistoryDto> histories, double earliestTradePrice) {
-		double totalValidPrice = histories.stream()
+	private boolean isValidPrice(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
+		double earliestTradePrice = historyDtos.get(0).getTotalTransactionPrice() / historyDtos.get(0).getTotalTransactionVolume();
+		double totalValidPrice = historyDtos.stream()
 			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
 			.reduce(0D, Double::sum);
 
@@ -101,10 +101,7 @@ public class TradeService {
 			return false;
 		}
 
-		AggregatedTradeHistoryDto latestHistory = histories.get(histories.size() - 1);
-		double latestTradePrice = latestHistory.getTotalTransactionPrice() / latestHistory.getTotalTransactionVolume();
-
-		return latestTradePrice / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
-			latestTradePrice / earliestTradePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
+		return tradeDto.getPrice() / earliestTradePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
+			tradeDto.getPrice() / earliestTradePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
 	}
 }

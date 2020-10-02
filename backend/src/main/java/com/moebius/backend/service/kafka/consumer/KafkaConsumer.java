@@ -3,6 +3,7 @@ package com.moebius.backend.service.kafka.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.receiver.ReceiverRecord;
@@ -44,7 +45,7 @@ public abstract class KafkaConsumer<K, V> {
 		receiver.receive()
 			.publishOn(COMPUTE.scheduler())
 			.groupBy(ConsumerRecord::key)
-			.flatMap(groupedFlux -> groupedFlux.sampleFirst(Duration.ofMillis(500)))
+			.flatMap(groupedFlux -> groupedFlux.sampleTimeout(record -> Mono.delay(Duration.ofSeconds(1))))
 			.subscribe(this::processRecord);
 	}
 }
