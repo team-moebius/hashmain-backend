@@ -26,8 +26,6 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-import java.time.Duration
-
 class InternalOrderServiceTest extends Specification {
 	def orderRepository = Mock(OrderRepository)
 	def orderAssembler = Mock(OrderAssembler)
@@ -65,8 +63,7 @@ class InternalOrderServiceTest extends Specification {
 		def orderRequestNeeded = IS_ORDER_REQEUEST_NEEDED
 
 		when:
-		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos)
-				.delaySubscription(Duration.ofMillis(100)))
+		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
 					it.getBody() instanceof OrderResponseDto
