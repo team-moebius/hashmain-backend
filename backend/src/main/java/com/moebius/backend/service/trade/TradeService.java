@@ -49,12 +49,12 @@ public class TradeService {
 	 * Valid trade is determined when all of these conditions below are satisfied.
 	 *
 	 * 1. Volume change
-	 * 1-1. Heavy total transaction volume change : the last history is 5x bigger than previous average volume.
+	 * 1-1. Heavy total transaction volume change : the last history is 5x bigger than previous average volume during 5 minutes.
 	 * 1-2. [Not applied yet] Heavy valid volume(bid - ask) change : the last history is 5x bigger than previous ones' average value,
 	 * 		OR change the trade direction. (EX : bid > ask -> bid < ask)
 	 *
 	 * 2. Price
-	 * 2-1. Heavy total transaction price : valid total price is over 5M KRW or under -5M KRW
+	 * 2-1. Heavy total transaction price : valid total price during 5 minutes is over 5M KRW or under -5M KRW
 	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-1% price change than previous earliest history's price.
 	 *
 	 * @param tradeDto
@@ -69,7 +69,7 @@ public class TradeService {
 
 		if (isValidVolume(historyDtos) &&
 			isValidPrice(tradeDto, historyDtos)) {
-			log.info("[Trade] [{}/{}] The valid trade historyDtos exist.",
+			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.",
 				historiesDto.getExchange(), historiesDto.getSymbol());
 			return true;
 		}
