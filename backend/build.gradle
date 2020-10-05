@@ -17,6 +17,14 @@ dependencies {
             'io.jsonwebtoken:jjwt-jackson:0.10.5'
 }
 
+test {
+    maxParallelForks = Runtime.runtime.availableProcessors()
+}
+
+//tasks.withType(Test) {
+//    forkEvery = 100
+//}
+
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
