@@ -28,4 +28,5 @@ public class TradeSlackDto {
 	@JsonSerialize(using = LocalTimeSerializer.class)
 	@JsonDeserialize(using = LocalTimeDeserializer.class)
 	private LocalTime to;
+	private String referenceLink;
 }

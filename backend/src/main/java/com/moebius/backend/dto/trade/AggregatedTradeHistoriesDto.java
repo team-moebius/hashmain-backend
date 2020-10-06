@@ -16,9 +16,6 @@ import java.util.List;
 @JsonDeserialize(builder = AggregatedTradeHistoriesDto.AggregatedTradeHistoriesDtoBuilder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AggregatedTradeHistoriesDto {
-	private Exchange exchange;
-	private String symbol;
-	private long interval;
 	private List<AggregatedTradeHistoryDto> aggregatedTradeHistories;
 
 	@JsonPOJOBuilder(withPrefix = "")

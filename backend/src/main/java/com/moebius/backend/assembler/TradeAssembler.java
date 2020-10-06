@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 public class TradeAssembler {
-	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
+	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
 		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
 		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
 		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
@@ -36,6 +36,7 @@ public class TradeAssembler {
 			.priceChangeRate(priceChangeRate)
 			.from(earliestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
 			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
+			.referenceLink(referenceLink)
 			.build();
 	}
 }

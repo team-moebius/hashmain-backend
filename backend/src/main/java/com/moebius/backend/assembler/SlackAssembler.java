@@ -4,7 +4,6 @@ import com.moebius.backend.dto.slack.SlackMessageDto;
 import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.utils.OrderUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
@@ -14,8 +13,6 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class SlackAssembler {
-	@Value("${exchange.upbit.exchange.base}")
-	private String upbitBase;
 	private final OrderUtil orderUtil;
 
 	public SlackMessageDto assemble(TradeSlackDto tradeSlackDto) {
@@ -29,7 +26,7 @@ public class SlackAssembler {
 			.attachments(Collections.singletonList(SlackMessageDto.SlackAttachment.builder()
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
-				.authorLink(upbitBase + symbol)
+				.authorLink(tradeSlackDto.getReferenceLink())
 				.text("[" + symbol + "] Heavy trades(*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 					+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()

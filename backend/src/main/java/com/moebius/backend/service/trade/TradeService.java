@@ -32,10 +32,12 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
-			tradeHistoryService.getAggregatedTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE)
+			String uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE);
+
+			tradeHistoryService.getAggregatedTradeHistories(uri)
 				.subscribeOn(COMPUTE.scheduler())
 				.filter(historiesDto -> isValidTrade(tradeDto, historiesDto))
-				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto))
+				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto, uri))
 				.flatMap(tradeSlackSender::sendMessage)
 				.subscribe();
 		}
@@ -55,7 +57,7 @@ public class TradeService {
 	 *
 	 * 2. Price
 	 * 2-1. Heavy total transaction price : valid total price during 5 minutes is over 5M KRW or under -5M KRW
-	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +-1% price change than previous earliest history's price.
+	 * 2-2. Heavy total transaction price change : the last history has greater than equal to +1% or less than equal to -1% price change than previous earliest history's price.
 	 *
 	 * @param tradeDto
 	 * @param historiesDto
@@ -70,7 +72,7 @@ public class TradeService {
 		if (isValidVolume(historyDtos) &&
 			isValidPrice(tradeDto, historyDtos)) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.",
-				historiesDto.getExchange(), historiesDto.getSymbol());
+				tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
 		return false;

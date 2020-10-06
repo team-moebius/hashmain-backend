@@ -31,7 +31,8 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 5) >> Mono.just(aggregatedTradeHistoriesDto)
+		1 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> "http://dev-data-api.hashmainpro.com:8080/trade-histories/aggregated/UPBIT/KRW-BTC?from=2020-09-27T17%3A50%3A00%2B09%3A00&to=2020-09-27T17%3A55%3A00%2B09%3A00&interval=1"
+		1 * tradeHistoryService.getAggregatedTradeHistories(_ as String) >> Mono.just(aggregatedTradeHistoriesDto)
 	}
 
 	def "Should not request to send slack message if invalid trade"() {
@@ -39,6 +40,7 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(1000D, 1D))
 
 		then:
+		0 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> "http://dev-data-api.hashmainpro.com:8080/trade-histories/aggregated/UPBIT/KRW-BTC?from=2020-09-27T17%3A50%3A00%2B09%3A00&to=2020-09-27T17%3A55%3A00%2B09%3A00&interval=1"
 		0 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 5) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
 	}
 
