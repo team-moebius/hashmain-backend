@@ -18,7 +18,7 @@ dependencies {
 }
 
 test {
-    maxParallelForks = 1
+    maxParallelForks = Runtime.runtime.availableProcessors()
 }
 
 //tasks.withType(Test) {
