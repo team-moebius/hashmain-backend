@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -50,7 +51,7 @@ public class TradeHistoryService {
 			.onErrorResume(WebClientResponseException.class, exception -> Flux.empty());
 	}
 
-	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(String uri) {
+	public Mono<AggregatedTradeHistoriesDto> getAggregatedTradeHistories(URI uri) {
 		return webClient.get()
 			.uri(uri)
 			.retrieve()
@@ -59,7 +60,7 @@ public class TradeHistoryService {
 			.onErrorResume(WebClientResponseException.class, exception -> Mono.empty());
 	}
 
-	public String getAggregatedTradeHistoriesUri(TradeDto tradeDto, int interval, int range) {
+	public URI getAggregatedTradeHistoriesUri(TradeDto tradeDto, int interval, int range) {
 		ZonedDateTime now = ZonedDateTime.now();
 
 		String from = now.minusMinutes(range).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
@@ -74,7 +75,6 @@ public class TradeHistoryService {
 			.queryParam("from", "{from}")
 			.queryParam("to", "{to}")
 			.queryParam("interval", interval)
-			.build(from, to)
-			.toString();
+			.build(from, to);
 	}
 }

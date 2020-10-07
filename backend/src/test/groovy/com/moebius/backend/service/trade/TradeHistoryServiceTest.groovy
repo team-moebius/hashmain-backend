@@ -7,10 +7,10 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
-import org.apache.commons.lang3.StringUtils
 import org.springframework.util.CollectionUtils
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriBuilder
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -57,15 +57,17 @@ class TradeHistoryServiceTest extends Specification {
 
 	def "Should get aggregated trade histories"() {
 		given:
+		def uri = UriComponentsBuilder.newInstance().build().toUri()
+
 		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * uriSpec.uri(_ as URI) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToMono(AggregatedTradeHistoriesDto.class) >> Mono.just(AggregatedTradeHistoriesDto.builder()
 				.aggregatedTradeHistories([Stub(AggregatedTradeHistoryDto)])
 				.build())
 
 		expect:
-		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories("http://dev-data-api.hashmainpro.com:8080/trade-histories/aggregated/UPBIT/KRW-BTC?from=2020-09-27T17%3A50%3A00%2B09%3A00&to=2020-09-27T17%3A55%3A00%2B09%3A00&interval=1"))
+		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories(uri))
 				.assertNext({
 					it != null
 					!CollectionUtils.isEmpty(it.getAggregatedTradeHistories())
@@ -79,9 +81,9 @@ class TradeHistoryServiceTest extends Specification {
 		def result = tradeHistoryService.getAggregatedTradeHistoriesUri(getTradeDto(), 1, 5)
 
 		then:
-		StringUtils.isNotBlank(result)
-		result.contains("%3A")
-		result.contains("interval=1")
+		result instanceof URI
+		result.toString().contains("%3A")
+		result.toString().contains("interval=1")
 	}
 
 	TradeDto getTradeDto() {

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -32,12 +33,12 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
-			String uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE);
+			URI uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, DEFAULT_TIME_INTERVAL, DEFAULT_TIME_RANGE);
 
 			tradeHistoryService.getAggregatedTradeHistories(uri)
 				.subscribeOn(COMPUTE.scheduler())
 				.filter(historiesDto -> isValidTrade(tradeDto, historiesDto))
-				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto, uri))
+				.map(historiesDto -> tradeAssembler.assembleSlackDto(tradeDto, historiesDto, uri.toString()))
 				.flatMap(tradeSlackSender::sendMessage)
 				.subscribe();
 		}
