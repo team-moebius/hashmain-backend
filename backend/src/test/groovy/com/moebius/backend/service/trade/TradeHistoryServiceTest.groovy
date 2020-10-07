@@ -81,7 +81,6 @@ class TradeHistoryServiceTest extends Specification {
 		then:
 		StringUtils.isNotBlank(result)
 		result.contains("%3A")
-		result.contains("%2B")
 		result.contains("interval=1")
 	}
 
