@@ -25,7 +25,7 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
-			tradeStrategies.parallelStream().forEach(strategy -> {
+			tradeStrategies.forEach(strategy -> {
 				URI uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, strategy.getTimeInterval(), strategy.getTimeRange());
 
 				tradeHistoryService.getAggregatedTradeHistories(uri)
@@ -36,6 +36,7 @@ public class TradeService {
 					.subscribe();
 			});
 		}
+
 	}
 
 	private boolean isTradeOverPriceThreshold(TradeDto tradeDto) {
