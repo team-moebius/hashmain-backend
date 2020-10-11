@@ -14,13 +14,10 @@ public class TradeSlackSender extends SlackSender<TradeSlackDto> {
 	@Value("${slack.web-hook-url.trade}")
 	private String webHookUrl;
 	private final SlackAssembler slackAssembler;
-	private final SlackValve slackValve;
-	private final long MINUTE_INTERVAL = 1L;
 
-	public TradeSlackSender(WebClient webClient, SlackAssembler slackAssembler, SlackValve slackValve) {
+	public TradeSlackSender(WebClient webClient, SlackAssembler slackAssembler) {
 		super(webClient);
 		this.slackAssembler = slackAssembler;
-		this.slackValve = slackValve;
 	}
 
 	@Override
@@ -35,13 +32,6 @@ public class TradeSlackSender extends SlackSender<TradeSlackDto> {
 
 	@Override
 	public Mono<ClientResponse> sendMessage(TradeSlackDto messageSource) {
-		String valveKey = messageSource.getTradeDto().getExchange() + "-" + messageSource.getTradeDto().getSymbol();
-
-		if (slackValve.canSend(valveKey, MINUTE_INTERVAL)) {
-			return super.sendMessage(messageSource)
-				.doOnSuccess(clientResponse -> slackValve.updateHistory(valveKey));
-		}
-
-		return Mono.empty();
+		return super.sendMessage(messageSource);
 	}
 }

@@ -5,14 +5,19 @@ import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.commons.TradeType
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
+import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
 import org.springframework.util.CollectionUtils
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriBuilder
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 import spock.lang.Specification
 import spock.lang.Subject
+
+import java.util.function.Function
 
 class TradeHistoryServiceTest extends Specification {
 	def webClient = Mock(WebClient)
@@ -29,7 +34,7 @@ class TradeHistoryServiceTest extends Specification {
 	def "Should get trade histories"() {
 		given:
 		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * uriSpec.uri(_ as Function<UriBuilder, URI>) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToFlux(TradeHistoryDto.class) >> Flux.just(TradeHistoryDto.builder()
 				.exchange(exchange)
@@ -50,28 +55,42 @@ class TradeHistoryServiceTest extends Specification {
 				.verifyComplete()
 	}
 
-	def "Should get aggregated trade history"() {
+	def "Should get aggregated trade histories"() {
 		given:
+		def uri = UriComponentsBuilder.newInstance().build().toUri()
+
 		1 * webClient.get() >> uriSpec
-		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * uriSpec.uri(_ as URI) >> headersSpec
 		1 * headersSpec.retrieve() >> responseSpec
 		1 * responseSpec.bodyToMono(AggregatedTradeHistoriesDto.class) >> Mono.just(AggregatedTradeHistoriesDto.builder()
-				.exchange(exchange)
-				.symbol(symbol)
-				.interval(1L)
 				.aggregatedTradeHistories([Stub(AggregatedTradeHistoryDto)])
 				.build())
 
 		expect:
-		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories(exchange, symbol, 1, 2))
+		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories(uri))
 				.assertNext({
 					it != null
-					it.getExchange() == Exchange.UPBIT
-					it.getSymbol() == "KRW-BTC"
-					it.getInterval() == 1L
 					!CollectionUtils.isEmpty(it.getAggregatedTradeHistories())
 					it.getAggregatedTradeHistories().get(0) instanceof AggregatedTradeHistoryDto
 				})
 				.verifyComplete()
+	}
+
+	def "Should get aggregated trade histories url"() {
+		when:
+		def result = tradeHistoryService.getAggregatedTradeHistoriesUri(getTradeDto(), 1, 5)
+
+		then:
+		result instanceof URI
+		result.toString().contains("%3A")
+		result.toString().contains("interval=1")
+	}
+
+	TradeDto getTradeDto() {
+		TradeDto tradeDto = new TradeDto()
+		tradeDto.setExchange(Exchange.UPBIT)
+		tradeDto.setSymbol("KRW-BTC")
+
+		return tradeDto
 	}
 }

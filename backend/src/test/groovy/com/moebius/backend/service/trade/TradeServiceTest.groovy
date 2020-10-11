@@ -3,48 +3,62 @@ package com.moebius.backend.service.trade
 import com.moebius.backend.assembler.SlackAssembler
 import com.moebius.backend.assembler.TradeAssembler
 import com.moebius.backend.domain.commons.Exchange
+import com.moebius.backend.dto.slack.TradeSlackDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
+import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
-import com.moebius.backend.service.slack.SlackValve
 import com.moebius.backend.service.slack.TradeSlackSender
+import com.moebius.backend.service.trade.strategy.ShortTermStrategy
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
-import spock.lang.Unroll
-
-import java.time.LocalDateTime
 
 class TradeServiceTest extends Specification {
+	def tradeStrategies = [Mock(ShortTermStrategy) {
+		getTimeInterval() >> 1
+		getTimeRange() >> 6
+		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
+	}]
 	def tradeHistoryService = Mock(TradeHistoryService)
-	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler), Stub(SlackValve)]) as TradeSlackSender
+	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
 
-	@Subject
-	def tradeService = new TradeService(tradeHistoryService, tradeSlackSender, tradeAssembler)
+	@Shared
+	def uri = UriComponentsBuilder.newInstance().build().toUri()
 
-	@Unroll
-	def "Should request to send slack message"() {
+	@Subject
+	def tradeService = new TradeService(tradeStrategies, tradeHistoryService, tradeSlackSender, tradeAssembler)
+
+	def "Should request to send slack message if valid trade and valid histories"() {
+		given:
+		def aggregatedTradeHistoriesDto = Stub(AggregatedTradeHistoriesDto) {
+			getAggregatedTradeHistories() >> [getHistoryDto(10D, 2000D, 10000D),
+											  getHistoryDto(10000D, 200000D, 11800000D)]
+		}
+
 		when:
 		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getAggregatedTradeHistories(_ as Exchange, _ as String, 1, 2) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
+		1 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
+		1 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(aggregatedTradeHistoriesDto)
+		1 * tradeAssembler.assembleSlackDto(_ as TradeDto, _ as AggregatedTradeHistoriesDto, _ as String) >> Stub(TradeSlackDto)
+		1 * tradeSlackSender.sendMessage(_ as TradeSlackDto)
 	}
 
-	def "Should identify valid trade"() {
-		expect:
-		tradeService.isValidTrade(TRADE_DTO) == RESULT
+	def "Should not request to send slack message if invalid trade"() {
+		when:
+		tradeService.identifyValidTrade(getTradeDto(1000D, 1D))
 
-		where:
-		TRADE_DTO               || RESULT
-		getTradeDto(100D, 1D)   || false
-		getTradeDto(10000D, 2D) || true
+		then:
+		0 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
+		0 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
+		0 * tradeAssembler.assembleSlackDto(_ as TradeDto, _ as AggregatedTradeHistoriesDto, _ as String) >> Stub(TradeSlackDto)
+		0 * tradeSlackSender.sendMessage(_ as TradeSlackDto)
 	}
-
-//	def "Should identify valid trade histories"() {
-//
-//	}
 
 	TradeDto getTradeDto(double price, double volume) {
 		TradeDto tradeDto = new TradeDto()
@@ -56,12 +70,11 @@ class TradeServiceTest extends Specification {
 		return tradeDto
 	}
 
-//	AggregatedTradeHistoriesDto getHistoryDto(double totalTransactionPrice, double totalTransactionVolume) {
-//		return AggregatedTradeHistoriesDto.builder()
-//				.totalTransactionPrice(totalTransactionPrice)
-//				.totalTransactionVolume(totalTransactionVolume)
-//				.startAt(LocalDateTime.now().minusMinutes(5L))
-//				.endAt(LocalDateTime.now())
-//				.build()
-//	}
+	AggregatedTradeHistoryDto getHistoryDto(double totalTransactionVolume, double totalAskPrice, double totalBidPrice) {
+		return AggregatedTradeHistoryDto.builder()
+				.totalTransactionVolume(totalTransactionVolume)
+				.totalAskPrice(totalAskPrice)
+				.totalBidPrice(totalBidPrice)
+				.build()
+	}
 }

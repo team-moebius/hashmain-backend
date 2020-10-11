@@ -6,25 +6,37 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
 public class TradeAssembler {
-	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
+	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
 		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
-		double priceChange = tradeDto.getPrice() - tradeDto.getPrevClosingPrice();
-		double priceChangeRate = Math.round((tradeDto.getPrice() / tradeDto.getPrevClosingPrice() - 1) * 10000) / 100D;
+		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
+		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
+
+		double earliestTradePrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
+		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestTradePrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
-			.tradeDto(tradeDto)
+			.symbol(tradeDto.getSymbol())
+			.exchange(tradeDto.getExchange())
 			.totalAskVolume(historyDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalAskVolume)
 				.reduce(0D, Double::sum))
 			.totalBidVolume(historyDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalBidVolume)
 				.reduce(0D, Double::sum))
-			.priceChange(priceChange)
+			.totalValidPrice(historyDtos.stream()
+				.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
+				.reduce(0D, Double::sum)
+				.intValue())
+			.price(tradeDto.getPrice())
 			.priceChangeRate(priceChangeRate)
+			.from(earliestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
+			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
+			.referenceLink(referenceLink)
 			.build();
 	}
 }
