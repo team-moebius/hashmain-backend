@@ -82,8 +82,6 @@ public class ShortTermStrategy implements TradeStrategy {
 			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
 			.reduce(0D, Double::sum);
 
-		totalValidPrice = tradeDto.getTradeType() == TradeType.ASK ? totalValidPrice - tradeDto.getPrice() : totalValidPrice + tradeDto.getPrice();
-
 		if (previousAveragePrice == 0D ||
 			(totalValidPrice < TRADE_HISTORY_PRICE_THRESHOLD && totalValidPrice > -TRADE_HISTORY_PRICE_THRESHOLD)) {
 			return false;
