@@ -3,10 +3,12 @@ package com.moebius.backend.service.trade
 import com.moebius.backend.assembler.SlackAssembler
 import com.moebius.backend.assembler.TradeAssembler
 import com.moebius.backend.domain.commons.Exchange
+import com.moebius.backend.dto.slack.TradeSlackDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.slack.TradeSlackSender
+import com.moebius.backend.service.trade.strategy.ShortTermStrategy
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
@@ -15,6 +17,9 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
+	def tradeStrategies = [Mock(ShortTermStrategy) {
+		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
+	}]
 	def tradeHistoryService = Mock(TradeHistoryService)
 	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
@@ -23,7 +28,7 @@ class TradeServiceTest extends Specification {
 	def uri = UriComponentsBuilder.newInstance().build().toUri()
 
 	@Subject
-	def tradeService = new TradeService(tradeHistoryService, tradeSlackSender, tradeAssembler)
+	def tradeService = new TradeService(tradeStrategies, tradeHistoryService, tradeSlackSender, tradeAssembler)
 
 	def "Should request to send slack message if valid trade and valid histories"() {
 		given:
@@ -38,6 +43,8 @@ class TradeServiceTest extends Specification {
 		then:
 		1 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
 		1 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(aggregatedTradeHistoriesDto)
+		1 * tradeAssembler.assembleSlackDto(_ as TradeDto, _ as AggregatedTradeHistoriesDto, _ as String) >> Stub(TradeSlackDto)
+		1 * tradeSlackSender.sendMessage(_ as TradeSlackDto)
 	}
 
 	def "Should not request to send slack message if invalid trade"() {
@@ -47,6 +54,8 @@ class TradeServiceTest extends Specification {
 		then:
 		0 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
 		0 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
+		0 * tradeAssembler.assembleSlackDto(_ as TradeDto, _ as AggregatedTradeHistoriesDto, _ as String) >> Stub(TradeSlackDto)
+		0 * tradeSlackSender.sendMessage(_ as TradeSlackDto)
 	}
 
 	TradeDto getTradeDto(double price, double volume) {
