@@ -45,7 +45,7 @@ public abstract class KafkaConsumer<K, V> {
 		receiver.receive()
 			.publishOn(COMPUTE.scheduler())
 			.groupBy(ConsumerRecord::key)
-			.flatMap(groupedFlux -> groupedFlux.sampleTimeout(record -> Mono.delay(Duration.ofSeconds(5))))
+			.flatMap(groupedFlux -> groupedFlux.sampleFirst(Duration.ofSeconds(3)))
 			.subscribe(this::processRecord);
 	}
 }
