@@ -24,7 +24,6 @@ import java.util.stream.IntStream;
 @Component
 public class ShortTermStrategy implements TradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final int VALID_LATEST_HISTORY_CORRECTOR = 2;
 	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
 	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.01D;
@@ -50,38 +49,34 @@ public class ShortTermStrategy implements TradeStrategy {
 		if (hasValidVolumeChange(historyDtos) &&
 			hasTotalValidPrice(historyDtos) &&
 			hasValidPriceChange(tradeDto, historyDtos)) {
-			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.",
-				tradeDto.getExchange(), tradeDto.getSymbol());
+			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
 		return false;
 	}
 
 	private boolean hasValidVolumeChange(List<AggregatedTradeHistoryDto> historyDtos) {
-		double previousAverageVolume = IntStream.range(0, historyDtos.size() - VALID_LATEST_HISTORY_CORRECTOR)
+		double previousAverageVolume = IntStream.range(0, historyDtos.size() - 2)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(0D);
 
-		if (previousAverageVolume == 0D) {
-			return false;
-		}
+		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 2);
 
-		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - VALID_LATEST_HISTORY_CORRECTOR);
-
-		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
+		return previousAverageVolume != 0D &&
+			(latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD);
 	}
 
 	private boolean hasTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
-		double totalValidPrice = historyDtos.stream()
-			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
+		double totalValidPrice = IntStream.range(0, historyDtos.size() - 1)
+			.mapToDouble(index -> historyDtos.get(index).getTotalBidPrice() - historyDtos.get(index).getTotalAskPrice())
 			.reduce(0D, Double::sum);
 
 		return totalValidPrice >= TRADE_HISTORY_PRICE_THRESHOLD || totalValidPrice <= -TRADE_HISTORY_PRICE_THRESHOLD;
 	}
 
 	private boolean hasValidPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
-		double previousAveragePrice = IntStream.range(0, historyDtos.size() - VALID_LATEST_HISTORY_CORRECTOR)
+		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 2)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(0D);
