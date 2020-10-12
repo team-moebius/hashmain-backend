@@ -59,12 +59,11 @@ public class ShortTermStrategy implements TradeStrategy {
 		double previousAverageVolume = IntStream.range(0, historyDtos.size() - 2)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
 			.average()
-			.orElse(0D);
+			.orElse(1D);
 
 		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 2);
 
-		return previousAverageVolume != 0D &&
-			(latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD);
+		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
 	}
 
 	private boolean hasTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
@@ -79,10 +78,9 @@ public class ShortTermStrategy implements TradeStrategy {
 		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 2)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
-			.orElse(0D);
+			.orElse(1D);
 
-		return previousAveragePrice != 0 &&
-			(tradeDto.getPrice() / previousAveragePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
-				tradeDto.getPrice() / previousAveragePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD);
+		return tradeDto.getPrice() / previousAveragePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
+				tradeDto.getPrice() / previousAveragePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
 	}
 }

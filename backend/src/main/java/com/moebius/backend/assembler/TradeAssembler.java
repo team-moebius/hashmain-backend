@@ -16,7 +16,10 @@ public class TradeAssembler {
 		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
 		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
 
-		double earliestTradePrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
+		double earliestTradePrice = tradeDto.getPrevClosingPrice();
+		if (earliestTradeHistory.getTotalTransactionVolume() != 0) {
+			earliestTradePrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
+		}
 		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestTradePrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
