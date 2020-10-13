@@ -12,7 +12,8 @@ import java.util.List;
 @Component
 public class TradeAssembler {
 	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
-		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
+		int historySize = historiesDto.getAggregatedTradeHistories().size();
+		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories().subList(0, historySize);
 		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
 		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
 
