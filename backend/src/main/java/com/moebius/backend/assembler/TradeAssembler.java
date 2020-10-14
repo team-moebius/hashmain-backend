@@ -39,7 +39,7 @@ public class TradeAssembler {
 			.price(tradeDto.getPrice())
 			.priceChangeRate(priceChangeRate)
 			.from(earliestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
-			.to(latestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
+			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
 			.referenceLink(referenceLink)
 			.build();
 	}
