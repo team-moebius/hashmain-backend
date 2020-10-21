@@ -6,6 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 
+/**
+ * Heavy valid trade strategy defines the valid trades by conditions below.
+ * When all the conditions are satisfied, This strategy considers these trades are valid.
+ *
+ * ...
+ *
+ * @author Seonwoo Kim
+ */
 @Slf4j
 @Component
 public class HeavyValidTradeStrategy implements TradeStrategy {
