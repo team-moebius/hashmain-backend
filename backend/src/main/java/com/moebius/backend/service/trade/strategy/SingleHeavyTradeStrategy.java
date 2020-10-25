@@ -7,16 +7,17 @@ import org.springframework.stereotype.Component;
 
 
 /**
- * Heavy valid trade strategy defines the valid trades by conditions below.
- * When all the conditions are satisfied, This strategy considers these trades are valid.
+ * Single heavy trade strategy is for catching the trades not to be catched by short term strategy.
+ * When all the conditions are satisfied during recent 5 minutes, This strategy considers the trade is valid.
  *
- * ...
+ * 1.
+ * 2.
  *
  * @author Seonwoo Kim
  */
 @Slf4j
 @Component
-public class HeavyValidTradeStrategy implements TradeStrategy {
+public class SingleHeavyTradeStrategy implements TradeStrategy {
 	@Override
 	public int getTimeInterval() {
 		return 1;
@@ -24,7 +25,7 @@ public class HeavyValidTradeStrategy implements TradeStrategy {
 
 	@Override
 	public int getTimeRange() {
-		return 3;
+		return 6;
 	}
 
 	@Override
