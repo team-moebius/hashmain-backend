@@ -9,11 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -33,6 +34,8 @@ public class MoebiusApplicationTests {
 
 	@Test
 	public void initializeOnApplicationEvent() {
+		when(marketService.updateMarkets(any(Exchange.class))).thenReturn(Mono.just(ResponseEntity.ok().build()));
+
 		moebiusApplication.onApplicationEvent(applicationReadyEvent);
 
 		verify(marketService, times(Exchange.values().length)).updateMarkets(any(Exchange.class));
