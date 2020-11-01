@@ -8,6 +8,7 @@ import com.moebius.backend.service.kafka.producer.MessageKafkaProducer;
 import com.moebius.backend.utils.OrderUtil;
 import org.springframework.stereotype.Component;
 
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -19,15 +20,17 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
     private static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private final OrderUtil orderUtil;
+    private final NumberFormat formatter;
 
     public TradeSlackMessageSender(MessageKafkaProducer messageKafkaProducer, OrderUtil orderUtil) {
         super(messageKafkaProducer);
         this.orderUtil = orderUtil;
+        this.formatter = NumberFormat.getInstance();
     }
 
     @Override
     protected long getDedupPeriod() {
-        return 3;
+        return 1;
     }
 
     @Override
@@ -54,13 +57,14 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
         String targetCurrency = orderUtil.getTargetCurrencyBySymbol(symbol);
 
         return TradeSlackBodyDto.builder()
+                .color(param.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
                 .symbol(symbol)
                 .exchange(param.getExchange().name())
-                .totalAskVolume(param.getTotalAskVolume())
-                .totalBidVolume(param.getTotalBidVolume())
-                .totalValidPrice(param.getTotalValidPrice())
-                .price(param.getPrice())
-                .priceChangeRate(param.getPriceChangeRate())
+                .totalAskVolume(formatter.format(param.getTotalAskVolume()))
+                .totalBidVolume(formatter.format(param.getTotalBidVolume()))
+                .totalValidPrice(formatter.format(param.getTotalValidPrice()))
+                .price(formatter.format(param.getPrice()))
+                .priceChangeRate(formatter.format(param.getPriceChangeRate()))
                 .unitCurrency(unitCurrency)
                 .targetCurrency(targetCurrency)
                 .from(param.getFrom().format(LOCAL_TIME_FORMAT))
