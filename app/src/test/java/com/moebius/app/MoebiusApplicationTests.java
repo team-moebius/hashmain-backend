@@ -38,7 +38,7 @@ public class MoebiusApplicationTests {
 
 		moebiusApplication.onApplicationEvent(applicationReadyEvent);
 
-		verify(marketService, times(Exchange.values().length)).updateMarkets(any(Exchange.class));
+		verify(marketService, times(1)).updateMarkets(any(Exchange.class));
 		verify(upbitKafkaConsumer, times(1)).consumeMessages();
 	}
 }

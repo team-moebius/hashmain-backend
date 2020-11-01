@@ -23,7 +23,9 @@ public class MoebiusApplication implements ApplicationListener<ApplicationReadyE
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        Arrays.stream(Exchange.values()).forEach(exchange -> marketService.updateMarkets(exchange).subscribe());
+        Arrays.stream(Exchange.values())
+            .filter(exchange -> exchange == Exchange.UPBIT) // TODO : Remove condition after integrating other external exchanges
+            .forEach(exchange -> marketService.updateMarkets(exchange).subscribe());
         upbitKafkaConsumer.consumeMessages();
     }
 }
