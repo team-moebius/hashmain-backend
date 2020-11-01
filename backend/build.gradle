@@ -18,12 +18,8 @@ dependencies {
 }
 
 test {
-    maxParallelForks = Runtime.runtime.availableProcessors()
+    maxParallelForks = 1
 }
-
-//tasks.withType(Test) {
-//    forkEvery = 100
-//}
 
 dependencyManagement {
     imports {
