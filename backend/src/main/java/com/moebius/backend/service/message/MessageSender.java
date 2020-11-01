@@ -15,7 +15,7 @@ import java.util.Optional;
 public abstract class MessageSender<PARAM, BODY> {
     private final MessageKafkaProducer messageKafkaProducer;
 
-    Mono<Boolean> sendMessage(PARAM parameter) {
+    public Mono<Boolean> sendMessage(PARAM parameter) {
         String recipientType = getRecipientType().name();
         MessageSendRequestDto<BODY> sendRequest = new MessageSendRequestDto<>(
                 getDedupStrategyValue(), getDedupPeriod(), getTitle(parameter),

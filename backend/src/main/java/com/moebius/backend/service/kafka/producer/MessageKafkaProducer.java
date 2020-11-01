@@ -3,10 +3,12 @@ package com.moebius.backend.service.kafka.producer;
 import com.moebius.backend.dto.message.MessageSendRequestDto;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Map;
 
+@Component
 public class MessageKafkaProducer extends KafkaProducer<String, MessageSendRequestDto<?>, String> {
     private static final String MESSAGE_SEND_TOPIC = "moebius.message.send";
     private static final String MESSAGE_KEY_FORMAT = "%s.%s.%s";
