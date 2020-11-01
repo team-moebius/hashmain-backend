@@ -18,7 +18,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeStrategies = [Mock(ShortTermStrategy) {
+	def tradeStrategies = [Stub(ShortTermStrategy) {
 		getTimeInterval() >> 1
 		getTimeRange() >> 6
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
