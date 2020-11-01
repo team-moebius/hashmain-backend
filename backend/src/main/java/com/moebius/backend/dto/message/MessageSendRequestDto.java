@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class MessageSendRequestDto {
-    private String key;
+public class MessageSendRequestDto<T> {
     private String dedupStrategy;
     private long dedupPeriodMinutes;
     private String title;
-    private MessageBodyDto body;
+    private MessageBodyDto<T> body;
     private String recipientType;
     private String recipientId;
 }

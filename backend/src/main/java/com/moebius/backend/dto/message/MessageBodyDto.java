@@ -3,12 +3,11 @@ package com.moebius.backend.dto.message;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class MessageBodyDto {
+public class MessageBodyDto<T> {
     private String templateId;
-    private Map<String, String> parameters;
+    private T parameters;
 }
