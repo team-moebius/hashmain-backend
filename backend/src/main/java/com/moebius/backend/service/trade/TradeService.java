@@ -3,7 +3,7 @@ package com.moebius.backend.service.trade;
 import com.moebius.backend.assembler.TradeAssembler;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.slack.TradeSlackSender;
-import com.moebius.backend.service.trade.strategy.TradeStrategy;
+import com.moebius.backend.service.trade.strategy.AggregatedTradeStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 @Service
 @RequiredArgsConstructor
 public class TradeService {
-	private final List<TradeStrategy> tradeStrategies;
+	private final List<AggregatedTradeStrategy> aggregatedTradeStrategies;
 	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;
@@ -25,7 +25,7 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
-			tradeStrategies.forEach(strategy -> {
+			aggregatedTradeStrategies.forEach(strategy -> {
 				URI uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, strategy.getTimeInterval(), strategy.getTimeRange());
 
 				tradeHistoryService.getAggregatedTradeHistories(uri)

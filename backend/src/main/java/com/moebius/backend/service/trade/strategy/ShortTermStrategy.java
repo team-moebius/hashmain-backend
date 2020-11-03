@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 @Component
-public class ShortTermStrategy implements TradeStrategy {
+public class ShortTermStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
