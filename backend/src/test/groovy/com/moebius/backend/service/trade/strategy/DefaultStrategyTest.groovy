@@ -3,12 +3,13 @@ package com.moebius.backend.service.trade.strategy
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
+import com.moebius.backend.service.trade.strategy.aggregated.DefaultStrategy
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class ShortTermStrategyTest extends Specification {
+class DefaultStrategyTest extends Specification {
 	@Shared
 	def normalHistoriesDto = [AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(2422529.57975545)
@@ -43,7 +44,7 @@ class ShortTermStrategyTest extends Specification {
 							  AggregatedTradeHistoryDto.builder().build()]
 
 	@Subject
-	def shortTermStrategy = new ShortTermStrategy()
+	def shortTermStrategy = new DefaultStrategy()
 
 	def "Should get time range"() {
 		expect:

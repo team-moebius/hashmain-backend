@@ -1,4 +1,4 @@
-package com.moebius.backend.service.trade.strategy;
+package com.moebius.backend.service.trade.strategy.aggregated;
 
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.TradeDto;

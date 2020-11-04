@@ -11,14 +11,13 @@ import java.util.List;
  * Heavy trade strategy is for catching the trades not to be catched by short term strategy.
  * When all the conditions are satisfied during recent 5 minutes, This strategy considers the trade is valid.
  *
- * 1. 
- * 2.
+ * 1. TBD
  *
  * @author Seonwoo Kim
  */
 @Slf4j
 @Component
-public class HeavyTradeStrategy implements TradeStrategy {
+public class IndexVarianceStrategy implements TradeStrategy {
 	@Override
 	public boolean isValid(TradeDto tradeDto, List<TradeHistoryDto> HistoryDtos) {
 		return false;

@@ -3,7 +3,7 @@ package com.moebius.backend.service.trade;
 import com.moebius.backend.assembler.TradeAssembler;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.slack.TradeSlackSender;
-import com.moebius.backend.service.trade.strategy.AggregatedTradeStrategy;
+import com.moebius.backend.service.trade.strategy.aggregated.AggregatedTradeStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
