@@ -29,6 +29,7 @@ public class TradeService {
 		if (isTradeOverPriceThreshold(tradeDto)) {
 			tradeStrategies.forEach(strategy ->
 				tradeHistoryService.getTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), strategy.getCount())
+					.subscribeOn(COMPUTE.scheduler())
 					.collectList()
 					.filter(historyDtos -> strategy.isValid(tradeDto, historyDtos))
 					.map(historyDtos -> tradeAssembler.assembleByTrade(tradeDto, historyDtos))

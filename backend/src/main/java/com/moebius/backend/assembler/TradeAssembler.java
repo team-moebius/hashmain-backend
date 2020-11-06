@@ -46,6 +46,6 @@ public class TradeAssembler {
 	}
 
 	public TradeSlackDto assembleByTrade(TradeDto tradeDto, List<TradeHistoryDto> historyDtos) {
-		return null; // FIXME
+		return TradeSlackDto.builder().build(); // FIXME
 	}
 }
