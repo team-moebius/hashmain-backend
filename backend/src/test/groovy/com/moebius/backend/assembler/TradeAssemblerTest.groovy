@@ -23,7 +23,7 @@ class TradeAssemblerTest extends Specification {
 		}
 		
 		when:
-		def result = tradeAssembler.assembleSlackDto(Stub(TradeDto), historiesDto, "test")
+		def result = tradeAssembler.assembleByAggregatedTrade(Stub(TradeDto), historiesDto, "test")
 
 		then:
 		result instanceof TradeSlackDto

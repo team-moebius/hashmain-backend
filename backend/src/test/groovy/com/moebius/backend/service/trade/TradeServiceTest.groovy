@@ -7,7 +7,7 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.slack.TradeSlackSender
-import com.moebius.backend.service.trade.strategy.aggregated.DefaultStrategy
+import com.moebius.backend.service.trade.strategy.aggregated.DefaultAggregatedStrategy
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
@@ -16,7 +16,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeStrategies = [Mock(DefaultStrategy) {
+	def tradeStrategies = [Mock(DefaultAggregatedStrategy) {
 		getTimeInterval() >> 1
 		getTimeRange() >> 6
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true

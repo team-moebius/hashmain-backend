@@ -4,6 +4,7 @@ import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
+import com.moebius.backend.dto.trade.TradeHistoryDto;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Component
 public class TradeAssembler {
-	public TradeSlackDto assembleSlackDto(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
+	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
 		int historySize = historiesDto.getAggregatedTradeHistories().size();
 		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories().subList(0, historySize);
 		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
@@ -42,5 +43,9 @@ public class TradeAssembler {
 			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of("Asia/Seoul")).toLocalTime())
 			.referenceLink(referenceLink)
 			.build();
+	}
+
+	public TradeSlackDto assembleByTrade(TradeDto tradeDto, List<TradeHistoryDto> historyDtos) {
+		return null; // FIXME
 	}
 }

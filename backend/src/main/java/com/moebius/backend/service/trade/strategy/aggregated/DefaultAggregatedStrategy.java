@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 /**
- * Default strategy defines the valid trades by conditions below during recent 5 minutes.
+ * Default aggregated strategy defines the valid trades by conditions below during recent 5 minutes.
  * When all the conditions are satisfied, This strategy considers these trades are valid.
  *
  * 1. Total transaction volume change : the latest history's total transaction volume is 5x bigger than previous average volume during 5 minutes.
@@ -23,7 +23,7 @@ import java.util.stream.IntStream;
  */
 @Slf4j
 @Component
-public class DefaultStrategy implements AggregatedTradeStrategy {
+public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
