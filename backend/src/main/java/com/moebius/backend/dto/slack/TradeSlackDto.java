@@ -17,9 +17,9 @@ import java.time.LocalTime;
 public class TradeSlackDto {
 	private String symbol;
 	private Exchange exchange;
-	private double totalAskVolume;
-	private double totalBidVolume;
-	private int totalValidPrice;
+	private double totalAskPrice;
+	private double totalBidPrice;
+	private long totalValidPrice;
 	private double price;
 	private double priceChangeRate;
 	@JsonSerialize(using = LocalTimeSerializer.class)

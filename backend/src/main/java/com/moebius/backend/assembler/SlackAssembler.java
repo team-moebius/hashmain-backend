@@ -30,12 +30,12 @@ public class SlackAssembler {
 				.text("[" + symbol + "] Heavy trades(*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 					+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
-						.title("Total ask volume")
-						.value(formatter.format(tradeSlackDto.getTotalAskVolume()) + targetCurrency)
+						.title("Total ask price")
+						.value(formatter.format(tradeSlackDto.getTotalAskPrice()) + targetCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
-						.title("Total bid volume")
-						.value(formatter.format(tradeSlackDto.getTotalBidVolume()) + targetCurrency)
+						.title("Total bid price")
+						.value(formatter.format(tradeSlackDto.getTotalBidPrice()) + targetCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Current price (Change rate)")
