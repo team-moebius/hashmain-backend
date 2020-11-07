@@ -52,6 +52,6 @@ public class DefaultStrategy implements TradeStrategy {
 	}
 
 	private boolean hasValidUnitPriceChange(TradeDto latestTradeDto, List<TradeHistoryDto> historyDtos) {
-		return Math.abs((latestTradeDto.getPrice() / historyDtos.get(historyDtos.size() - 1).getPrice() - 1) * 100) >= 2D;
+		return Math.abs((latestTradeDto.getPrice() / historyDtos.get(0).getPrice() - 1) * 100) >= 2D;
 	}
 }

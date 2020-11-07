@@ -57,7 +57,7 @@ public class TradeAssembler {
 			.filter(historyDto -> historyDto.getTradeType() == TradeType.BID)
 			.mapToDouble(historyDto -> historyDto.getPrice() * historyDto.getVolume())
 			.sum();
-		TradeHistoryDto earliestTradeHistoryDto = historyDtos.get(0);
+		TradeHistoryDto earliestTradeHistoryDto = historyDtos.get(historyDtos.size() - 1);
 		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestTradeHistoryDto.getPrice() - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()

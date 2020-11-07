@@ -18,7 +18,6 @@ public class SlackAssembler {
 	public SlackMessageDto assemble(TradeSlackDto tradeSlackDto) {
 		String symbol = tradeSlackDto.getSymbol();
 		String unitCurrency = orderUtil.getUnitCurrencyBySymbol(symbol);
-		String targetCurrency = orderUtil.getTargetCurrencyBySymbol(symbol);
 
 		NumberFormat formatter = NumberFormat.getInstance();
 
@@ -27,15 +26,15 @@ public class SlackAssembler {
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(tradeSlackDto.getReferenceLink())
-				.text("[" + symbol + "] Heavy trades(*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
+				.text("[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 					+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total ask price")
-						.value(formatter.format(tradeSlackDto.getTotalAskPrice()) + targetCurrency)
+						.value(formatter.format(tradeSlackDto.getTotalAskPrice()) + unitCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total bid price")
-						.value(formatter.format(tradeSlackDto.getTotalBidPrice()) + targetCurrency)
+						.value(formatter.format(tradeSlackDto.getTotalBidPrice()) + unitCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Current price (Change rate)")
