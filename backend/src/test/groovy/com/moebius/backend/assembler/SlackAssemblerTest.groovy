@@ -21,7 +21,6 @@ class SlackAssemblerTest extends Specification {
 
 		then:
 		1 * orderUtil.getUnitCurrencyBySymbol(_ as String)
-		1 * orderUtil.getTargetCurrencyBySymbol(_ as String)
 
 		result instanceof SlackMessageDto
 		!CollectionUtils.isEmpty(result.getAttachments())
