@@ -7,6 +7,7 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
+import com.moebius.backend.service.message.TradeSlackMessageSender
 import com.moebius.backend.service.slack.TradeSlackSender
 import com.moebius.backend.service.trade.strategy.DefaultStrategy
 import com.moebius.backend.service.trade.strategy.aggregated.DefaultAggregatedStrategy
@@ -29,7 +30,7 @@ class TradeServiceTest extends Specification {
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
 	}]
 	def tradeHistoryService = Mock(TradeHistoryService)
-	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler)]) as TradeSlackSender
+	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler), Stub(TradeSlackMessageSender)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
 
 	@Shared

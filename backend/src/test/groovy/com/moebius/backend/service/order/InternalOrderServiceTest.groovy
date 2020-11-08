@@ -60,6 +60,12 @@ class InternalOrderServiceTest extends Specification {
 		given:
 		def orderDtos = [buildOrderDto(null, EventType.CREATE, "KRW-BTC", OrderPosition.PURCHASE, 1),
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.DELETE, "KRW-BTC", OrderPosition.SALE, 1)] as List
+		orderAssembler.assembleReadyOrder(_ as ApiKey, _ as OrderDto) >> Stub(Order)
+		orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
+		marketService.getCurrentPrice(_ as Exchange, _ as String) >> Mono.just(10000000D)
+		orderUtil.isOrderRequestNeeded(_ as Order, 10000000D) >> true
+		orderRepository.deleteById(_ as ObjectId) >> Mono.empty()
+		orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 
 		when:
 		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
@@ -74,7 +80,6 @@ class InternalOrderServiceTest extends Specification {
 		then:
 		1 * orderValidator.validate(orderDtos)
 		1 * apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange) >> Mono.just(Stub(ApiKey))
-		1 * orderAssembler.assembleResponseDto(_ as List) >> OrderResponseDto.builder().orders(orderDtos).build()
 	}
 
 	def "Should get orders by exchange"() {
