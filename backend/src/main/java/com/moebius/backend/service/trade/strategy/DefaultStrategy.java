@@ -24,6 +24,12 @@ import java.util.List;
 @Component
 public class DefaultStrategy implements TradeStrategy {
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
+	private static final int HISTORY_COUNT = 20;
+
+	@Override
+	public int getCount() {
+		return HISTORY_COUNT;
+	}
 
 	@Override
 	public boolean isValid(TradeDto tradeDto, List<TradeHistoryDto> historyDtos) {
@@ -52,6 +58,8 @@ public class DefaultStrategy implements TradeStrategy {
 	}
 
 	private boolean hasValidUnitPriceChange(TradeDto latestTradeDto, List<TradeHistoryDto> historyDtos) {
-		return Math.abs((latestTradeDto.getPrice() / historyDtos.get(0).getPrice() - 1) * 100) >= 2D;
+		TradeHistoryDto earliestTradeHistoryDto = historyDtos.get(historyDtos.size() - 1);
+
+		return Math.abs(Math.round((latestTradeDto.getPrice() / earliestTradeHistoryDto.getPrice() - 1) * 10000) / 100D) >= 2D;
 	}
 }

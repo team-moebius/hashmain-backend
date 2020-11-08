@@ -52,4 +52,9 @@ class DefaultStrategyTest extends Specification {
 
 		return tradeDto
 	}
+
+	def "Should get count"() {
+		expect:
+		defaultStrategy.getCount() == 20
+	}
 }
