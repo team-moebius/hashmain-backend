@@ -9,11 +9,14 @@ import com.moebius.backend.dto.trade.TradeHistoryDto;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
 public class TradeAssembler {
 	private static final String KOREA_TIME_ZONE = "Asia/Seoul";
+	private static final String UTC = "UTC";
 
 	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
 		int historySize = historiesDto.getAggregatedTradeHistories().size();
@@ -68,8 +71,9 @@ public class TradeAssembler {
 			.totalValidPrice(Math.round(totalBidPrice - totalAskPrice))
 			.price(tradeDto.getPrice())
 			.priceChangeRate(priceChangeRate)
-			.from(earliestTradeHistoryDto.getCreatedAt().atZone(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
-			.to(tradeDto.getCreatedAt().atZone(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
+			.from(ZonedDateTime.of(earliestTradeHistoryDto.getCreatedAt(), ZoneId.of(UTC))
+				.withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime().truncatedTo(ChronoUnit.SECONDS))
+			.to(tradeDto.getCreatedAt().atZone(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime().truncatedTo(ChronoUnit.SECONDS))
 			.build();
 	}
 }
