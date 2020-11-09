@@ -20,6 +20,7 @@ public class SlackAssembler {
 		String unitCurrency = orderUtil.getUnitCurrencyBySymbol(symbol);
 
 		NumberFormat formatter = NumberFormat.getInstance();
+		formatter.setParseIntegerOnly(true);
 
 		return SlackMessageDto.builder()
 			.attachments(Collections.singletonList(SlackMessageDto.SlackAttachment.builder()

@@ -3,7 +3,6 @@ package com.moebius.backend.service.trade.strategy.aggregated;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
-import com.moebius.backend.service.trade.strategy.aggregated.AggregatedTradeStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +26,7 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TRADE_HISTORY_PRICE_THRESHOLD = 5000000D;
 	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 5D;
-	private static final double VALID_RISING_PRICE_CHANGE_THRESHOLD = 1.01D;
-	private static final double VALID_FALLING_PRICE_CHANGE_THRESHOLD = 0.99D;
+	private static final double VALID_PRICE_CHANGE_THRESHOLD = 0.01D;
 
 	@Override
 	public int getTimeInterval() {
@@ -72,7 +70,7 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 			.mapToDouble(index -> historyDtos.get(index).getTotalBidPrice() - historyDtos.get(index).getTotalAskPrice())
 			.reduce(0D, Double::sum);
 
-		return totalValidPrice >= TRADE_HISTORY_PRICE_THRESHOLD || totalValidPrice <= -TRADE_HISTORY_PRICE_THRESHOLD;
+		return Math.abs(totalValidPrice) >= TRADE_HISTORY_PRICE_THRESHOLD;
 	}
 
 	private boolean hasValidPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
@@ -81,7 +79,6 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 			.average()
 			.orElse(1D);
 
-		return tradeDto.getPrice() / previousAveragePrice >= VALID_RISING_PRICE_CHANGE_THRESHOLD ||
-				tradeDto.getPrice() / previousAveragePrice <= VALID_FALLING_PRICE_CHANGE_THRESHOLD;
+		return Math.abs(tradeDto.getPrice() / previousAveragePrice - 1) >= VALID_PRICE_CHANGE_THRESHOLD;
 	}
 }

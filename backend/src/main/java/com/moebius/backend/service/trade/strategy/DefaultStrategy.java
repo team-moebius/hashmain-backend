@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Default trade strategy is for catching the trades not to be catched by aggregated default strategy.
- * When all the conditions are satisfied during recent 100 trades, This strategy considers that symbol is valid.
+ * When all the conditions are satisfied during recent trades, This strategy considers that symbol is valid.
  *
  * ABS : Absolute value, SUM : Sum of trades
  *
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DefaultStrategy implements TradeStrategy {
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
-	private static final int HISTORY_COUNT = 20;
+	private static final int HISTORY_COUNT = 50;
 
 	@Override
 	public int getCount() {
