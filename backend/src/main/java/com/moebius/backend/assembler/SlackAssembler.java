@@ -4,12 +4,16 @@ import com.moebius.backend.dto.slack.SlackMessageDto;
 import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.utils.OrderUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SlackAssembler {
@@ -20,22 +24,22 @@ public class SlackAssembler {
 		String unitCurrency = orderUtil.getUnitCurrencyBySymbol(symbol);
 
 		NumberFormat formatter = NumberFormat.getInstance();
-		formatter.setParseIntegerOnly(true);
 
 		return SlackMessageDto.builder()
 			.attachments(Collections.singletonList(SlackMessageDto.SlackAttachment.builder()
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(tradeSlackDto.getReferenceLink())
-				.text("[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
-					+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
+				.text(
+					"[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
+						+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total ask price")
-						.value(formatter.format(tradeSlackDto.getTotalAskPrice()) + unitCurrency)
+						.value(formatter.format((long) tradeSlackDto.getTotalAskPrice()) + unitCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total bid price")
-						.value(formatter.format(tradeSlackDto.getTotalBidPrice()) + unitCurrency)
+						.value(formatter.format((long) tradeSlackDto.getTotalBidPrice()) + unitCurrency)
 						.build(),
 					SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Current price (Change rate)")
