@@ -37,17 +37,16 @@ class DefaultAggregatedStrategyTest extends Specification {
 							  AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(37330207.59736219)
 									  .totalBidPrice(71861042.39023557)
-									  .totalTransactionPrice(109191249.98759773)
-									  .totalTransactionVolume(282334.40898105974)
-									  .build(),
-							  AggregatedTradeHistoryDto.builder().build()]
+									  .totalTransactionPrice(1091912490.98759773)
+									  .totalTransactionVolume(2823340.40898105974)
+									  .build()]
 
 	@Subject
 	def defaultAggregatedStrategy = new DefaultAggregatedStrategy()
 
 	def "Should get time range"() {
 		expect:
-		defaultAggregatedStrategy.getTimeRange() == 6
+		defaultAggregatedStrategy.getTimeRange() == 5
 	}
 
 	def "Should get time interval"() {
