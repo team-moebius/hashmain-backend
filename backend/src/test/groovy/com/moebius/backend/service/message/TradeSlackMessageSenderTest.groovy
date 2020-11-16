@@ -33,7 +33,7 @@ class TradeSlackMessageSenderTest extends Specification {
 				.exchange(Exchange.UPBIT)
 				.totalAskPrice(0.0f)
 				.totalBidPrice(0.0f)
-				.totalValidPrice(0)
+				.totalTransactionPrice(0)
 				.price(0)
 				.priceChangeRate(0.0f)
 				.from(LocalTime.now())

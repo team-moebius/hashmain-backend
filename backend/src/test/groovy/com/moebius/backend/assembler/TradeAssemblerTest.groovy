@@ -60,6 +60,6 @@ class TradeAssemblerTest extends Specification {
 		result instanceof  TradeSlackDto
 		result.getTotalAskPrice() == 100000D
 		result.getTotalBidPrice() == 101000D
-		result.getTotalValidPrice() == 1000
+		result.getTotalTransactionPrice() == 201000
 	}
 }
