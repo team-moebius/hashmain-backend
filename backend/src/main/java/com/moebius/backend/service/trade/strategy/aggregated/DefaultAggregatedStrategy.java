@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -38,13 +39,15 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 
 	@Override
 	public boolean isValid(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
-		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories();
-		if (historyDtos.size() < HISTORY_COUNT_THRESHOLD) {
+		List<AggregatedTradeHistoryDto> validHistoryDtos = historiesDto.getAggregatedTradeHistories().stream()
+			.filter(historyDto -> historyDto.getTotalTransactionVolume() > 0D)
+			.collect(Collectors.toList());
+		if (validHistoryDtos.size() < HISTORY_COUNT_THRESHOLD) {
 			return false;
 		}
 
-		if (hasValidVolumeChange(historyDtos) &&
-			hasValidPriceChange(tradeDto, historyDtos)) {
+		if (hasValidVolumeChange(validHistoryDtos) &&
+			hasValidPriceChange(tradeDto, validHistoryDtos)) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
@@ -53,7 +56,6 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 
 	private boolean hasValidVolumeChange(List<AggregatedTradeHistoryDto> historyDtos) {
 		double previousAverageVolume = IntStream.range(0, historyDtos.size() - 1)
-			.filter(index -> historyDtos.get(index).getTotalTransactionVolume() > 0D)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
@@ -65,7 +67,6 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 
 	private boolean hasValidPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
 		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
-			.filter(index -> historyDtos.get(index).getTotalTransactionVolume() > 0D)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
