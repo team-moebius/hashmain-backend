@@ -52,7 +52,7 @@ public class TradeAssembler {
 			.build();
 	}
 
-	public TradeSlackDto assembleByTrade(TradeDto tradeDto, List<TradeHistoryDto> historyDtos) {
+	public TradeSlackDto assembleByTrade(TradeDto tradeDto, List<TradeHistoryDto> historyDtos, String referenceLink) {
 		double totalAskPrice = historyDtos.stream()
 			.filter(historyDto -> historyDto.getTradeType() == TradeType.ASK)
 			.mapToDouble(historyDto -> historyDto.getPrice() * historyDto.getVolume())
@@ -75,6 +75,7 @@ public class TradeAssembler {
 			.from(ZonedDateTime.of(earliestTradeHistoryDto.getCreatedAt(), ZoneId.of(UTC))
 				.withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime().truncatedTo(ChronoUnit.SECONDS))
 			.to(tradeDto.getCreatedAt().atZone(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime().truncatedTo(ChronoUnit.SECONDS))
+			.referenceLink(referenceLink)
 			.build();
 	}
 }

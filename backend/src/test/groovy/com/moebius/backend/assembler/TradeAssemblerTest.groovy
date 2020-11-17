@@ -54,12 +54,13 @@ class TradeAssemblerTest extends Specification {
 								   .build()]
 
 		when:
-		def result = tradeAssembler.assembleByTrade(tradeDto, historyDtos)
+		def result = tradeAssembler.assembleByTrade(tradeDto, historyDtos, "test")
 
 		then:
 		result instanceof  TradeSlackDto
 		result.getTotalAskPrice() == 100000D
 		result.getTotalBidPrice() == 101000D
 		result.getTotalTransactionPrice() == 201000
+		result.getReferenceLink() == "test"
 	}
 }

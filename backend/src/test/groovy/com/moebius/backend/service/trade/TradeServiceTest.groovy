@@ -50,7 +50,8 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getTradeHistories(_ as Exchange, _ as String, 100) >> Flux.just(Stub(TradeHistoryDto))
+		1 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri
+		1 * tradeHistoryService.getTradeHistories(_ as URI) >> Flux.just(Stub(TradeHistoryDto))
 		1 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
 		1 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(aggregatedTradeHistoriesDto)
 	}
@@ -60,7 +61,8 @@ class TradeServiceTest extends Specification {
 		tradeService.identifyValidTrade(getTradeDto(1000D, 1D))
 
 		then:
-		0 * tradeHistoryService.getTradeHistories(_ as Exchange, _ as String, 100) >> Flux.just(Stub(TradeHistoryDto))
+		0 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri
+		0 * tradeHistoryService.getTradeHistories(_ as URI) >> Flux.just(Stub(TradeHistoryDto))
 		0 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
 		0 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(Stub(AggregatedTradeHistoriesDto))
 	}

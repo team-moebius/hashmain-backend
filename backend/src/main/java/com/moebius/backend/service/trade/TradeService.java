@@ -27,14 +27,17 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
-			tradeStrategies.forEach(strategy ->
-				tradeHistoryService.getTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), strategy.getCount())
+			tradeStrategies.forEach(strategy -> {
+				URI uri = tradeHistoryService.getTradeHistoriesUri(tradeDto, strategy.getCount());
+
+				tradeHistoryService.getTradeHistories(uri)
 					.subscribeOn(COMPUTE.scheduler())
 					.collectList()
 					.filter(historyDtos -> strategy.isValid(tradeDto, historyDtos))
-					.map(historyDtos -> tradeAssembler.assembleByTrade(tradeDto, historyDtos))
+					.map(historyDtos -> tradeAssembler.assembleByTrade(tradeDto, historyDtos, uri.toString()))
 					.flatMap(tradeSlackSender::sendMessage)
-					.subscribe());
+					.subscribe();
+			});
 
 			aggregatedTradeStrategies.forEach(strategy -> {
 				URI uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, strategy.getTimeInterval(), strategy.getTimeRange());
