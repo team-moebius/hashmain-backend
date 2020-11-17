@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 @Component
 public class DefaultStrategy implements TradeStrategy {
-	private static final double TOTAL_VALID_PRICE_THRESHOLD = 50000000D;
+	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
 	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.03D;
 	private static final int HISTORY_COUNT = 100;
 
