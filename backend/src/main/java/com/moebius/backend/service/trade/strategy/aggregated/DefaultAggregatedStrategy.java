@@ -14,9 +14,11 @@ import java.util.stream.IntStream;
  * Default aggregated strategy defines the valid trades by conditions below during recent 5 minutes.
  * When all the conditions are satisfied, This strategy considers these trades are valid.
  *
- * 1. Total transaction volume change : the latest history's total transaction volume is 10x bigger than previous average volume during 5 minutes.
- * 2. Total valid price change: the current trade price increases greater than equal to +3%,
+ * 1. Total transaction price change : the latest history's total transaction price is greater than equal to 10M KRW,
+ * 								10x bigger than previous average total transaction price during 5 minutes.
+ * 2. Valid price change rate change: the current trade price increases greater than equal to +3%,
  * 								or decreases less than equal to -3% than previous average price during 5 minutes.
+ *
  *
  * @author Seonwoo Kim
  */
@@ -24,8 +26,9 @@ import java.util.stream.IntStream;
 @Component
 public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final double HISTORY_VOLUME_MULTIPLIER_THRESHOLD = 10D;
-	private static final double VALID_PRICE_CHANGE_THRESHOLD = 0.03D;
+	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
+	private static final double TOTAL_TRANSACTION_PRICE_THRESHOLD = 10000000D;
+	private static final double TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD = 10D;
 
 	@Override
 	public int getTimeInterval() {
@@ -46,31 +49,32 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 			return false;
 		}
 
-		if (hasValidVolumeChange(validHistoryDtos) &&
-			hasValidPriceChange(tradeDto, validHistoryDtos)) {
+		if (hasValidPriceChange(validHistoryDtos) &&
+			hasValidPriceRateChange(tradeDto, validHistoryDtos)) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
 		return false;
 	}
 
-	private boolean hasValidVolumeChange(List<AggregatedTradeHistoryDto> historyDtos) {
-		double previousAverageVolume = IntStream.range(0, historyDtos.size() - 1)
-			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
+	private boolean hasValidPriceChange(List<AggregatedTradeHistoryDto> historyDtos) {
+		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
+			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice())
 			.average()
 			.orElse(1D);
 
 		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 1);
 
-		return latestHistory.getTotalTransactionVolume() / previousAverageVolume >= HISTORY_VOLUME_MULTIPLIER_THRESHOLD;
+		return latestHistory.getTotalTransactionPrice() >= TOTAL_TRANSACTION_PRICE_THRESHOLD &&
+			latestHistory.getTotalTransactionPrice() / previousAveragePrice >= TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD;
 	}
 
-	private boolean hasValidPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
+	private boolean hasValidPriceRateChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
 		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
 
-		return Math.abs(tradeDto.getPrice() / previousAveragePrice - 1) >= VALID_PRICE_CHANGE_THRESHOLD;
+		return Math.abs(tradeDto.getPrice() / previousAveragePrice - 1) >= VALID_PRICE_RATE_CHANGE_THRESHOLD;
 	}
 }

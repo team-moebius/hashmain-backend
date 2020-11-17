@@ -75,19 +75,27 @@ class DefaultAggregatedStrategyTest extends Specification {
 		where:
 		REASON                               | PRICE | HISTORY_DTOS
 		"lower history count than threshold" | 400D  | []
-		"invalid volume change"              | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionVolume(7290.22910983).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(81499.2359519599).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(41873.52528619).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(35980.246407609964).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(70000.40898105974).build(),
-														AggregatedTradeHistoryDto.builder().build()]
-		"total invalid price"                | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionVolume(7290.22910983).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(81499.2359519599).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(41873.52528619).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(35980.246407609964).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(282334.40898105974).build(),
-														AggregatedTradeHistoryDto.builder().build()]
-		"invalid price change"               | 371D  | normalHistoriesDto
+		"invalid total transaction price"    | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(969.2123635136)
+																.totalTransactionVolume(3028.78863598).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(1335.2787910048)
+																.totalTransactionVolume(4172.74622189).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(0)
+																.totalTransactionVolume(0).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(0)
+																.totalTransactionVolume(0).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(28441.029485256302)
+																.totalTransactionVolume(86184.93783411).build()]
+		"invalid price change"               | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(729000.22910983)
+																.totalTransactionVolume(10).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(814990.2359519599)
+																.totalTransactionVolume(12).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4187300.52528619)
+																.totalTransactionVolume(60).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(3598000.246407609964)
+																.totalTransactionVolume(50).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(10000000.40898105974)
+																.totalTransactionVolume(141).build()]
+		"invalid price change rate change"   | 371D  | normalHistoriesDto
 	}
 
 	TradeDto buildTradeDto(double price) {
