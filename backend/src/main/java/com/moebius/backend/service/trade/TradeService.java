@@ -3,6 +3,7 @@ package com.moebius.backend.service.trade;
 import com.moebius.backend.assembler.TradeAssembler;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.slack.TradeSlackSender;
+import com.moebius.backend.service.trade.strategy.TradeStrategy;
 import com.moebius.backend.service.trade.strategy.aggregated.AggregatedTradeStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 @Service
 @RequiredArgsConstructor
 public class TradeService {
+	private final List<TradeStrategy> tradeStrategies;
 	private final List<AggregatedTradeStrategy> aggregatedTradeStrategies;
 	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
@@ -25,6 +27,15 @@ public class TradeService {
 
 	public void identifyValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
+			tradeStrategies.forEach(strategy ->
+				tradeHistoryService.getTradeHistories(tradeDto.getExchange(), tradeDto.getSymbol(), strategy.getCount())
+					.subscribeOn(COMPUTE.scheduler())
+					.collectList()
+					.filter(historyDtos -> strategy.isValid(tradeDto, historyDtos))
+					.map(historyDtos -> tradeAssembler.assembleByTrade(tradeDto, historyDtos))
+					.flatMap(tradeSlackSender::sendMessage)
+					.subscribe());
+
 			aggregatedTradeStrategies.forEach(strategy -> {
 				URI uri = tradeHistoryService.getAggregatedTradeHistoriesUri(tradeDto, strategy.getTimeInterval(), strategy.getTimeRange());
 

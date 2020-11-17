@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
  *
  * 1. Total transaction price change : the latest history's total transaction price is greater than equal to 10M KRW,
  * 								10x bigger than previous average total transaction price during 5 minutes.
- * 2. Valid price change rate change: the current trade price increases greater than equal to +3%,
+ * 2. Valid price rate change: the current trade price increases greater than equal to +3%,
  * 								or decreases less than equal to -3% than previous average price during 5 minutes.
  *
  *

@@ -11,20 +11,23 @@ import java.util.List;
 
 /**
  * Default trade strategy is for catching the trades not to be catched by aggregated default strategy.
+ * This strategy is based on total valid price for recent 100 trade histories, not total transaction price like aggregated default strategy.
+ * This strategy is based on middle ~ long term rather than fixed short term (5 minutes) like aggregated default strategy.
  * When all the conditions are satisfied during recent trades, This strategy considers that symbol is valid.
  *
  * ABS : Absolute value, SUM : Sum of trades
  *
- * 1. Total valid price : ABS(SUM(Bid - Ask)) >= 10M KRW
- * 2. Valid unit price change : ABS(The latest price / The earliest price * 100 - 1) >= 2%
+ * 1. Total valid price : ABS(SUM(Bid - Ask)) >= 50M KRW
+ * 2. Valid unit price change : ABS(The latest price / The earliest price * 100 - 1) >= 3%
  *
  * @author Seonwoo Kim
  */
 @Slf4j
 @Component
 public class DefaultStrategy implements TradeStrategy {
-	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
-	private static final int HISTORY_COUNT = 50;
+	private static final double TOTAL_VALID_PRICE_THRESHOLD = 50000000D;
+	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.03D;
+	private static final int HISTORY_COUNT = 100;
 
 	@Override
 	public int getCount() {
@@ -60,6 +63,6 @@ public class DefaultStrategy implements TradeStrategy {
 	private boolean hasValidUnitPriceChange(TradeDto latestTradeDto, List<TradeHistoryDto> historyDtos) {
 		TradeHistoryDto earliestTradeHistoryDto = historyDtos.get(historyDtos.size() - 1);
 
-		return Math.abs(Math.round((latestTradeDto.getPrice() / earliestTradeHistoryDto.getPrice() - 1) * 10000) / 100D) >= 2D;
+		return Math.abs(latestTradeDto.getPrice() / earliestTradeHistoryDto.getPrice() - 1) >= VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD;
 	}
 }

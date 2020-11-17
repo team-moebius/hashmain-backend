@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Component
 public class TradeAssembler {
@@ -24,11 +25,11 @@ public class TradeAssembler {
 		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
 		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
 
-		double earliestTradePrice = tradeDto.getPrevClosingPrice();
-		if (earliestTradeHistory.getTotalTransactionVolume() != 0) {
-			earliestTradePrice = earliestTradeHistory.getTotalTransactionPrice() / earliestTradeHistory.getTotalTransactionVolume();
-		}
-		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestTradePrice - 1) * 10000) / 100D;
+		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
+			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
+			.average()
+			.orElse(1D);
+		double priceChangeRate = Math.round((tradeDto.getPrice() / previousAveragePrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
