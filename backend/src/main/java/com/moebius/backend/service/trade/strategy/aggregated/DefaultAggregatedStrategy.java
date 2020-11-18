@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
  * When all the conditions are satisfied, This strategy considers these trades are valid.
  *
  * 1. Total transaction price change : the latest history's total transaction price is greater than equal to 10M KRW,
- * 								10x bigger than previous average total transaction price during 5 minutes.
+ * 								5x bigger than previous average total transaction price during 5 minutes.
  * 2. Valid price rate change: the current trade price increases greater than equal to +3%,
  * 								or decreases less than equal to -3% than previous average price during 5 minutes.
  *
@@ -28,7 +28,7 @@ public class DefaultAggregatedStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
 	private static final double TOTAL_TRANSACTION_PRICE_THRESHOLD = 10000000D;
-	private static final double TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD = 10D;
+	private static final double TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD = 5D;
 
 	@Override
 	public int getTimeInterval() {
