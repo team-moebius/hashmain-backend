@@ -41,7 +41,7 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
     @Override
     protected String getTitle(TradeSlackDto param) {
         return String.format(TITLE_FORMAT,
-                param.getSymbol(), param.getTotalTransactionPrice(), param.getFrom(), param.getTo()
+                param.getSymbol(), param.getTotalValidPrice(), param.getFrom(), param.getTo()
         );
     }
 
@@ -62,7 +62,7 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
                 .exchange(param.getExchange().name())
                 .totalAskPrice(formatter.format(param.getTotalAskPrice()))
                 .totalBidPrice(formatter.format(param.getTotalBidPrice()))
-                .totalValidPrice(formatter.format(param.getTotalTransactionPrice()))
+                .totalValidPrice(formatter.format(param.getTotalValidPrice()))
                 .price(formatter.format(param.getPrice()))
                 .priceChangeRate(formatter.format(param.getPriceChangeRate()))
                 .unitCurrency(unitCurrency)

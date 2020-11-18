@@ -29,7 +29,7 @@ public class SlackAssembler {
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(tradeSlackDto.getReferenceLink())
 				.text(
-					"[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalTransactionPrice()) + unitCurrency) + "*) occurred during "
+					"[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 						+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
 						.title("Total ask price")
