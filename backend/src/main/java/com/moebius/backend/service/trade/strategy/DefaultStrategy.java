@@ -17,7 +17,7 @@ import java.util.List;
  *
  * ABS : Absolute value, SUM : Sum of trades
  *
- * 1. Total valid price : ABS(SUM(Bid - Ask)) >= 50M KRW
+ * 1. Total valid price : ABS(SUM(Bid - Ask)) >= 10M KRW
  * 2. Valid unit price change : ABS(The latest price / The earliest price * 100 - 1) >= 3%
  *
  * @author Seonwoo Kim
