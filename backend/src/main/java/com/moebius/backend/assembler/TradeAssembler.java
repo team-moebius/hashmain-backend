@@ -29,7 +29,7 @@ public class TradeAssembler {
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
-		double priceChangeRate = Math.round((tradeDto.getPrice() / previousAveragePrice - 1) * 10000) / 100D;
+		double priceChangeRate = (tradeDto.getPrice() / previousAveragePrice - 1) * 100;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
