@@ -26,10 +26,11 @@ public class TradeAssembler {
 		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
 
 		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
+			.filter(index -> historyDtos.get(index).getTotalTransactionVolume() > 0D)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
-		double priceChangeRate = (tradeDto.getPrice() / previousAveragePrice - 1) * 100;
+		double priceChangeRate = Math.round((tradeDto.getPrice() / previousAveragePrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
