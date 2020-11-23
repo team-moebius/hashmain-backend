@@ -15,6 +15,7 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class SlackAssembler {
+	private static final long TREMENDOUS_TRADE_THRESHOLD = 100000000L;
 	private final OrderUtil orderUtil;
 
 	public SlackMessageDto assemble(TradeSlackDto tradeSlackDto) {
@@ -28,7 +29,7 @@ public class SlackAssembler {
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(tradeSlackDto.getReferenceLink())
-				.text(
+				.text(tradeSlackDto.getTotalValidPrice() >= TREMENDOUS_TRADE_THRESHOLD ? "@channel " : "" +
 					"[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 						+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
@@ -46,6 +47,4 @@ public class SlackAssembler {
 				.build()))
 			.build();
 	}
-
-
 }
