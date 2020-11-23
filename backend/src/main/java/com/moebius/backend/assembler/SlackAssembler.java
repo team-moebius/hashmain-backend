@@ -29,7 +29,7 @@ public class SlackAssembler {
 				.color(tradeSlackDto.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
 				.authorName(tradeSlackDto.getExchange() + "-" + symbol)
 				.authorLink(tradeSlackDto.getReferenceLink())
-				.text(tradeSlackDto.getTotalValidPrice() >= TREMENDOUS_TRADE_THRESHOLD ? "@channel " : "" +
+				.text(Math.abs(tradeSlackDto.getTotalValidPrice()) >= TREMENDOUS_TRADE_THRESHOLD ? "@channel " : "" +
 					"[" + symbol + "] Heavy trades (*" + (formatter.format(tradeSlackDto.getTotalValidPrice()) + unitCurrency) + "*) occurred during "
 						+ tradeSlackDto.getFrom() + " ~ " + tradeSlackDto.getTo())
 				.fields(Arrays.asList(SlackMessageDto.SlackAttachment.Field.builder()
