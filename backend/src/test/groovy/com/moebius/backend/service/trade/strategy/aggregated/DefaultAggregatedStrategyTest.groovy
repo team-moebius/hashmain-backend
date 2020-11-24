@@ -1,4 +1,4 @@
-package com.moebius.backend.service.trade.strategy
+package com.moebius.backend.service.trade.strategy.aggregated
 
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
@@ -8,7 +8,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class ShortTermStrategyTest extends Specification {
+class DefaultAggregatedStrategyTest extends Specification {
 	@Shared
 	def normalHistoriesDto = [AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(2422529.57975545)
@@ -37,22 +37,21 @@ class ShortTermStrategyTest extends Specification {
 							  AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(37330207.59736219)
 									  .totalBidPrice(71861042.39023557)
-									  .totalTransactionPrice(109191249.98759773)
-									  .totalTransactionVolume(282334.40898105974)
-									  .build(),
-							  AggregatedTradeHistoryDto.builder().build()]
+									  .totalTransactionPrice(1091912490.98759773)
+									  .totalTransactionVolume(2823340.40898105974)
+									  .build()]
 
 	@Subject
-	def shortTermStrategy = new ShortTermStrategy()
+	def defaultAggregatedStrategy = new DefaultAggregatedStrategy()
 
 	def "Should get time range"() {
 		expect:
-		shortTermStrategy.getTimeRange() == 6
+		defaultAggregatedStrategy.getTimeRange() == 5
 	}
 
 	def "Should get time interval"() {
 		expect:
-		shortTermStrategy.getTimeInterval() == 1
+		defaultAggregatedStrategy.getTimeInterval() == 1
 	}
 
 	def "Should be valid"() {
@@ -61,7 +60,7 @@ class ShortTermStrategyTest extends Specification {
 		def historiesDto = buildHistoriesDto(normalHistoriesDto)
 
 		expect:
-		shortTermStrategy.isValid(tradeDto, historiesDto)
+		defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
 	}
 
 	@Unroll
@@ -71,24 +70,29 @@ class ShortTermStrategyTest extends Specification {
 		def historiesDto = buildHistoriesDto(HISTORY_DTOS)
 
 		expect:
-		!shortTermStrategy.isValid(tradeDto, historiesDto)
+		!defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
 
 		where:
 		REASON                               | PRICE | HISTORY_DTOS
 		"lower history count than threshold" | 400D  | []
-		"invalid volume change"              | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionVolume(7290.22910983).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(81499.2359519599).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(41873.52528619).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(35980.246407609964).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(70000.40898105974).build(),
-														AggregatedTradeHistoryDto.builder().build()]
-		"total invalid price"                | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionVolume(7290.22910983).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(81499.2359519599).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(41873.52528619).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(35980.246407609964).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionVolume(282334.40898105974).build(),
-														AggregatedTradeHistoryDto.builder().build()]
-		"invalid price change"               | 371D  | normalHistoriesDto
+		"invalid total valid price"          | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(969.2123635136)
+																.totalTransactionVolume(3028.78863598).build(),
+														AggregatedTradeHistoryDto.builder().totalBidPrice(28441.029485256302)
+																.totalAskPrice(86184.93783411).build()]
+		"invalid price change"               | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(729000.22910983)
+																.totalTransactionVolume(10).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(814990.2359519599)
+																.totalTransactionVolume(12).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4187300.52528619)
+																.totalTransactionVolume(60).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(3598000.246407609964)
+																.totalTransactionVolume(50).build(),
+														AggregatedTradeHistoryDto.builder()
+																.totalBidPrice(10000000)
+																.totalAskPrice(0.40898105974)
+																.totalTransactionPrice(10000000.40898105974)
+																.totalTransactionVolume(141).build()]
+		"invalid price change rate change"   | 371D  | normalHistoriesDto
 	}
 
 	TradeDto buildTradeDto(double price) {

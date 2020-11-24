@@ -1,15 +1,20 @@
 package com.moebius.app;
 
+import com.moebius.backend.domain.commons.Exchange;
 import com.moebius.backend.service.kafka.consumer.UpbitKafkaConsumer;
+import com.moebius.backend.service.market.MarketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 
+import java.util.Arrays;
+
 @SpringBootApplication
 @RequiredArgsConstructor
 public class MoebiusApplication implements ApplicationListener<ApplicationReadyEvent> {
+    private final MarketService marketService;
     private final UpbitKafkaConsumer upbitKafkaConsumer;
 
     public static void main(String[] args) {
@@ -18,6 +23,9 @@ public class MoebiusApplication implements ApplicationListener<ApplicationReadyE
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        Arrays.stream(Exchange.values())
+            .filter(exchange -> exchange == Exchange.UPBIT) // TODO : Remove condition after integrating other external exchanges
+            .forEach(exchange -> marketService.updateMarkets(exchange).subscribe());
         upbitKafkaConsumer.consumeMessages();
     }
 }

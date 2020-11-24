@@ -10,8 +10,8 @@ import lombok.ToString;
 public class TradeSlackBodyDto {
 	private String symbol;
 	private String exchange;
-	private String totalAskVolume;
-	private String totalBidVolume;
+	private String totalAskPrice;
+	private String totalBidPrice;
 	private String totalValidPrice;
 	private String price;
 	private String priceChangeRate;

@@ -36,9 +36,9 @@ public class TradeSlackSender extends SlackSender<TradeSlackDto> {
 	@Override
 	public Mono<ClientResponse> sendMessage(TradeSlackDto messageSource) {
 		return super.sendMessage(messageSource)
-				.flatMap(clientResponse -> tradeSlackMessageSender
-						.sendMessage(messageSource)
-						.map(result->clientResponse)
-				);
+			.flatMap(clientResponse -> tradeSlackMessageSender
+				.sendMessage(messageSource)
+				.map(result -> clientResponse)
+			);
 	}
 }

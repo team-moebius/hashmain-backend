@@ -27,6 +27,7 @@ on:
   push:
     branches: 
       - master
+      - HMB-*
 
 name: Build & Deploy - moebius backend
 
