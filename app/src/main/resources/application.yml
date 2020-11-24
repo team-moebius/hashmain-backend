@@ -45,6 +45,7 @@ spring:
 slack:
   web-hook-url:
     trade: https://hooks.slack.com/services/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
+  subscribers: <@URPV8KLP6>
 
 exchange:
   upbit:

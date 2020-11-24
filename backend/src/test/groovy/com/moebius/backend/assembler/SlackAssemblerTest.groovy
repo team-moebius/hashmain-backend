@@ -14,11 +14,15 @@ class SlackAssemblerTest extends Specification {
 	def slackAssembler = new SlackAssembler(orderUtil)
 
 	def "Should assemble slack message"() {
+		given:
+		slackAssembler.subscribers = ["<@URPV8KLP6>"]
+
 		when:
 		def result = slackAssembler.assemble(TradeSlackDto.builder()
 				.symbol("KRW-BTC")
 				.totalAskPrice(100000000.123)
 				.totalBidPrice(1000000000.456)
+				.totalValidPrice(900000000)
 				.build())
 
 		then:
@@ -32,9 +36,8 @@ class SlackAssemblerTest extends Specification {
 		and:
 		def fields = result.getAttachments().get(0).getFields()
 		!CollectionUtils.isEmpty(fields)
-		fields.get(0) instanceof SlackMessageDto.SlackAttachment.Field
 		fields.get(0).getValue() == "100,000,000KRW"
-		fields.get(1) instanceof SlackMessageDto.SlackAttachment.Field
 		fields.get(1).getValue() == "1,000,000,000KRW"
+		fields.get(3).getValue() == "<@URPV8KLP6>"
 	}
 }
