@@ -36,8 +36,8 @@ class SlackAssemblerTest extends Specification {
 		and:
 		def fields = result.getAttachments().get(0).getFields()
 		!CollectionUtils.isEmpty(fields)
-		fields.get(0).getValue() == "100,000,000KRW"
-		fields.get(1).getValue() == "1,000,000,000KRW"
+		fields.get(0).getValue() == "100,000,000 KRW"
+		fields.get(1).getValue() == "1,000,000,000 KRW"
 		fields.get(3).getValue() == "<@URPV8KLP6>"
 	}
 }
