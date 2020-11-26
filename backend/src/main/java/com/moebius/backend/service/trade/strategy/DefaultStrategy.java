@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Default trade strategy is for catching the trades not to be catched by aggregated default strategy.
- * This strategy is based on total valid price for recent 100 trade histories, not total transaction price like aggregated default strategy.
+ * This strategy is based on total valid price for recent 500 trade histories, not total transaction price like aggregated default strategy.
  * This strategy is based on dynamic term rather than fixed short term (5 minutes) like aggregated default strategy.
  * When simple one condition is satisfied during recent trades, This strategy considers that trades are valid.
  *
@@ -24,7 +24,7 @@ import java.util.List;
 @Component
 public class DefaultStrategy implements TradeStrategy {
 	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.05D;
-	private static final int HISTORY_COUNT = 100;
+	private static final int HISTORY_COUNT = 500;
 
 	@Override
 	public int getCount() {

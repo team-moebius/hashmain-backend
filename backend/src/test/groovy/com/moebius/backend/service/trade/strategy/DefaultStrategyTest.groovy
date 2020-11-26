@@ -54,6 +54,6 @@ class DefaultStrategyTest extends Specification {
 
 	def "Should get count"() {
 		expect:
-		defaultStrategy.getCount() == 100
+		defaultStrategy.getCount() == 500
 	}
 }
