@@ -1,12 +1,14 @@
 package com.moebius.backend.service.trade.strategy;
 
-import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.TradeDto;
+import com.moebius.backend.dto.trade.TradeHistoryDto;
+
+import java.util.List;
 
 public interface TradeStrategy {
-	int getTimeInterval();
+	default int getCount() {
+		return 100;
+	}
 
-	int getTimeRange();
-
-	boolean isValid(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto);
+	boolean isValid(TradeDto tradeDto, List<TradeHistoryDto> HistoryDtos);
 }
