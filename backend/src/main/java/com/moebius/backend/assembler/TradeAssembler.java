@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
 
 @Component
 public class TradeAssembler {
@@ -20,35 +20,29 @@ public class TradeAssembler {
 	private static final String UTC = "UTC";
 
 	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
-		int historySize = historiesDto.getAggregatedTradeHistories().size();
-		List<AggregatedTradeHistoryDto> historyDtos = historiesDto.getAggregatedTradeHistories().subList(0, historySize);
-		AggregatedTradeHistoryDto earliestTradeHistory = historyDtos.get(0);
-		AggregatedTradeHistoryDto latestTradeHistory = historyDtos.get(historyDtos.size() - 1);
-
-		double previousAveragePrice = IntStream.range(0, historyDtos.size() - 1)
-			.filter(index -> historyDtos.get(index).getTotalTransactionVolume() > 0D)
-			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice() / historyDtos.get(index).getTotalTransactionVolume())
-			.average()
-			.orElse(1D);
-		double priceChangeRate = Math.round((tradeDto.getPrice() / previousAveragePrice - 1) * 10000) / 100D;
+		List<AggregatedTradeHistoryDto> validHistoryDtos = historiesDto.getAggregatedTradeHistories().stream()
+			.filter(historyDto -> historyDto.getTotalTransactionVolume() > 0D)
+			.collect(Collectors.toList());
+		double earliestAveragePrice = validHistoryDtos.get(0).getTotalTransactionPrice() / validHistoryDtos.get(0).getTotalTransactionVolume();
+		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestAveragePrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
 			.exchange(tradeDto.getExchange())
-			.totalAskPrice(historyDtos.stream()
+			.totalAskPrice(validHistoryDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalAskPrice)
 				.reduce(0D, Double::sum))
-			.totalBidPrice(historyDtos.stream()
+			.totalBidPrice(validHistoryDtos.stream()
 				.map(AggregatedTradeHistoryDto::getTotalBidPrice)
 				.reduce(0D, Double::sum))
-			.totalValidPrice(historyDtos.stream()
+			.totalValidPrice(validHistoryDtos.stream()
 				.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
 				.reduce(0D, Double::sum)
 				.longValue())
 			.price(tradeDto.getPrice())
 			.priceChangeRate(priceChangeRate)
-			.from(earliestTradeHistory.getStartTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
-			.to(latestTradeHistory.getEndTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
+			.from(validHistoryDtos.get(0).getStartTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
+			.to(validHistoryDtos.get(validHistoryDtos.size() - 1).getEndTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
 			.referenceLink(referenceLink)
 			.build();
 	}
