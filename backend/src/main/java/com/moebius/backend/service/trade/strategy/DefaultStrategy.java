@@ -16,14 +16,14 @@ import java.util.List;
  *
  * ABS : Absolute value
  *
- * 1. Valid unit price change : ABS(The latest price / The earliest price - 1) >= 0.05 (>= 5%)
+ * 1. Valid unit price change : ABS(The latest price / The earliest price - 1) >= 0.03 (>= 3%)
  *
  * @author Seonwoo Kim
  */
 @Slf4j
 @Component
 public class DefaultStrategy implements TradeStrategy {
-	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.05D;
+	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.03D;
 	private static final int HISTORY_COUNT = 500;
 
 	@Override

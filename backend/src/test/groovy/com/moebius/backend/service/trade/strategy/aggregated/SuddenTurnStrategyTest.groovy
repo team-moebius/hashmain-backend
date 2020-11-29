@@ -8,7 +8,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class DefaultAggregatedStrategyTest extends Specification {
+class SuddenTurnStrategyTest extends Specification {
 	@Shared
 	def normalHistoriesDto = [AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(2422529.57975545)
@@ -42,7 +42,7 @@ class DefaultAggregatedStrategyTest extends Specification {
 									  .build()]
 
 	@Subject
-	def defaultAggregatedStrategy = new DefaultAggregatedStrategy()
+	def defaultAggregatedStrategy = new SuddenTurnStrategy()
 
 	def "Should get time range"() {
 		expect:
