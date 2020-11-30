@@ -25,8 +25,8 @@ class DefaultStrategyTest extends Specification {
 
 		where:
 		TRADE_DTO                                  | HISTORY_DTOS
-		buildTradeDto(TradeType.BID, 103000D, 10D) | bidHigherHistoryDtos
-		buildTradeDto(TradeType.ASK, 97000D, 10D)  | askHigherHistoryDtos
+		buildTradeDto(TradeType.BID, 105000D, 10D) | bidHigherHistoryDtos
+		buildTradeDto(TradeType.ASK, 95000D, 10D)  | askHigherHistoryDtos
 	}
 
 	@Unroll
@@ -38,7 +38,6 @@ class DefaultStrategyTest extends Specification {
 		REASON                       | TRADE_DTO                                   | HISTORY_DTOS
 		"no trade dto"               | null                                        | bidHigherHistoryDtos
 		"no history dtos"            | Stub(TradeDto)                              | null
-		"no total valid price"       | buildTradeDto(TradeType.ASK, 102000D, 100D) | bidHigherHistoryDtos
 		"no valid unit price change" | buildTradeDto(TradeType.ASK, 100000D, 100D) | askHigherHistoryDtos
 	}
 
@@ -55,6 +54,6 @@ class DefaultStrategyTest extends Specification {
 
 	def "Should get count"() {
 		expect:
-		defaultStrategy.getCount() == 100
+		defaultStrategy.getCount() == 500
 	}
 }

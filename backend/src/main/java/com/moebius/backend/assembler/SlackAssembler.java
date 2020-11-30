@@ -25,7 +25,7 @@ public class SlackAssembler {
 
 	public SlackMessageDto assemble(TradeSlackDto tradeSlackDto) {
 		String symbol = tradeSlackDto.getSymbol();
-		String unitCurrency = orderUtil.getUnitCurrencyBySymbol(symbol);
+		String unitCurrency = BLANK + orderUtil.getUnitCurrencyBySymbol(symbol);
 
 		NumberFormat formatter = NumberFormat.getInstance();
 
