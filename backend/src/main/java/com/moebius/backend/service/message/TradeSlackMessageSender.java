@@ -6,6 +6,7 @@ import com.moebius.backend.dto.slack.TradeSlackBodyDto;
 import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.service.kafka.producer.MessageKafkaProducer;
 import com.moebius.backend.utils.OrderUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
@@ -13,7 +14,9 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeSlackBodyDto> {
-    private static final String TITLE_FORMAT = "%s-%s-%s-%s";
+    private static final long TREMENDOUS_TRADE_THRESHOLD = 100000000L;
+    private static final String BLANK = " ";
+    private static final String TITLE_FORMAT = "%s-%s-%s";
     private static final String TEMPLATE_NAME = "trade_alert";
     //Just for dual write, after migration completed, will be changed to trade-alert
     private static final String RECIPIENT_SLACK_ID = "message-test";
@@ -21,11 +24,15 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
 
     private final OrderUtil orderUtil;
     private final NumberFormat formatter;
+    private final String[] subscribers;
 
-    public TradeSlackMessageSender(MessageKafkaProducer messageKafkaProducer, OrderUtil orderUtil) {
+    public TradeSlackMessageSender(MessageKafkaProducer messageKafkaProducer,
+                                   OrderUtil orderUtil,
+                                   @Value("${slack.subscribers}") String[] subscribers) {
         super(messageKafkaProducer);
         this.orderUtil = orderUtil;
         this.formatter = NumberFormat.getInstance();
+        this.subscribers = subscribers;
     }
 
     @Override
@@ -40,9 +47,7 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
 
     @Override
     protected String getTitle(TradeSlackDto param) {
-        return String.format(TITLE_FORMAT,
-                param.getSymbol(), param.getTotalValidPrice(), param.getFrom(), param.getTo()
-        );
+        return String.format(TITLE_FORMAT, param.getExchange(), param.getSymbol(), param.getPriceChangeRate() > 0D);
     }
 
     @Override
@@ -56,8 +61,9 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
         String unitCurrency = orderUtil.getUnitCurrencyBySymbol(symbol);
         String targetCurrency = orderUtil.getTargetCurrencyBySymbol(symbol);
 
-        return TradeSlackBodyDto.builder()
-                .color(param.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
+        TradeSlackBodyDto.TradeSlackBodyDtoBuilder slackMessageBodyBuilder = TradeSlackBodyDto.builder();
+
+        slackMessageBodyBuilder.color(param.getPriceChangeRate() > 0D ? "#d60000" : "#0051C7")
                 .symbol(symbol)
                 .exchange(param.getExchange().name())
                 .totalAskPrice(formatter.format(param.getTotalAskPrice()))
@@ -69,8 +75,13 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
                 .targetCurrency(targetCurrency)
                 .from(param.getFrom().format(LOCAL_TIME_FORMAT))
                 .to(param.getTo().format(LOCAL_TIME_FORMAT))
-                .referenceLink(param.getReferenceLink())
-                .build();
+                .referenceLink(param.getReferenceLink());
+
+        if (Math.abs(param.getTotalValidPrice()) >= TREMENDOUS_TRADE_THRESHOLD) {
+            slackMessageBodyBuilder.subscribers(String.join(BLANK, subscribers));
+        }
+
+        return slackMessageBodyBuilder.build();
     }
 
     @Override

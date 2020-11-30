@@ -22,4 +22,5 @@ public class TradeSlackBodyDto {
 	private String to;
 	private String referenceLink;
 	private String color;
+	private String subscribers;
 }
