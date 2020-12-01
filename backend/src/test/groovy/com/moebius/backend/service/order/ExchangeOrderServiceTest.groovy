@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.ClientResponse
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -39,8 +40,6 @@ class ExchangeOrderServiceTest extends Specification {
 
 	@Subject
 	def exchangeOrderService = new ExchangeOrderService(
-			orderAssembler,
-			orderRepository,
 			apiKeyService,
 			orderCacheService,
 			exchangeServiceFactory,
@@ -55,8 +54,6 @@ class ExchangeOrderServiceTest extends Specification {
 
 		then:
 		1 * exchangeServiceFactory.getService(_ as Exchange) >> Stub(ExchangeService)
-		1 * orderAssembler.assembleOrderStatus(_ as Order, _ as OrderStatus) >> Stub(Order)
-		1 * orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
 	}
 
 	def "Should not request order with trade dto when there is no ready order"() {
@@ -64,7 +61,7 @@ class ExchangeOrderServiceTest extends Specification {
 		1 * orderCacheService.getReadyOrderCountByExchangeAndSymbol(_ as Exchange, _ as String) >> Mono.just(0L)
 
 		when:
-		exchangeOrderService.orderWithTradeDto(buildTradeDto())
+		exchangeOrderService.orderByTrade(buildTradeDto())
 
 		then:
 		0 * exchangeServiceFactory.getService(_ as Exchange)
@@ -78,20 +75,11 @@ class ExchangeOrderServiceTest extends Specification {
 		1 * orderCacheService.getReadyOrderCountByExchangeAndSymbol(_ as Exchange, _ as String) >> Mono.just(1L)
 
 		when:
-		exchangeOrderService.orderWithTradeDto(buildTradeDto())
+		exchangeOrderService.orderByTrade(buildTradeDto())
 
 		then:
 		1 * exchangeServiceFactory.getService(_ as Exchange) >> Stub(ExchangeService)
 		1 * transactionalOperator.transactional(_ as Mono) >> Mono.just(1L)
-	}
-
-	def "Should request updating order status"() {
-		when:
-		exchangeOrderService.updateOrderStatus(buildTradeDto())
-
-		then:
-		1 * orderAssembler.assembleInProgressStatusCondition(_ as TradeDto) >> Stub(OrderStatusCondition)
-		1 * orderRepository.findAllByOrderStatusCondition(_ as OrderStatusCondition) >> Flux.just(Stub(Order), Stub(Order))
 	}
 
 	def "Should request to cancel order if needed"() {
@@ -142,24 +130,6 @@ class ExchangeOrderServiceTest extends Specification {
 		0     | 0           || 0
 		1     | 1           || 1
 		2     | 1           || 2
-	}
-
-	def "Should get and update order status"() {
-		given:
-		def exchangeService = Mock(ExchangeService)
-
-		1 * exchangeServiceFactory.getService(_ as Exchange) >> exchangeService
-		1 * apiKeyService.getApiKeyById(_ as String) >> Mono.just(Stub(ApiKey))
-		1 * exchangeService.getCurrentOrderStatus(_ as ApiKey, _ as String) >> Mono.just(Stub(OrderStatusDto))
-		1 * orderAssembler.assembleOrderStatus(_ as Order, _ as OrderStatus) >> Stub(Order)
-		1 * orderRepository.save(_ as Order) >> Mono.just(Stub(Order))
-
-		expect:
-		StepVerifier.create(exchangeOrderService.getAndUpdateOrderStatus(Stub(Order)))
-				.assertNext({
-					it -> it instanceof Order
-				})
-				.verifyComplete()
 	}
 
 	TradeDto buildTradeDto() {

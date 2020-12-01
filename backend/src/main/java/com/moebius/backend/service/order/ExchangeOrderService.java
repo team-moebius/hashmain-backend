@@ -1,15 +1,15 @@
 package com.moebius.backend.service.order;
 
-import com.moebius.backend.assembler.order.OrderAssembler;
-import com.moebius.backend.utils.OrderUtil;
 import com.moebius.backend.domain.apikeys.ApiKey;
-import com.moebius.backend.domain.orders.*;
+import com.moebius.backend.domain.orders.Order;
+import com.moebius.backend.domain.orders.OrderPosition;
 import com.moebius.backend.dto.order.OrderDto;
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.service.exchange.ExchangeService;
 import com.moebius.backend.service.exchange.ExchangeServiceFactory;
 import com.moebius.backend.service.member.ApiKeyService;
 import com.moebius.backend.service.order.factory.OrderFactoryManager;
+import com.moebius.backend.utils.OrderUtil;
 import com.moebius.backend.utils.Verifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +23,10 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
-import static com.moebius.backend.utils.ThreadScheduler.IO;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExchangeOrderService {
-	private final OrderAssembler orderAssembler;
-	private final OrderRepository orderRepository;
 	private final ApiKeyService apiKeyService;
 	private final OrderCacheService orderCacheService;
 	private final ExchangeServiceFactory exchangeServiceFactory;
@@ -42,28 +37,15 @@ public class ExchangeOrderService {
 	public void order(ApiKey apiKey, Order order) {
 		ExchangeService exchangeService = exchangeServiceFactory.getService(order.getExchange());
 
-		updateOrderStatus(order, OrderStatus.IN_PROGRESS)
-			.flatMap(updatedOrder -> exchangeService.requestOrder(apiKey, updatedOrder))
-			.subscribe();
+		exchangeService.requestOrder(apiKey, order).subscribe();
 	}
 
-	public void orderWithTradeDto(TradeDto tradeDto) {
+	public void orderByTrade(TradeDto tradeDto) {
 		Verifier.checkNullFields(tradeDto);
 
 		orderCacheService.getReadyOrderCountByExchangeAndSymbol(tradeDto.getExchange(), tradeDto.getSymbol())
 			.filter(orderCount -> orderCount == 0)
 			.switchIfEmpty(Mono.defer(() -> processTransactionalOrder(tradeDto)))
-			.subscribe();
-	}
-
-	public void updateOrderStatus(TradeDto tradeDto) {
-		Verifier.checkNullFields(tradeDto);
-
-		OrderStatusCondition inProgressStatusCondition = orderAssembler.assembleInProgressStatusCondition(tradeDto);
-		orderRepository.findAllByOrderStatusCondition(inProgressStatusCondition)
-			.subscribeOn(IO.scheduler())
-			.publishOn(COMPUTE.scheduler())
-			.flatMap(this::getAndUpdateOrderStatus)
 			.subscribe();
 	}
 
@@ -108,21 +90,5 @@ public class ExchangeOrderService {
 			orderCacheService.evictReadyOrderCount(tradeDto.getExchange(), tradeDto.getSymbol());
 		}
 		return Mono.just(count);
-	}
-
-	private Mono<Order> getAndUpdateOrderStatus(Order order) {
-		ExchangeService exchangeService = exchangeServiceFactory.getService(order.getExchange());
-
-		return apiKeyService.getApiKeyById(order.getApiKeyId().toHexString())
-			.flatMap(apiKey -> exchangeService.getCurrentOrderStatus(apiKey, order.getId().toHexString()))
-			.flatMap(orderStatusDto -> updateOrderStatus(order, orderStatusDto.getOrderStatus()));
-	}
-
-	private Mono<Order> updateOrderStatus(Order order, OrderStatus orderStatus) {
-		Order updatedOrder = orderAssembler.assembleOrderStatus(order, orderStatus);
-
-		return orderRepository.save(updatedOrder)
-			.subscribeOn(IO.scheduler())
-			.publishOn(COMPUTE.scheduler());
 	}
 }

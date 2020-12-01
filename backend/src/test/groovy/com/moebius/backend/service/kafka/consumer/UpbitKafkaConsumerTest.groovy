@@ -3,6 +3,7 @@ package com.moebius.backend.service.kafka.consumer
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.service.market.MarketService
 import com.moebius.backend.service.order.ExchangeOrderService
+import com.moebius.backend.service.order.InternalOrderService
 import com.moebius.backend.service.trade.TradeService
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.kafka.support.serializer.JsonDeserializer
@@ -13,6 +14,7 @@ import spock.lang.Subject
 
 class UpbitKafkaConsumerTest extends Specification {
 	def exchangeOrderService = Mock(ExchangeOrderService)
+	def internalOrderService = Mock(InternalOrderService)
 	def marketService = Mock(MarketService)
 	def tradeService = Mock(TradeService)
 	def receiverRecord = Stub(ReceiverRecord) {
@@ -21,7 +23,7 @@ class UpbitKafkaConsumerTest extends Specification {
 	}
 
 	@Subject
-	def tradeKafkaConsumer = new UpbitKafkaConsumer([:], exchangeOrderService, marketService, tradeService)
+	def tradeKafkaConsumer = new UpbitKafkaConsumer([:], exchangeOrderService, internalOrderService, marketService, tradeService)
 
 	def "Should get topic"() {
 		expect:
@@ -33,10 +35,10 @@ class UpbitKafkaConsumerTest extends Specification {
 		tradeKafkaConsumer.processRecord(receiverRecord)
 
 		then:
-		1 * exchangeOrderService.updateOrderStatus(_ as TradeDto)
-		1 * exchangeOrderService.orderWithTradeDto(_ as TradeDto)
+		1 * tradeService.notifyIfValidTrade(_ as TradeDto)
+		1 * internalOrderService.updateOrderStatusByTrade(_ as TradeDto)
+		1 * exchangeOrderService.orderByTrade(_ as TradeDto)
 		1 * marketService.updateMarketPrice(_ as TradeDto)
-		1 * tradeService.identifyValidTrade(_ as TradeDto)
 	}
 
 	def "Should get key deserializer class"() {
