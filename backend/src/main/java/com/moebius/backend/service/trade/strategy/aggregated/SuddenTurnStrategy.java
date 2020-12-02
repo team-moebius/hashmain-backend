@@ -15,10 +15,10 @@ import java.util.stream.IntStream;
  * When all the conditions are satisfied, This strategy considers these trades are valid.
  *
  * 1. Total valid price : the histories' total valid price is greater than equal to 10M KRW.
- * 2. Total transaction price : the latest history's total transaction price is 5x greater than equal to
+ * 2. Total transaction price : the latest history's total transaction price is greater than equal to
  * 	previous average total transaction price.
- * 3. Unit price change: the current trade price is greater than equal to +1% or
- * 	less than equal to -1% than earliest average unit price.
+ * 3. Unit price change: the current trade price is greater than equal to +5% or
+ * 	less than equal to -5% than earliest average unit price.
  *
  * @author Seonwoo Kim
  */
@@ -27,8 +27,7 @@ import java.util.stream.IntStream;
 public class SuddenTurnStrategy implements AggregatedTradeStrategy {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
-	private static final double TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD = 5D;
-	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.01D;
+	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.05D;
 
 	@Override
 	public int getTimeInterval() {
@@ -72,7 +71,7 @@ public class SuddenTurnStrategy implements AggregatedTradeStrategy {
 
 		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 1);
 
-		return latestHistory.getTotalTransactionPrice() / previousAverageTotalTransactionPrice >= TOTAL_TRANSACTION_PRICE_MULTIPLIER_THRESHOLD;
+		return latestHistory.getTotalTransactionPrice() >= previousAverageTotalTransactionPrice;
 	}
 
 	private boolean hasValidUnitPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
