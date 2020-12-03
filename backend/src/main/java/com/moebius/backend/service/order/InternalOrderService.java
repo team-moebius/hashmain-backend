@@ -2,6 +2,10 @@ package com.moebius.backend.service.order;
 
 import com.moebius.backend.assembler.order.OrderAssembler;
 import com.moebius.backend.assembler.order.OrderAssetAssembler;
+import com.moebius.backend.domain.orders.OrderStatusCondition;
+import com.moebius.backend.dto.trade.TradeDto;
+import com.moebius.backend.service.exchange.ExchangeService;
+import com.moebius.backend.service.exchange.ExchangeServiceFactory;
 import com.moebius.backend.utils.OrderUtil;
 import com.moebius.backend.domain.apikeys.ApiKey;
 import com.moebius.backend.domain.commons.EventType;
@@ -20,6 +24,7 @@ import com.moebius.backend.service.asset.AssetService;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.member.ApiKeyService;
 import com.moebius.backend.service.order.validator.OrderValidator;
+import com.moebius.backend.utils.Verifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -52,6 +57,7 @@ public class InternalOrderService {
 	private final MarketService marketService;
 	private final OrderCacheService orderCacheService;
 	private final ExchangeOrderService exchangeOrderService;
+	private final ExchangeServiceFactory exchangeServiceFactory;
 
 	public Mono<ResponseEntity<OrderResponseDto>> processOrders(String memberId, Exchange exchange, List<OrderDto> orderDtos) {
 		orderValidator.validate(orderDtos);
@@ -94,6 +100,17 @@ public class InternalOrderService {
 			.map(ResponseEntity::ok);
 	}
 
+	public void updateOrderStatusByTrade(TradeDto tradeDto) {
+		Verifier.checkNullFields(tradeDto);
+
+		OrderStatusCondition inProgressStatusCondition = orderAssembler.assembleInProgressStatusCondition(tradeDto);
+		orderRepository.findAllByOrderStatusCondition(inProgressStatusCondition)
+			.subscribeOn(IO.scheduler())
+			.publishOn(COMPUTE.scheduler())
+			.flatMap(this::getAndUpdateOrderStatus)
+			.subscribe();
+}
+
 	private OrderDto processOrder(ApiKey apiKey, OrderDto orderDto) {
 		EventType eventType = orderDto.getEventType();
 
@@ -112,7 +129,8 @@ public class InternalOrderService {
 
 	private void requestOrderIfNeeded(ApiKey apiKey, Order order, double price) {
 		if (orderUtil.isOrderRequestNeeded(order, price)) {
-			exchangeOrderService.order(apiKey, order);
+			updateOrderStatus(order, OrderStatus.IN_PROGRESS)
+				.subscribe(updatedOrder -> exchangeOrderService.order(apiKey, updatedOrder));
 		}
 	}
 
@@ -154,5 +172,21 @@ public class InternalOrderService {
 				currencyAssets.get(orderEntry.getKey()),
 				currencyMarketPrices.get(orderEntry.getKey())))
 			.collect(Collectors.toList());
+	}
+
+	private Mono<Order> getAndUpdateOrderStatus(Order order) {
+		ExchangeService exchangeService = exchangeServiceFactory.getService(order.getExchange());
+
+		return apiKeyService.getApiKeyById(order.getApiKeyId().toHexString())
+			.flatMap(apiKey -> exchangeService.getCurrentOrderStatus(apiKey, order.getId().toHexString()))
+			.flatMap(orderStatusDto -> updateOrderStatus(order, orderStatusDto.getOrderStatus()));
+	}
+
+	private Mono<Order> updateOrderStatus(Order order, OrderStatus orderStatus) {
+		Order updatedOrder = orderAssembler.assembleOrderStatus(order, orderStatus);
+
+		return orderRepository.save(updatedOrder)
+			.subscribeOn(IO.scheduler())
+			.publishOn(COMPUTE.scheduler());
 	}
 }

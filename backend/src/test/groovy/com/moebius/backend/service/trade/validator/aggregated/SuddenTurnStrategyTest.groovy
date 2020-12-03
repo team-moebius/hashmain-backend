@@ -1,4 +1,4 @@
-package com.moebius.backend.service.trade.strategy.aggregated
+package com.moebius.backend.service.trade.validator.aggregated
 
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
@@ -42,7 +42,7 @@ class SuddenTurnStrategyTest extends Specification {
 									  .build()]
 
 	@Subject
-	def defaultAggregatedStrategy = new SuddenTurnStrategy()
+	def defaultAggregatedStrategy = new SuddenTurnValidator()
 
 	def "Should get time range"() {
 		expect:

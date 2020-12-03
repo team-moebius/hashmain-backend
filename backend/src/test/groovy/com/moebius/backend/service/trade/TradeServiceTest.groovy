@@ -8,9 +8,10 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.dto.trade.TradeHistoryDto
 import com.moebius.backend.service.message.TradeSlackMessageSender
+import com.moebius.backend.service.order.InternalOrderService
 import com.moebius.backend.service.slack.TradeSlackSender
-import com.moebius.backend.service.trade.strategy.DefaultStrategy
-import com.moebius.backend.service.trade.strategy.aggregated.SuddenTurnStrategy
+import com.moebius.backend.service.trade.validator.DefaultTradeValidator
+import com.moebius.backend.service.trade.validator.aggregated.SuddenTurnValidator
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
@@ -20,15 +21,16 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeStrategies = [Stub(DefaultStrategy) {
+	def tradeStrategies = [Stub(DefaultTradeValidator) {
 		isValid(_ as TradeDto, _ as List) >> true
 		getCount() >> 100
 	}]
-	def tradeAggregatedStrategies = [Stub(SuddenTurnStrategy) {
+	def aggregatedTradeStrategies = [Stub(SuddenTurnValidator) {
 		getTimeInterval() >> 1
 		getTimeRange() >> 6
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
 	}]
+	def internalOrderService = Mock(InternalOrderService)
 	def tradeHistoryService = Mock(TradeHistoryService)
 	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler), Stub(TradeSlackMessageSender)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
@@ -37,7 +39,7 @@ class TradeServiceTest extends Specification {
 	def uri = UriComponentsBuilder.newInstance().build().toUri()
 
 	@Subject
-	def tradeService = new TradeService(tradeStrategies, tradeAggregatedStrategies, tradeHistoryService, tradeSlackSender, tradeAssembler)
+	def tradeService = new TradeService(tradeStrategies, aggregatedTradeStrategies, internalOrderService, tradeHistoryService, tradeSlackSender, tradeAssembler)
 
 	def "Should request to send slack message if valid trade and valid histories"() {
 		given:
@@ -47,7 +49,7 @@ class TradeServiceTest extends Specification {
 		}
 
 		when:
-		tradeService.identifyValidTrade(getTradeDto(10000D, 1D))
+		tradeService.notifyIfValidTrade(getTradeDto(10000D, 1D))
 
 		then:
 		1 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri
@@ -58,7 +60,7 @@ class TradeServiceTest extends Specification {
 
 	def "Should not request to send slack message if invalid trade"() {
 		when:
-		tradeService.identifyValidTrade(getTradeDto(1000D, 1D))
+		tradeService.notifyIfValidTrade(getTradeDto(1000D, 1D))
 
 		then:
 		0 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri

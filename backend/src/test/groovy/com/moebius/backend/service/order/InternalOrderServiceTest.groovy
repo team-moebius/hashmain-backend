@@ -5,14 +5,17 @@ import com.moebius.backend.assembler.order.OrderAssetAssembler
 import com.moebius.backend.domain.apikeys.ApiKey
 import com.moebius.backend.domain.commons.EventType
 import com.moebius.backend.domain.commons.Exchange
+import com.moebius.backend.domain.commons.TradeType
 import com.moebius.backend.domain.orders.*
 import com.moebius.backend.dto.exchange.AssetDto
 import com.moebius.backend.dto.frontend.response.OrderAssetResponseDto
 import com.moebius.backend.dto.frontend.response.OrderResponseDto
 import com.moebius.backend.dto.order.OrderAssetDto
 import com.moebius.backend.dto.order.OrderDto
+import com.moebius.backend.dto.trade.TradeDto
 import com.moebius.backend.exception.DataNotFoundException
 import com.moebius.backend.service.asset.AssetService
+import com.moebius.backend.service.exchange.ExchangeServiceFactory
 import com.moebius.backend.service.market.MarketService
 import com.moebius.backend.service.member.ApiKeyService
 import com.moebius.backend.service.order.validator.OrderValidator
@@ -26,6 +29,8 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
+import java.time.LocalDateTime
+
 class InternalOrderServiceTest extends Specification {
 	def orderRepository = Mock(OrderRepository)
 	def orderAssembler = Mock(OrderAssembler)
@@ -37,6 +42,7 @@ class InternalOrderServiceTest extends Specification {
 	def marketService = Mock(MarketService)
 	def orderCacheService = Mock(OrderCacheService)
 	def exchangeOrderService = Mock(ExchangeOrderService)
+	def exchangeServiceFactory = Mock(ExchangeServiceFactory)
 
 	def memberId = "5d8620bf46e0fb0001d64260"
 	def exchange = Exchange.UPBIT
@@ -52,7 +58,8 @@ class InternalOrderServiceTest extends Specification {
 			assetService,
 			marketService,
 			orderCacheService,
-			exchangeOrderService
+			exchangeOrderService,
+			exchangeServiceFactory
 	)
 
 	@Unroll
@@ -166,6 +173,15 @@ class InternalOrderServiceTest extends Specification {
 		1 * orderAssetAssembler.assembleOrderAssetResponse(_ as List) >> OrderAssetResponseDto.builder().orderAssets([Stub(OrderAssetDto)]).build()
 	}
 
+	def "Should request updating order status"() {
+		when:
+		internalOrderService.updateOrderStatusByTrade(buildTradeDto())
+
+		then:
+		1 * orderAssembler.assembleInProgressStatusCondition(_ as TradeDto) >> Stub(OrderStatusCondition)
+		1 * orderRepository.findAllByOrderStatusCondition(_ as OrderStatusCondition) >> Flux.just(Stub(Order), Stub(Order))
+	}
+
 	OrderDto buildOrderDto(String id, EventType eventType, String symbol, OrderPosition orderPosition, int level) {
 		OrderDto orderDto = new OrderDto()
 		orderDto.setId(id)
@@ -178,5 +194,15 @@ class InternalOrderServiceTest extends Specification {
 		orderDto.setLevel(level)
 
 		return orderDto
+	}
+
+	TradeDto buildTradeDto() {
+		TradeDto tradeDto = new TradeDto()
+		tradeDto.setExchange(Exchange.UPBIT)
+		tradeDto.setSymbol("KRW-BTC")
+		tradeDto.setTradeType(TradeType.ASK)
+		tradeDto.setCreatedAt(LocalDateTime.now())
+
+		return tradeDto
 	}
 }
