@@ -1,4 +1,4 @@
-package com.moebius.backend.service.trade.strategy
+package com.moebius.backend.service.trade.validator
 
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.commons.TradeType
@@ -9,7 +9,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class DefaultStrategyTest extends Specification {
+class DefaultTradeValidatorTest extends Specification {
 	@Shared
 	def bidHigherHistoryDtos = [TradeHistoryDto.builder().tradeType(TradeType.BID).price(100000D).volume(1000D).build(),
 								TradeHistoryDto.builder().tradeType(TradeType.ASK).price(100000D).volume(900D).build()]
@@ -17,7 +17,7 @@ class DefaultStrategyTest extends Specification {
 	def askHigherHistoryDtos = [TradeHistoryDto.builder().tradeType(TradeType.ASK).price(100000D).volume(1000D).build(),
 								TradeHistoryDto.builder().tradeType(TradeType.BID).price(100000D).volume(900D).build()]
 	@Subject
-	def defaultStrategy = new DefaultStrategy()
+	def defaultStrategy = new DefaultTradeValidator()
 
 	def "Should be valid"() {
 		expect:

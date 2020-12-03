@@ -1,4 +1,4 @@
-package com.moebius.backend.service.trade.strategy;
+package com.moebius.backend.service.trade.validator;
 
 import com.moebius.backend.dto.trade.TradeDto;
 import com.moebius.backend.dto.trade.TradeHistoryDto;
@@ -9,10 +9,9 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 /**
- * Default trade strategy is for catching the trades not to be catched by aggregated default strategy.
- * This strategy is based on total valid price for recent 500 trade histories, not total transaction price like aggregated default strategy.
- * This strategy is based on dynamic term rather than fixed short term (5 minutes) like aggregated default strategy.
- * When simple one condition is satisfied during recent trades, This strategy considers that trades are valid.
+ * This validator is based on total valid price for recent 500 trade histories, not total transaction price.
+ * This validator is based on dynamic term rather than fixed short term (5 minutes).
+ * When simple one condition is satisfied during recent trades, This validator considers that trades are valid.
  *
  * ABS : Absolute value
  *
@@ -22,7 +21,7 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class DefaultStrategy implements TradeStrategy {
+public class DefaultTradeValidator implements TradeValidator {
 	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.03D;
 	private static final int HISTORY_COUNT = 500;
 

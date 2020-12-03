@@ -10,8 +10,8 @@ import com.moebius.backend.dto.trade.TradeHistoryDto
 import com.moebius.backend.service.message.TradeSlackMessageSender
 import com.moebius.backend.service.order.InternalOrderService
 import com.moebius.backend.service.slack.TradeSlackSender
-import com.moebius.backend.service.trade.strategy.DefaultStrategy
-import com.moebius.backend.service.trade.strategy.aggregated.SuddenTurnStrategy
+import com.moebius.backend.service.trade.validator.DefaultTradeValidator
+import com.moebius.backend.service.trade.validator.aggregated.SuddenTurnValidator
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Flux
@@ -21,11 +21,11 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeStrategies = [Stub(DefaultStrategy) {
+	def tradeStrategies = [Stub(DefaultTradeValidator) {
 		isValid(_ as TradeDto, _ as List) >> true
 		getCount() >> 100
 	}]
-	def aggregatedTradeStrategies = [Stub(SuddenTurnStrategy) {
+	def aggregatedTradeStrategies = [Stub(SuddenTurnValidator) {
 		getTimeInterval() >> 1
 		getTimeRange() >> 6
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
