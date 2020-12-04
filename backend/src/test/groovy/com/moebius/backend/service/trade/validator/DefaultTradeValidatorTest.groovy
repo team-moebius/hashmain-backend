@@ -54,6 +54,6 @@ class DefaultTradeValidatorTest extends Specification {
 
 	def "Should get count"() {
 		expect:
-		defaultStrategy.getCount() == 500
+		defaultStrategy.getCount() == 100
 	}
 }
