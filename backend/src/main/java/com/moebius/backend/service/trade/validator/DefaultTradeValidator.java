@@ -9,7 +9,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 /**
- * This validator is based on total valid price for recent 500 trade histories, not total transaction price.
+ * This validator is based on total valid price for recent 100 trade histories, not total transaction price.
  * This validator is based on dynamic term rather than fixed short term (5 minutes).
  * When simple one condition is satisfied during recent trades, This validator considers that trades are valid.
  *
@@ -23,7 +23,7 @@ import java.util.List;
 @Component
 public class DefaultTradeValidator implements TradeValidator {
 	private static final double VALID_UNIT_PRICE_CHANGE_RATE_THRESHOLD = 0.03D;
-	private static final int HISTORY_COUNT = 500;
+	private static final int HISTORY_COUNT = 100;
 
 	@Override
 	public int getCount() {
