@@ -48,7 +48,7 @@ public class TradeHistoryService {
 			.scheme(scheme)
 			.host(dataApiHost)
 			.port(dataApiPort)
-			.path(aggregatedTradeHistoriesUrl)
+			.path(tradeHistoriesUrl)
 			.pathSegment(tradeDto.getExchange().toString(), tradeDto.getSymbol())
 			.queryParam("count", "{count}")
 			.build(count);
