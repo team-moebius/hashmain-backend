@@ -52,8 +52,8 @@ class TradeServiceTest extends Specification {
 		tradeService.notifyIfValidTrade(getTradeDto(10000D, 1D))
 
 		then:
-		1 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri
-		1 * tradeHistoryService.getTradeHistories(_ as URI) >> Flux.just(Stub(TradeHistoryDto))
+		0 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri
+		0 * tradeHistoryService.getTradeHistories(_ as URI) >> Flux.just(Stub(TradeHistoryDto))
 		1 * tradeHistoryService.getAggregatedTradeHistoriesUri(_ as TradeDto, _, _) >> uri
 		1 * tradeHistoryService.getAggregatedTradeHistories(_ as URI) >> Mono.just(aggregatedTradeHistoriesDto)
 	}

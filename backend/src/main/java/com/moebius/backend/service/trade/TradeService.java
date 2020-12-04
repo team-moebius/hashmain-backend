@@ -40,18 +40,6 @@ public class TradeService {
 					.flatMap(tradeSlackSender::sendMessage)
 					.subscribe();
 			});
-
-			tradeValidators.forEach(validator -> {
-				URI uri = tradeHistoryService.getTradeHistoriesUri(tradeDto, validator.getCount());
-
-				tradeHistoryService.getTradeHistories(uri)
-					.subscribeOn(COMPUTE.scheduler())
-					.collectList()
-					.filter(historyDtos -> validator.isValid(tradeDto, historyDtos))
-					.map(historyDtos -> tradeAssembler.assembleByTrade(tradeDto, historyDtos, uri.toString()))
-					.flatMap(tradeSlackSender::sendMessage)
-					.subscribe();
-			});
 		}
 	}
 
