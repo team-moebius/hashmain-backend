@@ -8,7 +8,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
 
-class SuddenTurnStrategyTest extends Specification {
+class SuddenTurnValidatorTest extends Specification {
 	@Shared
 	def normalHistoriesDto = [AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(2422529.57975545)

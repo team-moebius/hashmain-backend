@@ -14,11 +14,11 @@ import java.util.stream.IntStream;
  * Sudden turn validator defines the valid trades by conditions below during recent 5 minutes.
  * When all the conditions are satisfied, This validator considers these trades are valid.
  *
- * 1. Total valid price : the histories' total valid price is greater than equal to 10M KRW.
+ * 1. Total valid price : the histories' total valid price is greater than equal to 20M KRW.
  * 2. Total transaction price : the latest history's total transaction price is greater than equal to
  * 	previous average total transaction price.
- * 3. Unit price change: the current trade price is greater than equal to +5% or
- * 	less than equal to -5% than earliest average unit price.
+ * 3. Unit price change: the current trade price is greater than equal to +2% or
+ * 	less than equal to -2% than earliest average unit price.
  *
  * @author Seonwoo Kim
  */
@@ -26,8 +26,8 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
-	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.05D;
+	private static final double TOTAL_VALID_PRICE_THRESHOLD = 20000000D;
+	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
 
 	@Override
 	public int getTimeInterval() {
