@@ -67,7 +67,7 @@ class MemberServiceTest extends Specification {
 		given:
 		1 * memberAssembler.assembleMember(_ as SignupDto) >> Stub(Member)
 		1 * memberRepository.save(_ as Member) >> Mono.just(Stub(Member))
-		1 * emailService.requestToVerifyEmail(_ as String) >> Mono.just(ResponseEntity.ok(HttpStatus.OK.getReasonPhrase()))
+		1 * emailService.requestToVerifyEmail(_ as Member) >> Mono.just(ResponseEntity.ok(HttpStatus.OK.getReasonPhrase()))
 
 		expect:
 		StepVerifier.create(memberService.createMember(Stub(SignupDto)))

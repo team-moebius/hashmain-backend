@@ -53,7 +53,7 @@ public class MemberService {
 				exception)
 			.flatMap(member -> {
 				log.info("[Member] Succeeded in creating member. [{}]", member);
-				return emailService.requestToVerifyEmail(member.getEmail());
+				return emailService.requestToVerifyEmail(member);
 			});
 	}
 

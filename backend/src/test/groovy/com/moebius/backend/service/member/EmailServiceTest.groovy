@@ -30,10 +30,9 @@ class EmailServiceTest extends Specification {
 			isActive() >> false
 			getVerificationCode() >> "720321"
 		}
-		1 * memberRepository.findByEmail(_ as String) >> Mono.just(member)
 
 		expect:
-		StepVerifier.create(emailService.requestToVerifyEmail(email))
+		StepVerifier.create(emailService.requestToVerifyEmail(member))
 				.assertNext({
 					it != null
 					it.getStatusCode() == HttpStatus.OK
