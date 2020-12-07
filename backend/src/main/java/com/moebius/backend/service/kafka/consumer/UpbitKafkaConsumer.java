@@ -44,7 +44,6 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		TradeDto tradeDto = record.value();
 
 		tradeService.notifyIfValidTrade(tradeDto);
-		// TODO : update order status by exchange's order
 		internalOrderService.updateOrderStatusByTrade(tradeDto);
 		exchangeOrderService.orderByTrade(tradeDto);
 		marketService.updateMarketPrice(tradeDto);
