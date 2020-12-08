@@ -7,10 +7,12 @@ import com.moebius.backend.dto.frontend.response.AssetResponseDto;
 import com.moebius.backend.service.exchange.ExchangeService;
 import com.moebius.backend.service.exchange.ExchangeServiceFactory;
 import com.moebius.backend.service.member.ApiKeyService;
+import com.moebius.backend.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -23,6 +25,7 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 @RequiredArgsConstructor
 public class AssetService {
 	private final ApiKeyService apiKeyService;
+	private final MemberService memberService;
 	private final ExchangeServiceFactory exchangeServiceFactory;
 	private final AssetAssembler assetAssembler;
 
