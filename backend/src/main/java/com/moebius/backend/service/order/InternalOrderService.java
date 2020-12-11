@@ -88,7 +88,7 @@ public class InternalOrderService {
 			.map(ResponseEntity::ok);
 	}
 
-	public Mono<ResponseEntity<OrderAssetResponseDto>> getOrderAssets(String memberId, Exchange exchange) {
+	public Mono<ResponseEntity<OrderAssetResponseDto>> getNotDoneOrderAssets(String memberId, Exchange exchange) {
 		return Mono.zip(
 			getOrders(memberId, exchange, apiKey -> orderRepository.findAllByApiKeyIdAndOrderStatusNot(apiKey.getId(), OrderStatus.DONE))
 				.map(orderAssetAssembler::assembleCurrencyToOrderDtos),

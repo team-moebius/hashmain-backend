@@ -153,7 +153,7 @@ class InternalOrderServiceTest extends Specification {
 						 buildOrderDto("5ee5dd4c4941d136bae8e49b", EventType.READ, "KRW-BTC", OrderPosition.SALE, 1)] as List
 
 		when:
-		StepVerifier.create(internalOrderService.getOrderAssets(memberId, exchange))
+		StepVerifier.create(internalOrderService.getNotDoneOrderAssets(memberId, exchange))
 				.assertNext({
 					it.getStatusCode() == HttpStatus.OK
 					it.getBody() instanceof OrderAssetResponseDto

@@ -18,6 +18,7 @@ import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
@@ -77,5 +78,12 @@ public class MemberService {
 			.publishOn(COMPUTE.scheduler())
 			.map(memberAssembler::assembleDto)
 			.map(ResponseEntity::ok);
+	}
+
+	public Flux<Member> getValidMembers() {
+		return memberRepository.findAll()
+			.subscribeOn(IO.scheduler())
+			.publishOn(COMPUTE.scheduler())
+			.filter(Member::isActive);
 	}
 }

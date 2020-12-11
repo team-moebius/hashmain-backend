@@ -93,6 +93,6 @@ public class OrderController {
 	@GetMapping("/assets/{exchange}")
 	public Mono<ResponseEntity<OrderAssetResponseDto>> getOrderAssets(Principal principal,
 		@PathVariable @NotBlank @ApiParam(value = "거래소", required = true) String exchange) {
-		return internalOrderService.getOrderAssets(principal.getName(), Exchange.getBy(exchange));
+		return internalOrderService.getNotDoneOrderAssets(principal.getName(), Exchange.getBy(exchange));
 	}
 }
