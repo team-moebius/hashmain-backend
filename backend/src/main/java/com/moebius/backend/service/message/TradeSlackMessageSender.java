@@ -17,9 +17,9 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
     private static final long TREMENDOUS_TRADE_THRESHOLD = 100000000L;
     private static final String BLANK = " ";
     private static final String TITLE_FORMAT = "%s-%s-%s";
-    private static final String TEMPLATE_NAME = "trade_alert";
+    private static final String TEMPLATE_NAME = "trade_alert_message";
     //Just for dual write, after migration completed, will be changed to trade-alert
-    private static final String RECIPIENT_SLACK_ID = "message-test";
+    private static final String RECIPIENT_SLACK_ID = "trade-alert";
     private static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private final OrderUtil orderUtil;
