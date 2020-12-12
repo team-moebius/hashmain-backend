@@ -95,6 +95,8 @@ public class UpbitService implements ExchangeService {
 			.uri(publicUri + assetUri)
 			.headers(httpHeaders -> httpHeaders.setBearerAuth(authToken))
 			.exchange()
+			.doOnSuccess(clientResponse -> log.info("[Upbit] Succeeded to request to health check [Response code : {}, message : {}]",
+				clientResponse.statusCode(), clientResponse.bodyToMono(String.class)))
 			.filter(clientResponse -> clientResponse.statusCode() == HttpStatus.OK)
 			.switchIfEmpty(
 				Mono.defer(() -> Mono.error(new WrongDataException(ExceptionTypes.UNVERIFIED_DATA.getMessage("Entered access key and secret key")))));

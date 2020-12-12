@@ -41,13 +41,10 @@ public class EmailService {
 	@Value("${moebius.host}")
 	private String host;
 
-	public Mono<ResponseEntity<?>> requestToVerifyEmail(@NonNull String email) {
-		return memberRepository.findByEmail(email)
-			.subscribeOn(IO.scheduler())
-			.publishOn(COMPUTE.scheduler())
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new DataNotFoundException(ExceptionTypes.NONEXISTENT_DATA.getMessage(email)))))
+	public Mono<ResponseEntity<?>> requestToVerifyEmail(@NonNull Member registeredMember) {
+		return Mono.defer(() -> Mono.just(registeredMember))
 			.filter(member -> !member.isActive() && StringUtils.isNoneBlank(member.getVerificationCode()))
-			.switchIfEmpty(Mono.defer(() -> Mono.error(new WrongDataException(ExceptionTypes.ALREADY_VERIFIED_DATA.getMessage(email)))))
+			.switchIfEmpty(Mono.defer(() -> Mono.error(new WrongDataException(ExceptionTypes.ALREADY_VERIFIED_DATA.getMessage(registeredMember.getEmail())))))
 			.doOnSuccess(member -> sendVerificationEmail(member).subscribe())
 			.map(member -> ResponseEntity.ok(HttpStatus.OK.getReasonPhrase()));
 	}
