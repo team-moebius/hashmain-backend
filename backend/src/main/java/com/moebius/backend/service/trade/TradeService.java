@@ -23,7 +23,6 @@ public class TradeService {
 	private final TradeAssembler tradeAssembler;
 	private static final double TRADE_PRICE_THRESHOLD = 10000D;
 
-	// TODO : change to orderIfValidTrade
 	public void notifyIfValidTrade(TradeDto tradeDto) {
 		if (isTradeOverPriceThreshold(tradeDto)) {
 			aggregatedTradeValidators.forEach(validator -> {

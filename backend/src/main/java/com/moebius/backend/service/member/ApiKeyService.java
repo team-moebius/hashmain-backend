@@ -36,7 +36,6 @@ public class ApiKeyService {
 	private final ApiKeyAssembler apiKeyAssembler;
 	private final ExchangeServiceFactory exchangeServiceFactory;
 
-	@CacheEvict(value = "apiKey", key = "{#apiKeyDto.exchange, #memberId}")
 	public Mono<ResponseEntity<ApiKeyResponseDto>> verifyAndCreateApiKey(ApiKeyDto apiKeyDto, String memberId) {
 		Verifier.checkNullFields(apiKeyDto);
 		Verifier.checkBlankString(memberId);
@@ -74,7 +73,6 @@ public class ApiKeyService {
 			.map(aVoid -> ResponseEntity.ok(id));
 	}
 
-	@Cacheable(value = "apiKey", key = "{#exchange, #memberId}")
 	public Mono<ApiKey> getApiKeyByMemberIdAndExchange(String memberId, Exchange exchange) {
 		Verifier.checkBlankString(memberId);
 		Verifier.checkNullFields(exchange);
@@ -83,8 +81,7 @@ public class ApiKeyService {
 			.subscribeOn(IO.scheduler())
 			.publishOn(COMPUTE.scheduler())
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new DataNotFoundException(
-				ExceptionTypes.NONEXISTENT_DATA.getMessage("[ApiKey] Api key based on memberId(" + memberId + ") and exchange(" + exchange + ")")))))
-			.cache();
+				ExceptionTypes.NONEXISTENT_DATA.getMessage("[ApiKey] Api key based on memberId(" + memberId + ") and exchange(" + exchange + ")")))));
 	}
 
 	public Mono<ApiKey> getApiKeyById(String id) {

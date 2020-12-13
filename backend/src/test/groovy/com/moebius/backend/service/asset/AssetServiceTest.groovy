@@ -25,7 +25,6 @@ class AssetServiceTest extends Specification {
 	def memberService = Mock(MemberService)
 	def exchangeServiceFactory = Mock(ExchangeServiceFactory)
 	def assetAssembler = Mock(AssetAssembler)
-	def orderUtil = Mock(OrderUtil)
 	def apiKey = Stub(ApiKey) {
 		getAccessKey() >> "accessKey"
 		getSecretKey() >> "secretKey"
@@ -39,7 +38,7 @@ class AssetServiceTest extends Specification {
 			.build()
 
 	@Subject
-	def assetService = new AssetService(apiKeyService, memberService, exchangeServiceFactory, assetAssembler, orderUtil)
+	def assetService = new AssetService(apiKeyService, memberService, exchangeServiceFactory, assetAssembler)
 
 	@Unroll
 	def "Should get asset response when #SITUATION"() {

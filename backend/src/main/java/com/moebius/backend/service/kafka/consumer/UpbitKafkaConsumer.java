@@ -46,12 +46,11 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		ReceiverOffset offset = record.receiverOffset();
 		TradeDto tradeDto = record.value();
 
-//		assetService.getApiKeyWithAssets(tradeDto)
-//			.subscribe(tuple -> log.info("[Upbit] Succeeded in get apiKey({}) with assets({})", tuple.getT1(), tuple.getT2()));
-		tradeService.notifyIfValidTrade(tradeDto);
+		assetService.getApiKeyWithAssets(tradeDto).subscribe();
 		internalOrderService.updateOrderStatusByTrade(tradeDto);
 		exchangeOrderService.orderByTrade(tradeDto);
 		marketService.updateMarketPrice(tradeDto);
+		tradeService.notifyIfValidTrade(tradeDto);
 
 		offset.acknowledge();
 	}

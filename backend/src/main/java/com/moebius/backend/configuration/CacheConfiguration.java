@@ -17,4 +17,10 @@ public class CacheConfiguration {
 	public void evictUpbitTradeMeta() {
 		log.info("[Upbit] Evict cache for upbit trade meta.");
 	}
+
+	@CacheEvict(allEntries = true, value = "apiKeyWithAssets")
+	@Scheduled(fixedDelay = 60 * 1000, initialDelay = 500)
+	public void evictApiKeyWithAssets() {
+		log.info("[Asset] Evict cache for api key with assets.");
+	}
 }

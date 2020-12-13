@@ -80,7 +80,6 @@ public class MemberService {
 			.map(ResponseEntity::ok);
 	}
 
-	// TODO : if needed, apply local cache.
 	public Flux<Member> getValidMembers() {
 		return memberRepository.findAll()
 			.subscribeOn(IO.scheduler())

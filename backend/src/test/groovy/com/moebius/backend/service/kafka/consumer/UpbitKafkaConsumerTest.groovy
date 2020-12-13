@@ -45,7 +45,7 @@ class UpbitKafkaConsumerTest extends Specification {
 		1 * internalOrderService.updateOrderStatusByTrade(_ as TradeDto)
 		1 * exchangeOrderService.orderByTrade(_ as TradeDto)
 		1 * marketService.updateMarketPrice(_ as TradeDto)
-//		1 * assetService.getApiKeyWithAssets(_ as TradeDto) >> Flux.just(new Tuple2<ApiKey, AssetDto>(Stub(ApiKey), Stub(AssetDto)))
+		1 * assetService.getApiKeyWithAssets(_ as TradeDto) >> Flux.just(new Tuple2<ApiKey, AssetDto>(Stub(ApiKey), Stub(AssetDto)))
 	}
 
 	def "Should get key deserializer class"() {

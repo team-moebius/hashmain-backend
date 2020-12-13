@@ -10,10 +10,9 @@ import com.moebius.backend.service.exchange.ExchangeService;
 import com.moebius.backend.service.exchange.ExchangeServiceFactory;
 import com.moebius.backend.service.member.ApiKeyService;
 import com.moebius.backend.service.member.MemberService;
-import com.moebius.backend.utils.OrderUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -33,14 +32,15 @@ public class AssetService {
 	private final MemberService memberService;
 	private final ExchangeServiceFactory exchangeServiceFactory;
 	private final AssetAssembler assetAssembler;
-	private final OrderUtil orderUtil;
 
-	public Flux<Tuple2<ApiKey, AssetDto>> getApiKeyWithAssets(TradeDto tradeDto) {
+	@Cacheable(value = "apiKeyWithAssets", key = "{#tradeDto.exchange}")
+	public Flux<Tuple2<ApiKey, List<? extends AssetDto>>> getApiKeyWithAssets(TradeDto tradeDto) {
 		return memberService.getValidMembers()
 			.map(member -> member.getId().toHexString())
 			.flatMap(memberId -> apiKeyService.getApiKeyByMemberIdAndExchange(memberId, tradeDto.getExchange()))
 			.onErrorContinue((exception, apiKey) -> {})
-			.flatMap(apiKey -> Mono.zip(Mono.just(apiKey), getAsset(apiKey, tradeDto)));
+			.flatMap(apiKey -> Mono.zip(Mono.just(apiKey), getAssets(apiKey, tradeDto)))
+			.cache();
 	}
 
 	public Mono<ResponseEntity<AssetResponseDto>> getAssetResponse(String memberId, Exchange exchange) {
@@ -56,16 +56,13 @@ public class AssetService {
 			.map(assetAssembler::assembleCurrencyAssets);
 	}
 
-	private Mono<AssetDto> getAsset(ApiKey apiKey, TradeDto tradeDto) {
+	private Mono<List<? extends AssetDto>> getAssets(ApiKey apiKey, TradeDto tradeDto) {
 		ExchangeService exchangeService = exchangeServiceFactory.getService(tradeDto.getExchange());
 
 		return exchangeService.getAuthToken(apiKey.getAccessKey(), apiKey.getSecretKey())
 			.flatMap(authToken -> exchangeService.getAssets(authToken)
 				.switchIfEmpty(Mono.defer(Mono::empty))
-				.collectList())
-			.map(assetDtos -> assetDtos.stream()
-				.filter(asset -> StringUtils.equals(asset.getCurrency(), orderUtil.getTargetCurrencyBySymbol(tradeDto.getSymbol())))
-				.findFirst().orElse(null));
+				.collectList());
 	}
 
 	private Mono<List<? extends AssetDto>> getAssets(String memberId, Exchange exchange) {
