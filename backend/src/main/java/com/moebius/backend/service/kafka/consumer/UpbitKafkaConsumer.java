@@ -1,6 +1,7 @@
 package com.moebius.backend.service.kafka.consumer;
 
 import com.moebius.backend.dto.trade.TradeDto;
+import com.moebius.backend.service.asset.AssetService;
 import com.moebius.backend.service.market.MarketService;
 import com.moebius.backend.service.order.ExchangeOrderService;
 import com.moebius.backend.service.order.InternalOrderService;
@@ -22,15 +23,17 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 	private final InternalOrderService internalOrderService;
 	private final MarketService marketService;
 	private final TradeService tradeService;
+	private final AssetService assetService;
 
 	public UpbitKafkaConsumer(Map<String, String> receiverDefaultProperties, ExchangeOrderService exchangeOrderService,
 		InternalOrderService internalOrderService, MarketService marketService,
-		TradeService tradeService) {
+		TradeService tradeService, AssetService assetService) {
 		super(receiverDefaultProperties);
 		this.exchangeOrderService = exchangeOrderService;
 		this.internalOrderService = internalOrderService;
 		this.marketService = marketService;
 		this.tradeService = tradeService;
+		this.assetService = assetService;
 	}
 
 	@Override
@@ -43,6 +46,8 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		ReceiverOffset offset = record.receiverOffset();
 		TradeDto tradeDto = record.value();
 
+//		assetService.getApiKeyWithAssets(tradeDto)
+//			.subscribe(tuple -> log.info("[Upbit] Succeeded in get apiKey({}) with assets({})", tuple.getT1(), tuple.getT2()));
 		tradeService.notifyIfValidTrade(tradeDto);
 		internalOrderService.updateOrderStatusByTrade(tradeDto);
 		exchangeOrderService.orderByTrade(tradeDto);

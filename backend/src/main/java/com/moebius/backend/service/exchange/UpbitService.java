@@ -148,12 +148,14 @@ public class UpbitService implements ExchangeService {
 
 	@Cacheable(value = "upbitTradeMeta", key = "{'UPBIT', #symbol}")
 	public Mono<UpbitTradeMetaDto> getTradeMeta(String symbol) {
+		log.info("[Upbit] [{}] Start to get and cache trade meta information.", symbol);
 		return webClient.get()
 			.uri(secretUri + recentUri + symbol)
 			.retrieve()
 			.bodyToFlux(UpbitTradeMetaDto.class)
 			.doOnError(Exception.class, exception -> log.error("[Market] Failed to get trade meta from exchange.", exception))
-			.next();
+			.next()
+			.cache();
 	}
 
 	private String getAuthTokenWithParameter(ApiKey apiKey, String query) {

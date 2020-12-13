@@ -2,7 +2,6 @@ package com.moebius.backend.service.trade;
 
 import com.moebius.backend.assembler.TradeAssembler;
 import com.moebius.backend.dto.trade.TradeDto;
-import com.moebius.backend.service.order.InternalOrderService;
 import com.moebius.backend.service.slack.TradeSlackSender;
 import com.moebius.backend.service.trade.validator.aggregated.AggregatedTradeValidator;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import static com.moebius.backend.utils.ThreadScheduler.COMPUTE;
 @RequiredArgsConstructor
 public class TradeService {
 	private final List<AggregatedTradeValidator> aggregatedTradeValidators;
-	private final InternalOrderService internalOrderService;
 	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;

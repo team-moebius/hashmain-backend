@@ -21,16 +21,11 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 class TradeServiceTest extends Specification {
-	def tradeStrategies = [Stub(DefaultTradeValidator) {
-		isValid(_ as TradeDto, _ as List) >> true
-		getCount() >> 100
-	}]
 	def aggregatedTradeStrategies = [Stub(SuddenTurnValidator) {
 		getTimeInterval() >> 1
 		getTimeRange() >> 6
 		isValid(_ as TradeDto, _ as AggregatedTradeHistoriesDto) >> true
 	}]
-	def internalOrderService = Mock(InternalOrderService)
 	def tradeHistoryService = Mock(TradeHistoryService)
 	def tradeSlackSender = Spy(TradeSlackSender, constructorArgs: [Stub(WebClient), Stub(SlackAssembler), Stub(TradeSlackMessageSender)]) as TradeSlackSender
 	def tradeAssembler = Mock(TradeAssembler)
@@ -39,7 +34,7 @@ class TradeServiceTest extends Specification {
 	def uri = UriComponentsBuilder.newInstance().build().toUri()
 
 	@Subject
-	def tradeService = new TradeService(tradeStrategies, aggregatedTradeStrategies, internalOrderService, tradeHistoryService, tradeSlackSender, tradeAssembler)
+	def tradeService = new TradeService(aggregatedTradeStrategies, tradeHistoryService, tradeSlackSender, tradeAssembler)
 
 	def "Should request to send slack message if valid trade and valid histories"() {
 		given:

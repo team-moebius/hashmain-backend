@@ -9,6 +9,8 @@ import com.moebius.backend.dto.frontend.response.AssetResponseDto
 import com.moebius.backend.service.exchange.ExchangeServiceFactory
 import com.moebius.backend.service.exchange.UpbitService
 import com.moebius.backend.service.member.ApiKeyService
+import com.moebius.backend.service.member.MemberService
+import com.moebius.backend.utils.OrderUtil
 import org.springframework.http.HttpStatus
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -20,8 +22,10 @@ import spock.lang.Unroll
 
 class AssetServiceTest extends Specification {
 	def apiKeyService = Mock(ApiKeyService)
+	def memberService = Mock(MemberService)
 	def exchangeServiceFactory = Mock(ExchangeServiceFactory)
 	def assetAssembler = Mock(AssetAssembler)
+	def orderUtil = Mock(OrderUtil)
 	def apiKey = Stub(ApiKey) {
 		getAccessKey() >> "accessKey"
 		getSecretKey() >> "secretKey"
@@ -35,7 +39,7 @@ class AssetServiceTest extends Specification {
 			.build()
 
 	@Subject
-	def assetService = new AssetService(apiKeyService, exchangeServiceFactory, assetAssembler)
+	def assetService = new AssetService(apiKeyService, memberService, exchangeServiceFactory, assetAssembler, orderUtil)
 
 	@Unroll
 	def "Should get asset response when #SITUATION"() {

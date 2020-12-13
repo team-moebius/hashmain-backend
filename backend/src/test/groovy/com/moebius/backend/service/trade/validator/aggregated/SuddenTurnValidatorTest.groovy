@@ -40,27 +40,63 @@ class SuddenTurnValidatorTest extends Specification {
 									  .totalTransactionPrice(755940627.98759776)
 									  .totalTransactionVolume(9823340.40898105974)
 									  .build()]
+	@Shared
+	def omittedNormalHistoriesDto = [AggregatedTradeHistoryDto.builder()
+											 .totalAskPrice(0)
+											 .totalBidPrice(2494.42766664)
+											 .totalTransactionPrice(2494.42766664)
+											 .totalTransactionVolume(3.86377708)
+											 .build(),
+									 AggregatedTradeHistoryDto.builder()
+											 .totalAskPrice(0)
+											 .totalBidPrice(0)
+											 .totalTransactionPrice(0)
+											 .totalTransactionVolume(0)
+											 .build(),
+									 AggregatedTradeHistoryDto.builder()
+											 .totalAskPrice(0)
+											 .totalBidPrice(0)
+											 .totalTransactionPrice(0)
+											 .totalTransactionVolume(0)
+											 .build(),
+									 AggregatedTradeHistoryDto.builder()
+											 .totalAskPrice(3383739.05972916)
+											 .totalBidPrice(21243426.118690126)
+											 .totalTransactionPrice(24627165.178419285)
+											 .totalTransactionVolume(36990.883842589996)
+											 .build(),
+									 AggregatedTradeHistoryDto.builder()
+											 .totalAskPrice(3321492.657315631)
+											 .totalBidPrice(30711107.30840429)
+											 .totalTransactionPrice(34032599.96571992)
+											 .totalTransactionVolume(50221.123655330004)
+											 .build()]
 
 	@Subject
-	def defaultAggregatedStrategy = new SuddenTurnValidator()
+	def suddenTurnValidator = new SuddenTurnValidator()
 
 	def "Should get time range"() {
 		expect:
-		defaultAggregatedStrategy.getTimeRange() == 5
+		suddenTurnValidator.getTimeRange() == 5
 	}
 
 	def "Should get time interval"() {
 		expect:
-		defaultAggregatedStrategy.getTimeInterval() == 1
+		suddenTurnValidator.getTimeInterval() == 1
 	}
 
 	def "Should be valid"() {
 		given:
-		def tradeDto = buildTradeDto(400D)
-		def historiesDto = buildHistoriesDto(normalHistoriesDto)
+		def tradeDto = buildTradeDto(CURRENT_PRICE)
+		def historiesDto = buildHistoriesDto(HISTORIES_DTO)
 
 		expect:
-		defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
+		suddenTurnValidator.isValid(tradeDto, historiesDto)
+
+		where:
+		CURRENT_PRICE | HISTORIES_DTO
+		400D          | normalHistoriesDto
+		659D          | omittedNormalHistoriesDto
 	}
 
 	@Unroll
@@ -70,7 +106,7 @@ class SuddenTurnValidatorTest extends Specification {
 		def historiesDto = buildHistoriesDto(HISTORY_DTOS)
 
 		expect:
-		!defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
+		!suddenTurnValidator.isValid(tradeDto, historiesDto)
 
 		where:
 		REASON                               | PRICE | HISTORY_DTOS
