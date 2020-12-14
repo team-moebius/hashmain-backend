@@ -35,6 +35,7 @@ public class AssetService {
 
 	@Cacheable(value = "apiKeyWithAssets", key = "{#tradeDto.exchange}")
 	public Flux<Tuple2<ApiKey, List<? extends AssetDto>>> getApiKeyWithAssets(TradeDto tradeDto) {
+		log.info("[Asset] [{}] Start to get and cache api keys and assets", tradeDto.getExchange());
 		return memberService.getValidMembers()
 			.map(member -> member.getId().toHexString())
 			.flatMap(memberId -> apiKeyService.getApiKeyByMemberIdAndExchange(memberId, tradeDto.getExchange()))
