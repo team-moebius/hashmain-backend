@@ -46,7 +46,7 @@ public class UpbitKafkaConsumer extends KafkaConsumer<String, TradeDto> {
 		ReceiverOffset offset = record.receiverOffset();
 		TradeDto tradeDto = record.value();
 
-		assetService.getApiKeyWithAssets(tradeDto).subscribe();
+//		assetService.getApiKeyWithAssets(tradeDto).subscribe();
 		internalOrderService.updateOrderStatusByTrade(tradeDto);
 		exchangeOrderService.orderByTrade(tradeDto);
 		marketService.updateMarketPrice(tradeDto);
