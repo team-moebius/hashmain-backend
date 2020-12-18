@@ -44,7 +44,7 @@ class TradeSlackMessageSenderTest extends Specification {
 		1 * orderUtil.getUnitCurrencyBySymbol(symbol) >> "KRW"
 		1 * orderUtil.getTargetCurrencyBySymbol(symbol) >> "BTC"
 		1 * messageKafkaProducer.produceMessages({
-			it.dedupStrategy == MessageDedupStrategy.LEAVE_LAST_ARRIVAL.name() &&   \
+			it.dedupStrategy == MessageDedupStrategy.LEAVE_FIRST_ARRIVAL.name() &&   \
               it.recipientType == MessageRecipientType.SLACK.name() &&   \
               it.body.parameters.from != null && it.body.parameters.to != null &&   \
               it.body.parameters.unitCurrency == "KRW" && it.body.parameters.targetCurrency == "BTC"

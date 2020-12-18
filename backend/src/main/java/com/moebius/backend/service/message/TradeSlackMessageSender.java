@@ -42,7 +42,7 @@ public class TradeSlackMessageSender extends MessageSender<TradeSlackDto, TradeS
 
     @Override
     protected MessageDedupStrategy getDedupStrategy() {
-        return MessageDedupStrategy.LEAVE_LAST_ARRIVAL;
+        return MessageDedupStrategy.LEAVE_FIRST_ARRIVAL;
     }
 
     @Override
