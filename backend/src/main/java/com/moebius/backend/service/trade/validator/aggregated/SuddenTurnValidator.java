@@ -34,10 +34,10 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final double TREMENDOUS_VALID_PRICE_THRESHOLD = 500000000D;
-	private static final double TREMENDOUS_VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.05D;
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 20000000D;
 	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
+	private static final double TREMENDOUS_VALID_PRICE_THRESHOLD = 500000000D;
+	private static final double TREMENDOUS_VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.05D;
 	@Value("${slack.subscribers}")
 	private String[] subscribers;
 
@@ -72,10 +72,9 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 	}
 
 	@Override
-	public String getSubscribers(AggregatedTradeHistoriesDto historiesDto) {
-		if (Math.abs(historiesDto.getAggregatedTradeHistories().stream()
-			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-			.reduce(0D, Double::sum)) >= TREMENDOUS_VALID_PRICE_THRESHOLD) {
+	public String getSubscribers(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
+		if (getTotalValidPrice(historiesDto.getAggregatedTradeHistories()) >= TREMENDOUS_VALID_PRICE_THRESHOLD ||
+			getValidUnitPriceChange(tradeDto, historiesDto.getAggregatedTradeHistories()) >= TREMENDOUS_VALID_PRICE_RATE_CHANGE_THRESHOLD) {
 			return String.join(StringUtils.SPACE, subscribers);
 		}
 

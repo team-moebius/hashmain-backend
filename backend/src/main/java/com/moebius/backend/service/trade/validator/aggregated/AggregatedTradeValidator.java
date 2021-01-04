@@ -10,5 +10,5 @@ public interface AggregatedTradeValidator {
 
 	boolean isValid(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto);
 
-	String getSubscribers(AggregatedTradeHistoriesDto historiesDto);
+	String getSubscribers(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto);
 }

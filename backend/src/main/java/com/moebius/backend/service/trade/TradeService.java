@@ -37,7 +37,7 @@ public class TradeService {
 					.subscribeOn(COMPUTE.scheduler())
 					.filter(historiesDto -> validator.isValid(tradeDto, historiesDto))
 					.map(historiesDto -> tradeAssembler.assembleByAggregatedTrade(tradeDto, historiesDto, uri.toString(),
-						validator.getSubscribers(historiesDto)))
+						validator.getSubscribers(tradeDto, historiesDto)))
 					.flatMap(tradeSlackSender::sendMessage)
 					.subscribe();
 			});

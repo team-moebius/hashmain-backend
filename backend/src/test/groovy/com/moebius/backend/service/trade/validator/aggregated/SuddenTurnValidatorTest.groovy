@@ -36,7 +36,7 @@ class SuddenTurnValidatorTest extends Specification {
 									  .build(),
 							  AggregatedTradeHistoryDto.builder()
 									  .totalAskPrice(37330207.59736219)
-									  .totalBidPrice(718610420.39023557)
+									  .totalBidPrice(218610420.39023557)
 									  .totalTransactionPrice(755940627.98759776)
 									  .totalTransactionVolume(9823340.40898105974)
 									  .build()]
@@ -79,7 +79,7 @@ class SuddenTurnValidatorTest extends Specification {
 																.totalTransactionVolume(3028.78863598).build(),
 														AggregatedTradeHistoryDto.builder().totalBidPrice(28441.029485256302)
 																.totalAskPrice(86184.93783411).build()]
-		"invalid price change"               | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(729000.22910983)
+		"invalid price change"               | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(4000.22910983)
 																.totalTransactionVolume(10).build(),
 														AggregatedTradeHistoryDto.builder().totalTransactionPrice(814990.2359519599)
 																.totalTransactionVolume(12).build(),
