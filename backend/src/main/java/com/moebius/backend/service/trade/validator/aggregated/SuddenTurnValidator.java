@@ -64,9 +64,9 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 
 	@Override
 	public String getSubscribers(AggregatedTradeHistoriesDto historiesDto) {
-		if (historiesDto.getAggregatedTradeHistories().stream()
+		if (Math.abs(historiesDto.getAggregatedTradeHistories().stream()
 			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-			.reduce(0D, Double::sum) >= TREMENDOUS_TRADE_THRESHOLD) {
+			.reduce(0D, Double::sum)) >= TREMENDOUS_TRADE_THRESHOLD) {
 			return String.join(StringUtils.SPACE, subscribers);
 		}
 
