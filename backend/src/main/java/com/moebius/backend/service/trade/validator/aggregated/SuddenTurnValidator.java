@@ -19,8 +19,14 @@ import java.util.stream.IntStream;
  * 1. Total valid price : the histories' total valid price is greater than equal to 20M KRW.
  * 2. Total transaction price : the latest history's total transaction price is greater than equal to
  * 	previous average total transaction price.
- * 3. Unit price change: the current trade price is greater than equal to +2% or
+ * 3. Valid unit price change : the current trade price is greater than equal to +2% or
  * 	less than equal to -2% than earliest average unit price.
+ *
+ * The tremendous conditions with total valid price and valid price rate change are added.
+ * If any condition of them is satisfied, then consider these trades valid.
+ * 1. Total valid price : the histories' total valid price greater than equal to 500M KRW.
+ * 2. Valid unit price change : the current trade price is greater than equal to +5% or
+ * 	less than equal to -5% than earliest average unit price.
  *
  * @author Seonwoo Kim
  */
@@ -28,7 +34,8 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final double TREMENDOUS_TRADE_THRESHOLD = 100000000D;
+	private static final double TREMENDOUS_VALID_PRICE_THRESHOLD = 500000000D;
+	private static final double TREMENDOUS_VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.05D;
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 20000000D;
 	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
 	@Value("${slack.subscribers}")
@@ -53,9 +60,11 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			return false;
 		}
 
-		if (hasTotalValidPrice(validHistoryDtos) &&
-			hasValidTransactionPriceChange(validHistoryDtos) &&
-			hasValidUnitPriceChange(tradeDto, validHistoryDtos)) {
+		if ((hasValidTransactionPriceChange(validHistoryDtos) &&
+			getTotalValidPrice(validHistoryDtos) >= TOTAL_VALID_PRICE_THRESHOLD &&
+			getValidUnitPriceChange(tradeDto, validHistoryDtos) >= VALID_PRICE_RATE_CHANGE_THRESHOLD) ||
+			(getTotalValidPrice(validHistoryDtos) >= TREMENDOUS_VALID_PRICE_THRESHOLD ||
+				getValidUnitPriceChange(tradeDto, validHistoryDtos) >= TREMENDOUS_VALID_PRICE_RATE_CHANGE_THRESHOLD)) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
@@ -66,17 +75,17 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 	public String getSubscribers(AggregatedTradeHistoriesDto historiesDto) {
 		if (Math.abs(historiesDto.getAggregatedTradeHistories().stream()
 			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-			.reduce(0D, Double::sum)) >= TREMENDOUS_TRADE_THRESHOLD) {
+			.reduce(0D, Double::sum)) >= TREMENDOUS_VALID_PRICE_THRESHOLD) {
 			return String.join(StringUtils.SPACE, subscribers);
 		}
 
 		return StringUtils.EMPTY;
 	}
 
-	private boolean hasTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
+	private double getTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
 		return Math.abs(historyDtos.stream()
 			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-			.reduce(0D, Double::sum)) >= TOTAL_VALID_PRICE_THRESHOLD;
+			.reduce(0D, Double::sum));
 	}
 
 	private boolean hasValidTransactionPriceChange(List<AggregatedTradeHistoryDto> historyDtos) {
@@ -90,9 +99,9 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 		return latestHistory.getTotalTransactionPrice() >= previousAverageTotalTransactionPrice;
 	}
 
-	private boolean hasValidUnitPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
+	private double getValidUnitPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
 		double earliestUnitPrice = historyDtos.get(0).getTotalTransactionPrice() / historyDtos.get(0).getTotalTransactionVolume();
 
-		return Math.abs(tradeDto.getPrice() / earliestUnitPrice - 1) >= VALID_PRICE_RATE_CHANGE_THRESHOLD;
+		return Math.abs(tradeDto.getPrice() / earliestUnitPrice - 1);
 	}
 }
