@@ -44,8 +44,6 @@ public abstract class KafkaConsumer<K, V> {
 		log.info("[Kafka] Start to read messages. [{}]", getTopic());
 		receiver.receive()
 			.publishOn(COMPUTE.scheduler())
-			.groupBy(ConsumerRecord::key)
-			.flatMap(groupedFlux -> groupedFlux.sampleFirst(Duration.ofSeconds(3)))
 			.subscribe(this::processRecord);
 	}
 }

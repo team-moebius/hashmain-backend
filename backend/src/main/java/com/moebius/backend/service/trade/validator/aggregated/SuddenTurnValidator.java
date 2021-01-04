@@ -4,6 +4,8 @@ import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto;
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto;
 import com.moebius.backend.dto.trade.TradeDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,8 +28,11 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
+	private static final double TREMENDOUS_TRADE_THRESHOLD = 100000000D;
 	private static final double TOTAL_VALID_PRICE_THRESHOLD = 20000000D;
 	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
+	@Value("${slack.subscribers}")
+	private String[] subscribers;
 
 	@Override
 	public int getTimeInterval() {
@@ -55,6 +60,17 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getSubscribers(AggregatedTradeHistoriesDto historiesDto) {
+		if (historiesDto.getAggregatedTradeHistories().stream()
+			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
+			.reduce(0D, Double::sum) >= TREMENDOUS_TRADE_THRESHOLD) {
+			return String.join(StringUtils.SPACE, subscribers);
+		}
+
+		return StringUtils.EMPTY;
 	}
 
 	private boolean hasTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {

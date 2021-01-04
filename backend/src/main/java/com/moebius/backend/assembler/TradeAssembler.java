@@ -19,7 +19,8 @@ public class TradeAssembler {
 	private static final String KOREA_TIME_ZONE = "Asia/Seoul";
 	private static final String UTC = "UTC";
 
-	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
+
+	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink, String subscribers) {
 		List<AggregatedTradeHistoryDto> validHistoryDtos = historiesDto.getAggregatedTradeHistories().stream()
 			.filter(historyDto -> historyDto.getTotalTransactionVolume() > 0D)
 			.collect(Collectors.toList());
@@ -44,6 +45,7 @@ public class TradeAssembler {
 			.from(validHistoryDtos.get(0).getStartTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
 			.to(validHistoryDtos.get(validHistoryDtos.size() - 1).getEndTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
 			.referenceLink(referenceLink)
+			.subscribers(subscribers)
 			.build();
 	}
 

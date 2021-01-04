@@ -28,11 +28,12 @@ class TradeAssemblerTest extends Specification {
 		}
 		
 		when:
-		def result = tradeAssembler.assembleByAggregatedTrade(Stub(TradeDto), historiesDto, "test")
+		def result = tradeAssembler.assembleByAggregatedTrade(Stub(TradeDto), historiesDto, "test", "testSubscriber")
 
 		then:
 		result instanceof TradeSlackDto
 		result.getReferenceLink() == "test"
+		result.getSubscribers() == "testSubscriber"
 	}
 
 	def "Should assemble slack dto by trades"() {
