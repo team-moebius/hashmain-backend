@@ -105,8 +105,8 @@ class SuddenTurnValidatorTest extends Specification {
 																.totalTransactionVolume(12).build(),
 														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4187300.52528619)
 																.totalTransactionVolume(60).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4000.22910983)
-																.totalTransactionVolume(10).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(400000.22910983)
+																.totalTransactionVolume(1000).build(),
 														AggregatedTradeHistoryDto.builder()
 																.totalBidPrice(10000000)
 																.totalAskPrice(0.40898105974)

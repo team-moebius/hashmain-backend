@@ -73,7 +73,7 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 
 	private List<AggregatedTradeHistoryDto> getValidHistoryDtos(AggregatedTradeHistoriesDto historiesDto) {
 		return historiesDto.getAggregatedTradeHistories().stream()
-			.filter(historyDto -> historyDto.getTotalTransactionVolume() > 0D)
+			.filter(historyDto -> historyDto.getTotalTransactionPrice() > 100000D)
 			.collect(Collectors.toList());
 	}
 
