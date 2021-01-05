@@ -20,7 +20,13 @@ class TradeAssemblerTest extends Specification {
 		given:
 		def historiesDto = Stub(AggregatedTradeHistoriesDto) {
 			getAggregatedTradeHistories() >> [AggregatedTradeHistoryDto.builder()
-													  .totalTransactionPrice(10000)
+													  .totalTransactionPrice(100000)
+													  .totalTransactionVolume(10)
+													  .startTime(ZonedDateTime.now().minusMinutes(5))
+													  .endTime(ZonedDateTime.now())
+													  .build(),
+											  AggregatedTradeHistoryDto.builder()
+													  .totalTransactionPrice(100000)
 													  .totalTransactionVolume(10)
 													  .startTime(ZonedDateTime.now().minusMinutes(5))
 													  .endTime(ZonedDateTime.now())

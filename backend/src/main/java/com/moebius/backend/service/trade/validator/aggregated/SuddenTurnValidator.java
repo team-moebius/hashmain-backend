@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
 	private static final int TOTAL_TRANSACTION_VOLUME_RATIO = 2;
+	private static final int TOTAL_TRANSACTION_PRICE_THRESHOLD = 100000;
 	private static final double UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.01D;
 	private static final double SUBSCRIBED_UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
 	@Value("${slack.subscribers}")
@@ -73,7 +74,7 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 
 	private List<AggregatedTradeHistoryDto> getValidHistoryDtos(AggregatedTradeHistoriesDto historiesDto) {
 		return historiesDto.getAggregatedTradeHistories().stream()
-			.filter(historyDto -> historyDto.getTotalTransactionPrice() > 100000D)
+			.filter(historyDto -> historyDto.getTotalTransactionPrice() >= TOTAL_TRANSACTION_PRICE_THRESHOLD)
 			.collect(Collectors.toList());
 	}
 
@@ -90,8 +91,8 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 
 	private double getUnitPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
 		AggregatedTradeHistoryDto penultimateHistory = historyDtos.get(historyDtos.size() - 2);
-		double latestAverageUnitPrice = penultimateHistory.getTotalTransactionPrice() / penultimateHistory.getTotalTransactionVolume();
+		double penultimateAverageUnitPrice = penultimateHistory.getTotalTransactionPrice() / penultimateHistory.getTotalTransactionVolume();
 
-		return Math.abs(tradeDto.getPrice() / latestAverageUnitPrice - 1);
+		return Math.abs(tradeDto.getPrice() / penultimateAverageUnitPrice - 1);
 	}
 }
