@@ -16,12 +16,14 @@ import java.util.stream.IntStream;
  * Sudden turn validator defines the valid trades by conditions below during recent 5 minutes.
  * When all the conditions are satisfied, This validator considers these trades are valid.
  *
- * 1. Total transaction volume : the latest history's total transaction volume is greater than equal to
- * 	the double (x2) of previous average total transaction volume.
- * 2. Unit price change : the current trade price is greater than equal to +1% or
+ * 1. Total valid price : the total valid price is greater than equal to 10M KRW.
+ * 2. Total transaction volume : the latest history's total transaction volume is greater than equal to
+ * 	1.5 * previous average total transaction volume.
+ * 3. Unit price change : the current trade price is greater than equal to +1% or
  * 	less than equal to -1% than penultimate average unit price.
  *
- * When unit price change is greater than equal to +-3%, set subscribers.
+ *
+ * When unit price change is greater than equal to +-2%, set subscribers.
  *
  * @author Seonwoo Kim (Knunu)
  */
@@ -29,10 +31,11 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final int TOTAL_TRANSACTION_VOLUME_RATIO = 2;
-	private static final int TOTAL_TRANSACTION_PRICE_THRESHOLD = 100000;
+	private static final double TOTAL_TRANSACTION_PRICE_THRESHOLD = 100000D;
+	private static final double TOTAL_VALID_PRICE_THRESHOLD = 10000000D;
+	private static final double TOTAL_TRANSACTION_VOLUME_RATIO = 1.5D;
 	private static final double UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.01D;
-	private static final double SUBSCRIBED_UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
+	private static final double SUBSCRIBED_UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
 	@Value("${slack.subscribers}")
 	private String[] subscribers;
 
@@ -53,7 +56,8 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			return false;
 		}
 
-		if (hasValidTransactionVolumeChange(validHistoryDtos) &&
+		if (hasTotalValidPrice(validHistoryDtos) &&
+			hasValidTransactionVolumeChange(validHistoryDtos) &&
 			getUnitPriceChange(tradeDto, validHistoryDtos) >= UNIT_PRICE_RATE_CHANGE_THRESHOLD) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
@@ -78,6 +82,13 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			.collect(Collectors.toList());
 	}
 
+	private boolean hasTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
+		double totalValidPrice = Math.abs(historyDtos.stream()
+			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
+			.reduce(0D, Double::sum));
+
+		return totalValidPrice >= TOTAL_VALID_PRICE_THRESHOLD;
+	}
 	private boolean hasValidTransactionVolumeChange(List<AggregatedTradeHistoryDto> historyDtos) {
 		double previousAverageTotalTransactionVolume = IntStream.range(0, historyDtos.size() - 1)
 			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
