@@ -25,7 +25,7 @@ public class TradeService {
 	private final TradeHistoryService tradeHistoryService;
 	private final TradeSlackSender tradeSlackSender;
 	private final TradeAssembler tradeAssembler;
-	private static final double TRADE_PRICE_THRESHOLD = 10000D;
+	private static final double TRADE_PRICE_THRESHOLD = 100000D;
 
 	// TODO : change to orderIfValidTrade
 	public void notifyIfValidTrade(TradeDto tradeDto) {

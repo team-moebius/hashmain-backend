@@ -3,6 +3,7 @@ package com.moebius.backend.service.trade.validator.aggregated
 import com.moebius.backend.dto.trade.AggregatedTradeHistoriesDto
 import com.moebius.backend.dto.trade.AggregatedTradeHistoryDto
 import com.moebius.backend.dto.trade.TradeDto
+import org.springframework.util.StringUtils
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
@@ -42,16 +43,16 @@ class SuddenTurnValidatorTest extends Specification {
 									  .build()]
 
 	@Subject
-	def defaultAggregatedStrategy = new SuddenTurnValidator()
+	def suddenTurnValidator = new SuddenTurnValidator()
 
 	def "Should get time range"() {
 		expect:
-		defaultAggregatedStrategy.getTimeRange() == 5
+		suddenTurnValidator.getTimeRange() == 5
 	}
 
 	def "Should get time interval"() {
 		expect:
-		defaultAggregatedStrategy.getTimeInterval() == 1
+		suddenTurnValidator.getTimeInterval() == 1
 	}
 
 	def "Should be valid"() {
@@ -60,7 +61,26 @@ class SuddenTurnValidatorTest extends Specification {
 		def historiesDto = buildHistoriesDto(normalHistoriesDto)
 
 		expect:
-		defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
+		suddenTurnValidator.isValid(tradeDto, historiesDto)
+	}
+
+	def "Should get subscribers"() {
+		given:
+		def tradeDto = buildTradeDto(400D)
+		def historiesDto = buildHistoriesDto(normalHistoriesDto)
+		suddenTurnValidator.subscribers = ["testSubscribers"]
+
+		expect:
+		suddenTurnValidator.getSubscribers(tradeDto, historiesDto) == "testSubscribers"
+	}
+
+	def "Should not get subscribers"() {
+		given:
+		def tradeDto = buildTradeDto(373D)
+		def historiesDto = buildHistoriesDto(normalHistoriesDto)
+
+		expect:
+		StringUtils.isEmpty(suddenTurnValidator.getSubscribers(tradeDto, historiesDto))
 	}
 
 	@Unroll
@@ -70,7 +90,7 @@ class SuddenTurnValidatorTest extends Specification {
 		def historiesDto = buildHistoriesDto(HISTORY_DTOS)
 
 		expect:
-		!defaultAggregatedStrategy.isValid(tradeDto, historiesDto)
+		!suddenTurnValidator.isValid(tradeDto, historiesDto)
 
 		where:
 		REASON                               | PRICE | HISTORY_DTOS
@@ -79,20 +99,20 @@ class SuddenTurnValidatorTest extends Specification {
 																.totalTransactionVolume(3028.78863598).build(),
 														AggregatedTradeHistoryDto.builder().totalBidPrice(28441.029485256302)
 																.totalAskPrice(86184.93783411).build()]
-		"invalid price change"               | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(4000.22910983)
-																.totalTransactionVolume(10).build(),
+		"invalid unit price change"          | 400D  | [AggregatedTradeHistoryDto.builder().totalTransactionPrice(3598000.246407609964)
+																.totalTransactionVolume(50).build(),
 														AggregatedTradeHistoryDto.builder().totalTransactionPrice(814990.2359519599)
 																.totalTransactionVolume(12).build(),
 														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4187300.52528619)
 																.totalTransactionVolume(60).build(),
-														AggregatedTradeHistoryDto.builder().totalTransactionPrice(3598000.246407609964)
-																.totalTransactionVolume(50).build(),
+														AggregatedTradeHistoryDto.builder().totalTransactionPrice(4000.22910983)
+																.totalTransactionVolume(10).build(),
 														AggregatedTradeHistoryDto.builder()
 																.totalBidPrice(10000000)
 																.totalAskPrice(0.40898105974)
 																.totalTransactionPrice(10000000.40898105974)
 																.totalTransactionVolume(141).build()]
-		"invalid price change rate change"   | 371D  | normalHistoriesDto
+		"invalid price change rate change"   | 373D  | normalHistoriesDto
 	}
 
 	TradeDto buildTradeDto(double price) {
