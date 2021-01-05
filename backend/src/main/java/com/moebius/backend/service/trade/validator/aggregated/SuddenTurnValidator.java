@@ -16,19 +16,12 @@ import java.util.stream.IntStream;
  * Sudden turn validator defines the valid trades by conditions below during recent 5 minutes.
  * When all the conditions are satisfied, This validator considers these trades are valid.
  *
- * Common condition
- * Total transaction price : the latest history's total transaction price is greater than equal to
- * 	previous average total transaction price.
+ * 1. Total transaction volume : the latest history's total transaction volume is greater than equal to
+ * 	the double (x2) of previous average total transaction volume.
+ * 2. Unit price change : the current trade price is greater than equal to +1% or
+ * 	less than equal to -1% than penultimate average unit price.
  *
- * Normal turn trades conditions (All match conditions)
- * 1. Total valid price : the histories' total valid price is greater than equal to 20M KRW.
- * 2. Unit price change : the current trade price is greater than equal to +2% or
- * 	less than equal to -2% than earliest average unit price.
- *
- * Huge turn trades conditions (Any match conditions)
- * 1. Total valid price : the histories' total valid price greater than equal to 200M KRW.
- * 2. Unit price change : the current trade price is greater than equal to +3% or
- * 	less than equal to -3% than earliest average unit price.
+ * When unit price change is greater than equal to +-3%, set subscribers.
  *
  * @author Seonwoo Kim (Knunu)
  */
@@ -36,10 +29,9 @@ import java.util.stream.IntStream;
 @Component
 public class SuddenTurnValidator implements AggregatedTradeValidator {
 	private static final int HISTORY_COUNT_THRESHOLD = 2;
-	private static final double TOTAL_VALID_PRICE_THRESHOLD = 20000000D;
-	private static final double VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.02D;
-	private static final double HUGE_VALID_PRICE_THRESHOLD = 200000000D;
-	private static final double HUGE_VALID_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
+	private static final int TOTAL_TRANSACTION_VOLUME_RATIO = 2;
+	private static final double UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.01D;
+	private static final double SUBSCRIBED_UNIT_PRICE_RATE_CHANGE_THRESHOLD = 0.03D;
 	@Value("${slack.subscribers}")
 	private String[] subscribers;
 
@@ -60,8 +52,8 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			return false;
 		}
 
-		if (isNormalTurnTrades(tradeDto, validHistoryDtos) ||
-			isHugeTurnTrades(tradeDto, validHistoryDtos)) {
+		if (hasValidTransactionVolumeChange(validHistoryDtos) &&
+			getUnitPriceChange(tradeDto, validHistoryDtos) >= UNIT_PRICE_RATE_CHANGE_THRESHOLD) {
 			log.info("[Trade] [{}/{}] The valid aggregated trade histories exist.", tradeDto.getExchange(), tradeDto.getSymbol());
 			return true;
 		}
@@ -72,7 +64,7 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 	public String getSubscribers(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto) {
 		List<AggregatedTradeHistoryDto> validHistoryDtos = getValidHistoryDtos(historiesDto);
 
-		if (isHugeTurnTrades(tradeDto, validHistoryDtos)) {
+		if (getUnitPriceChange(tradeDto, validHistoryDtos) >= SUBSCRIBED_UNIT_PRICE_RATE_CHANGE_THRESHOLD) {
 			return String.join(StringUtils.SPACE, subscribers);
 		}
 
@@ -85,39 +77,20 @@ public class SuddenTurnValidator implements AggregatedTradeValidator {
 			.collect(Collectors.toList());
 	}
 
-	private boolean isNormalTurnTrades(TradeDto tradeDto, List<AggregatedTradeHistoryDto> validHistoryDtos) {
-		return hasValidTransactionPriceChange(validHistoryDtos) &&
-			getTotalValidPrice(validHistoryDtos) >= TOTAL_VALID_PRICE_THRESHOLD &&
-			getUnitPriceChange(tradeDto, validHistoryDtos) >= VALID_PRICE_RATE_CHANGE_THRESHOLD;
-	}
-
-	private boolean isHugeTurnTrades(TradeDto tradeDto, List<AggregatedTradeHistoryDto> validHistoryDtos) {
-		return hasValidTransactionPriceChange(validHistoryDtos) &&
-			(getTotalValidPrice(validHistoryDtos) >= HUGE_VALID_PRICE_THRESHOLD ||
-				getUnitPriceChange(tradeDto, validHistoryDtos) >= HUGE_VALID_PRICE_RATE_CHANGE_THRESHOLD);
-	}
-
-	private boolean hasValidTransactionPriceChange(List<AggregatedTradeHistoryDto> historyDtos) {
-		double previousAverageTotalTransactionPrice = IntStream.range(0, historyDtos.size() - 1)
-			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionPrice())
+	private boolean hasValidTransactionVolumeChange(List<AggregatedTradeHistoryDto> historyDtos) {
+		double previousAverageTotalTransactionVolume = IntStream.range(0, historyDtos.size() - 1)
+			.mapToDouble(index -> historyDtos.get(index).getTotalTransactionVolume())
 			.average()
 			.orElse(1D);
 
 		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 1);
 
-		return latestHistory.getTotalTransactionPrice() >= previousAverageTotalTransactionPrice;
+		return latestHistory.getTotalTransactionVolume() / previousAverageTotalTransactionVolume >= TOTAL_TRANSACTION_VOLUME_RATIO;
 	}
-
-	private double getTotalValidPrice(List<AggregatedTradeHistoryDto> historyDtos) {
-		return Math.abs(historyDtos.stream()
-			.map(history -> history.getTotalBidPrice() - history.getTotalAskPrice())
-			.reduce(0D, Double::sum));
-	}
-
 
 	private double getUnitPriceChange(TradeDto tradeDto, List<AggregatedTradeHistoryDto> historyDtos) {
-		AggregatedTradeHistoryDto latestHistory = historyDtos.get(historyDtos.size() - 2);
-		double latestAverageUnitPrice = latestHistory.getTotalTransactionPrice() / latestHistory.getTotalTransactionVolume();
+		AggregatedTradeHistoryDto penultimateHistory = historyDtos.get(historyDtos.size() - 2);
+		double latestAverageUnitPrice = penultimateHistory.getTotalTransactionPrice() / penultimateHistory.getTotalTransactionVolume();
 
 		return Math.abs(tradeDto.getPrice() / latestAverageUnitPrice - 1);
 	}
