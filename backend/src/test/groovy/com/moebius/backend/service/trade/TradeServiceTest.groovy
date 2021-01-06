@@ -49,7 +49,7 @@ class TradeServiceTest extends Specification {
 		}
 
 		when:
-		tradeService.notifyIfValidTrade(getTradeDto(10000D, 1D))
+		tradeService.notifyIfValidTrade(getTradeDto(10000D, 10D))
 
 		then:
 		0 * tradeHistoryService.getTradeHistoriesUri(_ as TradeDto, _) >> uri

@@ -9,4 +9,6 @@ public interface AggregatedTradeValidator {
 	int getTimeRange();
 
 	boolean isValid(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto);
+
+	String getSubscribers(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto);
 }

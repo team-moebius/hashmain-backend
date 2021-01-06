@@ -19,12 +19,14 @@ public class TradeAssembler {
 	private static final String KOREA_TIME_ZONE = "Asia/Seoul";
 	private static final String UTC = "UTC";
 
-	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink) {
+	public TradeSlackDto assembleByAggregatedTrade(TradeDto tradeDto, AggregatedTradeHistoriesDto historiesDto, String referenceLink,
+		String subscribers) {
 		List<AggregatedTradeHistoryDto> validHistoryDtos = historiesDto.getAggregatedTradeHistories().stream()
-			.filter(historyDto -> historyDto.getTotalTransactionVolume() > 0D)
+			.filter(historyDto -> historyDto.getTotalTransactionPrice() >= 100000D)
 			.collect(Collectors.toList());
-		double earliestAveragePrice = validHistoryDtos.get(0).getTotalTransactionPrice() / validHistoryDtos.get(0).getTotalTransactionVolume();
-		double priceChangeRate = Math.round((tradeDto.getPrice() / earliestAveragePrice - 1) * 10000) / 100D;
+		AggregatedTradeHistoryDto penultimateHistory = validHistoryDtos.get(validHistoryDtos.size() - 2);
+		double penultimateAverageUnitPrice = penultimateHistory.getTotalTransactionPrice() / penultimateHistory.getTotalTransactionVolume();
+		double priceChangeRate = Math.round((tradeDto.getPrice() / penultimateAverageUnitPrice - 1) * 10000) / 100D;
 
 		return TradeSlackDto.builder()
 			.symbol(tradeDto.getSymbol())
@@ -44,6 +46,7 @@ public class TradeAssembler {
 			.from(validHistoryDtos.get(0).getStartTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
 			.to(validHistoryDtos.get(validHistoryDtos.size() - 1).getEndTime().withZoneSameInstant(ZoneId.of(KOREA_TIME_ZONE)).toLocalTime())
 			.referenceLink(referenceLink)
+			.subscribers(subscribers)
 			.build();
 	}
 

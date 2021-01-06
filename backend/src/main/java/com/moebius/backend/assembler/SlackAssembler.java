@@ -5,7 +5,7 @@ import com.moebius.backend.dto.slack.TradeSlackDto;
 import com.moebius.backend.utils.OrderUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.text.NumberFormat;
@@ -17,15 +17,11 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class SlackAssembler {
-	private static final long TREMENDOUS_TRADE_THRESHOLD = 100000000L;
-	private static final String BLANK = " ";
 	private final OrderUtil orderUtil;
-	@Value("${slack.subscribers}")
-	private String[] subscribers;
 
 	public SlackMessageDto assemble(TradeSlackDto tradeSlackDto) {
 		String symbol = tradeSlackDto.getSymbol();
-		String unitCurrency = BLANK + orderUtil.getUnitCurrencyBySymbol(symbol);
+		String unitCurrency = StringUtils.SPACE + orderUtil.getUnitCurrencyBySymbol(symbol);
 
 		NumberFormat formatter = NumberFormat.getInstance();
 
@@ -57,12 +53,10 @@ public class SlackAssembler {
 			.title("Current price (Change rate)")
 			.value(formatter.format(tradeSlackDto.getPrice()) + unitCurrency + " (" + tradeSlackDto.getPriceChangeRate() + "%)")
 			.build());
-		if (Math.abs(tradeSlackDto.getTotalValidPrice()) >= TREMENDOUS_TRADE_THRESHOLD) {
-			attachmentFields.add(SlackMessageDto.SlackAttachment.Field.builder()
-				.title("Subscribers")
-				.value(String.join(BLANK, subscribers))
-				.build());
-		}
+		attachmentFields.add(SlackMessageDto.SlackAttachment.Field.builder()
+			.title("Subscribers")
+			.value(tradeSlackDto.getSubscribers())
+			.build());
 
 		return attachmentFields;
 	}
