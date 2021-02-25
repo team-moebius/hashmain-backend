@@ -15,7 +15,6 @@ class EmailServiceTest extends Specification {
 	def emailSender = Mock(JavaMailSender)
 	def memberRepository = Mock(MemberRepository)
 	def templateEngine = Mock(TemplateEngine)
-	def email = "somebody@dummy.com"
 
 	@Subject
 	def emailService = new EmailService(
@@ -34,8 +33,8 @@ class EmailServiceTest extends Specification {
 		expect:
 		StepVerifier.create(emailService.requestToVerifyEmail(member))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 
@@ -43,6 +42,7 @@ class EmailServiceTest extends Specification {
 
 	def "Should verify email"() {
 		given:
+		def email = "somebody@dummy.com"
 		def member = Stub(Member) {
 			isActive() >> false
 			getVerificationCode() >> "180712"
@@ -57,8 +57,8 @@ class EmailServiceTest extends Specification {
 		expect:
 		StepVerifier.create(emailService.verifyEmail(verificationDto))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -71,9 +71,9 @@ class EmailServiceTest extends Specification {
 		expect:
 		StepVerifier.create(emailService.updateMember(member))
 				.assertNext({
-					it != null
-					it instanceof Member
-					it.isActive()
+					assert it != null
+					assert it instanceof Member
+					assert it.isActive()
 				})
 				.verifyComplete()
 	}

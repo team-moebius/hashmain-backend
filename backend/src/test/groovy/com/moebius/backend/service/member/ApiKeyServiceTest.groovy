@@ -68,9 +68,9 @@ class ApiKeyServiceTest extends Specification {
 		expect:
 		StepVerifier.create(apiKeyService.verifyAndCreateApiKey(apiKeyDto, memberId))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof ApiKeyResponseDto
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof ApiKeyResponseDto
 				})
 				.verifyComplete()
 	}
@@ -106,10 +106,10 @@ class ApiKeyServiceTest extends Specification {
 		expect:
 		StepVerifier.create(apiKeyService.getApiKeysByMemberId(memberId))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody().size() == 2
-					it.getBody().get(0) instanceof ApiKeyResponseDto
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody().size() == 2
+					assert it.getBody().get(0) instanceof ApiKeyResponseDto
 				})
 				.verifyComplete()
 	}
@@ -130,9 +130,8 @@ class ApiKeyServiceTest extends Specification {
 		expect:
 		StepVerifier.create(apiKeyService.deleteApiKeyById(apiKeyId, memberId))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof Void
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -154,7 +153,7 @@ class ApiKeyServiceTest extends Specification {
 		expect:
 		StepVerifier.create(apiKeyService.getApiKeyByMemberIdAndExchange(memberId, exchange))
 				.assertNext({
-					it instanceof ApiKey
+					assert it instanceof ApiKey
 				})
 				.verifyComplete()
 	}
@@ -175,7 +174,7 @@ class ApiKeyServiceTest extends Specification {
 		expect:
 		StepVerifier.create(apiKeyService.getApiKeyById(apiKeyId))
 				.assertNext({
-					it instanceof ApiKey
+					assert it instanceof ApiKey
 				})
 				.verifyComplete()
 	}

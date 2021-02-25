@@ -43,9 +43,9 @@ class MemberServiceTest extends Specification {
 		expect:
 		StepVerifier.create(memberService.checkDuplicateMember(email))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() == email
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() == email
 				})
 				.verifyComplete()
 	}
@@ -57,8 +57,8 @@ class MemberServiceTest extends Specification {
 		expect:
 		StepVerifier.create(memberService.checkDuplicateMember(email))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -72,8 +72,8 @@ class MemberServiceTest extends Specification {
 		expect:
 		StepVerifier.create(memberService.createMember(Stub(SignupDto)))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -106,8 +106,8 @@ class MemberServiceTest extends Specification {
 		expect:
 		StepVerifier.create(memberService.login(Stub(LoginDto)))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
