@@ -153,8 +153,8 @@ class MemberServiceTest extends Specification {
 		expect:
 		StepVerifier.create(memberService.getMember("5e52ab07b6e75567ac2376ae"))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
