@@ -77,10 +77,10 @@ class InternalOrderServiceTest extends Specification {
 		when:
 		StepVerifier.create(internalOrderService.processOrders(memberId, exchange, orderDtos))
 				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof OrderResponseDto
-					it.getBody().getOrders() instanceof List<? extends OrderDto>
-					it.getBody().getOrders().size() == 2
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof OrderResponseDto
+					assert it.getBody().getOrders() instanceof List<? extends OrderDto>
+					assert it.getBody().getOrders().size() == 2
 				})
 				.verifyComplete()
 
@@ -97,10 +97,10 @@ class InternalOrderServiceTest extends Specification {
 		when:
 		StepVerifier.create(internalOrderService.getOrdersByExchange(memberId, exchange))
 				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof OrderResponseDto
-					it.getBody().getOrders() instanceof List<? extends OrderDto>
-					it.getBody().getOrders().size() == 2
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof OrderResponseDto
+					assert it.getBody().getOrders() instanceof List<? extends OrderDto>
+					assert it.getBody().getOrders().size() == 2
 				})
 				.verifyComplete()
 
@@ -120,10 +120,10 @@ class InternalOrderServiceTest extends Specification {
 		when:
 		StepVerifier.create(internalOrderService.getOrdersByExchangeAndSymbol(memberId, exchange, "KRW-BTC"))
 				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof OrderResponseDto
-					it.getBody().getOrders() instanceof List<? extends OrderDto>
-					it.getBody().getOrders().size() == 1
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof OrderResponseDto
+					assert it.getBody().getOrders() instanceof List<? extends OrderDto>
+					assert it.getBody().getOrders().size() == 1
 				})
 				.verifyComplete()
 
@@ -155,10 +155,10 @@ class InternalOrderServiceTest extends Specification {
 		when:
 		StepVerifier.create(internalOrderService.getOrderAssets(memberId, exchange))
 				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof OrderAssetResponseDto
-					it.getBody().getOrderAssets() instanceof List<? extends OrderAssetDto>
-					it.getBody().getOrderAssets().size() == 1
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof OrderAssetResponseDto
+					assert it.getBody().getOrderAssets() instanceof List<? extends OrderAssetDto>
+					assert it.getBody().getOrderAssets().size() == 1
 				})
 				.verifyComplete()
 
