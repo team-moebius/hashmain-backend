@@ -1,14 +1,11 @@
 package com.moebius.backend.service.order
 
-import com.moebius.backend.assembler.order.OrderAssembler
-import com.moebius.backend.utils.OrderUtil
+
 import com.moebius.backend.domain.apikeys.ApiKey
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.commons.TradeType
 import com.moebius.backend.domain.orders.Order
-import com.moebius.backend.domain.orders.OrderRepository
 import com.moebius.backend.domain.orders.OrderStatus
-import com.moebius.backend.domain.orders.OrderStatusCondition
 import com.moebius.backend.dto.order.OrderDto
 import com.moebius.backend.dto.order.OrderStatusDto
 import com.moebius.backend.dto.trade.TradeDto
@@ -16,21 +13,18 @@ import com.moebius.backend.service.exchange.ExchangeService
 import com.moebius.backend.service.exchange.ExchangeServiceFactory
 import com.moebius.backend.service.member.ApiKeyService
 import com.moebius.backend.service.order.factory.OrderFactoryManager
+import com.moebius.backend.utils.OrderUtil
 import org.springframework.http.HttpStatus
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.web.reactive.function.client.ClientResponse
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
 import java.time.LocalDateTime
 
 class ExchangeOrderServiceTest extends Specification {
-	def orderAssembler = Mock(OrderAssembler)
-	def orderRepository = Mock(OrderRepository)
 	def apiKeyService = Mock(ApiKeyService)
 	def orderCacheService = Mock(OrderCacheService)
 	def exchangeServiceFactory = Mock(ExchangeServiceFactory)
@@ -108,7 +102,7 @@ class ExchangeOrderServiceTest extends Specification {
 		expect:
 		StepVerifier.create(exchangeOrderService.requestOrder(exchangeService, Stub(Order)))
 				.assertNext({
-					it -> it.statusCode() == HttpStatus.OK
+					it -> assert it.statusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -122,7 +116,7 @@ class ExchangeOrderServiceTest extends Specification {
 		expect:
 		StepVerifier.create(exchangeOrderService.evictIfCountNotZero(Stub(TradeDto), count))
 				.assertNext({
-					it -> it == RESULT
+					it -> assert it == RESULT
 				})
 
 		where:
