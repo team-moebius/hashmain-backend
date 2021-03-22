@@ -45,11 +45,11 @@ class TradeHistoryServiceTest extends Specification {
 		expect:
 		StepVerifier.create(tradeHistoryService.getTradeHistories(uri))
 				.assertNext({
-					it != null
-					it.getExchange() == Exchange.UPBIT
-					it.getSymbol() == "KRW-BTC"
-					it.getTradeType() == TradeType.BID
-					it.getChange() == Change.RISE
+					assert it != null
+					assert it.getExchange() == Exchange.UPBIT
+					assert it.getSymbol() == "KRW-BTC"
+					assert it.getTradeType() == TradeType.BID
+					assert it.getChange() == Change.RISE
 				})
 				.verifyComplete()
 	}
@@ -77,9 +77,9 @@ class TradeHistoryServiceTest extends Specification {
 		expect:
 		StepVerifier.create(tradeHistoryService.getAggregatedTradeHistories(uri))
 				.assertNext({
-					it != null
-					!CollectionUtils.isEmpty(it.getAggregatedTradeHistories())
-					it.getAggregatedTradeHistories().get(0) instanceof AggregatedTradeHistoryDto
+					assert it != null
+					assert !CollectionUtils.isEmpty(it.getAggregatedTradeHistories())
+					assert it.getAggregatedTradeHistories().get(0) instanceof AggregatedTradeHistoryDto
 				})
 				.verifyComplete()
 	}
