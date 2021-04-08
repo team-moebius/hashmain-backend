@@ -50,10 +50,10 @@ class AssetServiceTest extends Specification {
 		expect:
 		StepVerifier.create(assetService.getAssetResponse(memberId, exchange))
 				.assertNext({
-					it.getStatusCode() == HttpStatus.OK
-					it.getBody() instanceof AssetResponseDto
-					it.getBody().getAssets() instanceof List<? extends AssetDto>
-					it.getBody().getAssets().size() == ASSET_SIZE
+					assert it.getStatusCode() == HttpStatus.OK
+					assert it.getBody() instanceof AssetResponseDto
+					assert it.getBody().getAssets() instanceof List<? extends AssetDto>
+					assert it.getBody().getAssets().size() == ASSET_SIZE
 				})
 				.verifyComplete()
 
@@ -76,8 +76,8 @@ class AssetServiceTest extends Specification {
 		expect:
 		StepVerifier.create(assetService.getCurrencyAssetMap(memberId, exchange))
 				.assertNext({
-					it instanceof Map<String, AssetDto>
-					it.size() == CURRENCY_ASSET_SIZE
+					assert it instanceof Map<String, AssetDto>
+					assert it.size() == CURRENCY_ASSET_SIZE
 				})
 				.verifyComplete()
 
