@@ -61,8 +61,8 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.getAuthToken(accessKey, secretKey))
 				.assertNext({
-					it != null
-					it.length() > 0
+					assert it != null
+					assert it.length() > 0
 				})
 				.verifyComplete()
 	}
@@ -82,10 +82,10 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.getAssets(authToken))
 				.assertNext({
-					it != null
-					it.getCurrency() == "BTC"
-					it.getBalance() == 10000D
-					it.getAveragePurchasePrice() == 2000000D
+					assert it != null
+					assert it.getCurrency() == "BTC"
+					assert it.getBalance() == 10000D
+					assert it.getAveragePurchasePrice() == 2000000D
 				})
 				.verifyComplete()
 	}
@@ -100,8 +100,8 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.checkHealth(authToken))
 				.assertNext({
-					it != null
-					it.statusCode() == HttpStatus.OK
+					assert it != null
+					assert it.statusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -135,8 +135,8 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.requestOrder(apiKey, order))
 				.assertNext({
-					it != null
-					it.statusCode() == HttpStatus.CREATED
+					assert it != null
+					assert it.statusCode() == HttpStatus.CREATED
 				})
 				.verifyComplete()
 	}
@@ -210,8 +210,8 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.cancelOrder(apiKey, orderId))
 				.assertNext({
-					it != null
-					it.statusCode() == HttpStatus.OK
+					assert it != null
+					assert it.statusCode() == HttpStatus.OK
 				})
 	}
 
@@ -235,10 +235,10 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.getCurrentOrderStatus(apiKey, orderId))
 				.assertNext({
-					it != null
-					it instanceof OrderStatusDto
-					it.getId() == orderId
-					it.getOrderStatus() == OrderStatus.STOPPED
+					assert it != null
+					assert it instanceof OrderStatusDto
+					assert it.getId() == orderId
+					assert it.getOrderStatus() == OrderStatus.STOPPED
 				})
 				.verifyComplete()
 	}
