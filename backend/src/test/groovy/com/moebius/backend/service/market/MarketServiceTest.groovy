@@ -51,8 +51,8 @@ class MarketServiceTest extends Specification {
 		expect:
 		StepVerifier.create(marketService.getMarkets(exchange))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -64,8 +64,8 @@ class MarketServiceTest extends Specification {
 		expect:
 		StepVerifier.create(marketService.deleteMarket(marketId))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -88,8 +88,8 @@ class MarketServiceTest extends Specification {
 		expect:
 		StepVerifier.create(marketService.updateMarkets(Exchange.UPBIT))
 				.assertNext({
-					it != null
-					it.getStatusCode() == HttpStatus.OK
+					assert it != null
+					assert it.getStatusCode() == HttpStatus.OK
 				})
 				.verifyComplete()
 	}
@@ -102,9 +102,9 @@ class MarketServiceTest extends Specification {
 		expect:
 		StepVerifier.create(marketService.getCurrencyMarketPriceMap(Exchange.UPBIT))
 				.assertNext({
-					it instanceof Map<String, Double>
-					it.get("BTC") == 10000000D
-					it.get("ETH") == 300000D
+					assert it instanceof Map<String, Double>
+					assert it.get("BTC") == 10000000D
+					assert it.get("ETH") == 300000D
 				})
 				.verifyComplete()
 	}
@@ -119,8 +119,8 @@ class MarketServiceTest extends Specification {
 		expect:
 		StepVerifier.create(marketService.getCurrentPrice(Exchange.UPBIT, "KRW-KNU"))
 				.assertNext({
-					it instanceof Double
-					it == 100000000000D
+					assert it instanceof Double
+					assert it == 100000000000D
 				})
 				.verifyComplete()
 	}
