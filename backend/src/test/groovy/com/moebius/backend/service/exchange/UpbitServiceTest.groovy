@@ -5,6 +5,7 @@ import com.moebius.backend.domain.apikeys.ApiKey
 import com.moebius.backend.domain.commons.Exchange
 import com.moebius.backend.domain.orders.Order
 import com.moebius.backend.domain.orders.OrderStatus
+import com.moebius.backend.dto.exchange.upbit.UpbitTradeMetaDto
 import com.moebius.backend.dto.order.OrderStatusDto
 import com.moebius.backend.dto.exchange.upbit.UpbitAssetDto
 import com.moebius.backend.dto.exchange.upbit.UpbitOrderStatusDto
@@ -259,5 +260,21 @@ class UpbitServiceTest extends Specification {
 		expect:
 		StepVerifier.create(upbitService.getCurrentOrderStatus(apiKey, orderId))
 				.verifyError(WrongDataException.class)
+	}
+
+	def "Should get trade meta"() {
+		given:
+		1 * webClient.get() >> uriSpec
+		1 * uriSpec.uri(_ as String) >> headersSpec
+		1 * headersSpec.retrieve() >> responseSpec
+		1 * responseSpec.bodyToFlux(UpbitTradeMetaDto.class) >> Flux.just(UpbitTradeMetaDto.builder().build())
+
+		expect:
+		StepVerifier.create(upbitService.getTradeMeta("KRW-BTC"))
+				.assertNext({
+					assert it != null
+					assert it instanceof UpbitTradeMetaDto
+				})
+				.verifyComplete()
 	}
 }
