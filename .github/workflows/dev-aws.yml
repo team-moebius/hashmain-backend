@@ -28,6 +28,8 @@ on:
     branches: 
       - master
       - HMB-*
+      
+  workflow_dispatch:
 
 name: Build & Deploy - moebius backend
 
