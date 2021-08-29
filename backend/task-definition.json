@@ -16,7 +16,14 @@
           "containerPort": 80
         }
       ],
-      "logConfiguration": null
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/moebius-backend",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ],
   "volumes": [],
