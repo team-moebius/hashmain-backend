@@ -23,15 +23,15 @@
 #    See the documentation for each action used below for the recommended IAM policies for this IAM user,
 #    and best practices on handling the access key credentials.
 
+name: Build & Deploy - moebius backend
+
 on:
   push:
     branches: 
       - master
       - HMB-*
-      
-  workflow_dispatch:
 
-name: Build & Deploy - moebius backend
+  workflow_dispatch:
 
 jobs:
   deploy:
