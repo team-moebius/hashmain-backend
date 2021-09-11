@@ -5,7 +5,7 @@ spring:
     web-application-type: reactive
   data:
     mongodb:
-      uri: mongodb://moebius:highbal1!@mongodb-rs0.hashmainpro.com:27017,mongodb-rs2.hashmainpro.com:27017/?authSource=admin&replicaSet=s0&retryWrites=true&streamType=netty&readPreference=secondary&ssl=false # TODO : apply ssl
+      uri: mongodb://moebius:highbal1!@mongodb-rs0.hashmainpro.com:27017,mongodb-rs1.hashmainpro.com:27017,mongodb-rs2.hashmainpro.com:27017/?authSource=admin&replicaSet=s0&retryWrites=true&streamType=netty&readPreference=secondary&ssl=false # TODO : apply ssl
       database: moebius
       auto-index-creation: true
     elasticsearch:
