@@ -17,7 +17,7 @@ public class AppContextLoader implements WebFluxConfigurer {
 	}
 
 	@Override
-	public void addCorsMappings(CorsRegistry registry) {
+	public void addCorsMappings(CorsRegistry registr``````````````````````````````````````````````y) {
 		registry.addMapping("/**")
 			.allowedOrigins("*");
 	}
