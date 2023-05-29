@@ -21,5 +21,4 @@ public class AppContextLoader implements WebFluxConfigurer {
 		registry.addMapping("/**")
 			.allowedOrigins("*");
 	}
-
 }
