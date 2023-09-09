@@ -1,5 +1,4 @@
 # Moebius
-![Deploy - moebius backend](https://github.com/team-moebius/hashmain-backend/workflows/Deploy%20-%20moebius%20backend/badge.svg)
 
 ## Definition
 Moebius is a platform for supporting crypto currency trades conveniently, safely.
